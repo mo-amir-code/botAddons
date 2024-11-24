@@ -1,0 +1,12 @@
+import mongoose, { Schema } from "mongoose"
+import { ChatSchemaType } from "../../types/db/schema/index.js"
+
+const chatSchema: Schema<ChatSchemaType> = new Schema<ChatSchemaType>({
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: [true, "User ID is required"] },
+    title: { type: String, required: [true, "Title is required"] },
+    chatId: { type: String, required: [true, "Chat ID is required"] },
+    isArchived: { type: Boolean, default: false },
+    platform: { type: String, required: [true, "Platform is required"], enum: ["chatgpt", "claude"] },
+}, { timestamps: true });
+
+export default mongoose.models.Chat || mongoose.model<ChatSchemaType>("Chat", chatSchema)

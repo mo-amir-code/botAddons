@@ -1,0 +1,40 @@
+{
+  "name": "bot-addons",
+  "version": "0.0.1",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon --env-file=.env dist/server.js",
+    "start": "node --env-file=.env dist/server.js",
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "keywords": [
+    "chatgpt",
+    "manager",
+    "bots",
+    "ai",
+    "bots",
+    "ai",
+    "tools"
+  ],
+  "author": "Mo Amir",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.9.3",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.8.2",
+    "zod": "^3.23.8"
+  }
+}

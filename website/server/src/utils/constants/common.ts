@@ -1,0 +1,9 @@
+// SERVER RESPONSE
+const BAD_REQUEST_STATUS_CODE = 400;
+
+
+export {
+    BAD_REQUEST_STATUS_CODE
+}
+
+
