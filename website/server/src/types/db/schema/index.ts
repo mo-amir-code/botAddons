@@ -11,11 +11,15 @@ interface MongoDBSchemaDefaultFieldType extends Document {
 interface UserSchemaType extends Document {
     fullName: string
     email: string
+    role: UserRoleType
     password: string
+    isVerified: boolean
     sessions?: SessionType[]
     otp?: string
     otpToken?: string
 }
+
+type UserRoleType = "user" | "admin";
 
 type SessionType = {
     platform: SessionPlatformType
@@ -75,14 +79,48 @@ type SubscriptionStatusType = "active" | "cancelled" | "expired";
 
 interface PaymentSchemaType extends MongoDBSchemaDefaultFieldType {
     subscriptionId: Schema.Types.ObjectId
-    amount: number
+    amount: PaymentAmountType
     status: PaymentStatusType
+    couponId: Schema.Types.ObjectId
     paymentDate: number
     paymentMethod: PaymentMethodType
 }
 
+interface PaymentAmountType extends MongoDBSchemaDefaultFieldType {
+    subTotal: number
+    discount: PaymentAmountDiscountType
+    tax: number
+    total: number
+}
+
+interface PaymentAmountDiscountType extends MongoDBSchemaDefaultFieldType {
+    couponCode: string
+    discountType: CouponCodeDiscountType
+    discountValue: number
+    discountedAmount: number
+}
+
+type CouponCodeDiscountType = "percentage" | "fixedAmount";
+
 type PaymentStatusType = "success" | "failed" | "pending";
 type PaymentMethodType = "upi" | "card" | "net banking";
+
+interface CouponSchemaType extends MongoDBSchemaDefaultFieldType {
+    generatedBy: Schema.Types.ObjectId
+    title: string
+    description: string
+    code: string
+    discountType: CouponCodeDiscountType
+    discountValue: number
+    userLimit: number
+    supply: number
+    usedCount: number
+    status: CouponStatusType
+    startDate: number
+    endDate: number
+}
+
+type CouponStatusType = "active" | "inactive" | "expired";
 
 
 export type {
@@ -101,5 +139,9 @@ export type {
     SubscriptionStatusType,
     PaymentSchemaType,
     PaymentStatusType,
-    PaymentMethodType
+    PaymentMethodType,
+    UserRoleType,
+    CouponCodeDiscountType,
+    CouponSchemaType,
+    CouponStatusType
 }

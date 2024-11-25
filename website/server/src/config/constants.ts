@@ -1,6 +1,36 @@
+// Privated Credentials
 const APP_PORT = process.env.APP_PORT;
+const PROF_EMAIL = process.env.PROF_EMAIL;
+const PROF_EMAIL_PASS = process.env.PROF_EMAIL_PASS;
+const BCRYPT_SALT_ROUND = process.env.BCRYPT_SALT_ROUND || 12;
+const ROOT_DOMAIN = process.env.ROOT_DOMAIN;
 
 
 export {
-    APP_PORT
+    APP_PORT,
+    PROF_EMAIL,
+    PROF_EMAIL_PASS,
+    BCRYPT_SALT_ROUND,
+    ROOT_DOMAIN
+}
+
+// DB Schema's Name
+const CHAT_COLLECTION_NAME = "Chat";
+const COUPON_COLLECTION_NAME = "Coupon";
+const FOLDER_COLLECTION_NAME = "Folder";
+const PAYMENT_COLLECTION_NAME = "Payment";
+const PLAN_COLLECTION_NAME = "Plan";
+const PROMPT_COLLECTION_NAME = "Prompt";
+const SUBSCRIPTION_COLLECTION_NAME = "Subscription";
+const USER_COLLECTION_NAME = "User";
+
+export {
+    CHAT_COLLECTION_NAME,
+    COUPON_COLLECTION_NAME,
+    FOLDER_COLLECTION_NAME,
+    PAYMENT_COLLECTION_NAME,
+    PLAN_COLLECTION_NAME,
+    PROMPT_COLLECTION_NAME,
+    SUBSCRIPTION_COLLECTION_NAME,
+    USER_COLLECTION_NAME
 }

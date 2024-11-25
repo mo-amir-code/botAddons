@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose"
 import { PlanSchemaType } from "../../types/db/schema/index.js"
+import { PLAN_COLLECTION_NAME } from "../../config/constants.js";
 
 const planSchema: Schema<PlanSchemaType> = new Schema<PlanSchemaType>({
     name: { type: String, required: [true, "Name is required"] },
@@ -10,4 +11,4 @@ const planSchema: Schema<PlanSchemaType> = new Schema<PlanSchemaType>({
     features: { type: Object, required: [true, "Features are required"] },
 }, { timestamps: true });
 
-export default mongoose.models.Plan || mongoose.model<PlanSchemaType>("Plan", planSchema)
+export default mongoose.models[PLAN_COLLECTION_NAME] || mongoose.model<PlanSchemaType>(PLAN_COLLECTION_NAME, planSchema)

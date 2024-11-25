@@ -13,9 +13,21 @@ const registerUserZodSchema = z.object({
             required_error: ZOD_REQUIRED_ERR.replace("{field}", "Password")
         }).min(6, "Password length must be at least 6 characters")
     })
-})
+});
+
+const signInUserZodSchema = z.object({
+    body: z.object({
+        email: z.string({
+            required_error: ZOD_REQUIRED_ERR.replace("{field}", "Email")
+        }).email("Not a valid email"),
+        password: z.string({
+            required_error: ZOD_REQUIRED_ERR.replace("{field}", "Password")
+        }).min(6, "Password length must be at least 6 characters")
+    })
+});
 
 
 export {
-    registerUserZodSchema
+    registerUserZodSchema,
+    signInUserZodSchema
 }
