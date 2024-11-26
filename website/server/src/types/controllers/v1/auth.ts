@@ -9,8 +9,13 @@ interface RegisterUserType extends SignInUserType {
     fullName: string
 }
 
+interface JWTTokenVerifierType {
+    userId: string;
+}
+
 
 export type {
     RegisterUserType,
-    SignInUserType
+    SignInUserType,
+    JWTTokenVerifierType
 }

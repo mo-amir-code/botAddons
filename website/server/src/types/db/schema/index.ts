@@ -1,8 +1,8 @@
-import { Document, Schema, Types } from "mongoose"
+import { Document, Schema } from "mongoose"
 
 
 interface MongoDBSchemaDefaultFieldType extends Document {
-    _id: Types.ObjectId
+    _id: Schema.Types.ObjectId
     createdAt: Date;
     updatedAt: Date;
 }
@@ -23,7 +23,7 @@ type UserRoleType = "user" | "admin";
 
 type SessionType = {
     platform: SessionPlatformType
-    sessionId: string
+    accessToken: string
 }
 
 type SessionPlatformType = "chatgpt" | "claude" | "website";

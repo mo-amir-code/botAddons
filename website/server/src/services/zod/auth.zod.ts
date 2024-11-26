@@ -26,8 +26,17 @@ const signInUserZodSchema = z.object({
     })
 });
 
+const verifyOTPZodSchema = z.object({
+    body: z.object({
+        otp: z.string({
+            required_error: ZOD_REQUIRED_ERR.replace("{field}", "OTP")
+        })
+    })
+});
+
 
 export {
     registerUserZodSchema,
-    signInUserZodSchema
+    signInUserZodSchema,
+    verifyOTPZodSchema
 }

@@ -4,6 +4,10 @@ const PROF_EMAIL = process.env.PROF_EMAIL;
 const PROF_EMAIL_PASS = process.env.PROF_EMAIL_PASS;
 const BCRYPT_SALT_ROUND = process.env.BCRYPT_SALT_ROUND || 12;
 const ROOT_DOMAIN = process.env.ROOT_DOMAIN;
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+const DB_URI = process.env.DB_URI!;
+const COMPANY_NAME = process.env.COMPANY_NAME;
+const ENVIRONMENT = process.env.ENVIRONMENT;
 
 
 export {
@@ -11,7 +15,20 @@ export {
     PROF_EMAIL,
     PROF_EMAIL_PASS,
     BCRYPT_SALT_ROUND,
-    ROOT_DOMAIN
+    ROOT_DOMAIN,
+    JWT_SECRET_KEY,
+    DB_URI,
+    COMPANY_NAME,
+    ENVIRONMENT
+}
+
+// DOMAIN's
+const CHAT_GPT_DOMAIN = "https://chatgpt.com";
+const CLAUDE_DOMAIN = "https://claude.ai";
+
+export {
+    CHAT_GPT_DOMAIN,
+    CLAUDE_DOMAIN
 }
 
 // DB Schema's Name
