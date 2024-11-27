@@ -2,7 +2,7 @@
 const APP_PORT = process.env.APP_PORT;
 const PROF_EMAIL = process.env.PROF_EMAIL;
 const PROF_EMAIL_PASS = process.env.PROF_EMAIL_PASS;
-const BCRYPT_SALT_ROUND = process.env.BCRYPT_SALT_ROUND || 12;
+const BCRYPT_SALT_ROUND = Number.parseInt(process.env.BCRYPT_SALT_ROUND || "12");
 const ROOT_DOMAIN = process.env.ROOT_DOMAIN;
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const DB_URI = process.env.DB_URI!;

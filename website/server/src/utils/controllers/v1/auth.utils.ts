@@ -1,26 +1,28 @@
-import bcrypt from "bcrypt"
-import { BCRYPT_SALT_ROUND, JWT_SECRET_KEY } from "../../../config/constants.js"
+import * as bcrypt from "bcrypt"
+import { BCRYPT_SALT_ROUND, ENVIRONMENT, JWT_SECRET_KEY } from "../../../config/constants.js"
 import { OriginType } from "../../../types/index.js"
 import { TOKEN_AGE_15_MINUTE_IN_NUMBERS } from "../../constants/cookies.js"
 import jwt from "jsonwebtoken";
 import { JWTTokenVerifierType } from "../../../types/controllers/v1/auth.js";
+import { OriginURLType } from "../../../types/middleware/index.js";
 
 const convertToHash = async (data: string): Promise<string> => {
     return await bcrypt.hash(data, BCRYPT_SALT_ROUND)
 }
 
 const compareHash = async (bufferString: string, plainText: string): Promise<boolean> => {
-    return await bcrypt.compare(bufferString, plainText)
+    return await bcrypt.compare(plainText, bufferString)
 }
 
-const getDomainRoot = (origin: OriginType): string => {
+const getDomainURL = (origin: OriginType): OriginURLType => {
+    if (ENVIRONMENT === "development") return "https://localhost:5173"
     switch (origin) {
         case "chatgpt":
             return "https://chatgpt.com"
         case "claude":
             return "https://claude.ai"
         default:
-            return "https://botAddons.com"
+            return "https://botaddons.com"
     }
 }
 
@@ -56,7 +58,7 @@ const JWTTokenVerifier = (token: string): JWTTokenVerifierType | null => {
 export {
     convertToHash,
     compareHash,
-    getDomainRoot,
+    getDomainURL,
     generateOTP,
     generateOTPToken,
     generateHashCode,

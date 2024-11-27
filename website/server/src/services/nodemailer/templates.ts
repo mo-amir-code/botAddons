@@ -25,7 +25,7 @@ const createEmailTemplate = ({
                   <p style="margin: 0;">Dear ${name},</p>
                   <p style="margin: 0;">${message} ${link ? `or <a href="${link}">click here</a>` : ''}</p>
                   <div style="font-size: 24px; font-weight: bold; background-color: #f8f9fa; padding: 10px; border-radius: 8px; margin: 20px 0; display: inline-block; letter-spacing: 2px;">${otp}</div>
-                  <p style="margin: 0;">This OTP is valid for the next ${expireTime} minutes.</p>
+                  <p style="margin: 0;">This OTP is valid for the next ${convertTimestampIntoReadableString(expireTime)}.</p>
                   <p style="margin: 0;">If you did not request this OTP, please ignore this email.</p>
               </div>
               <div style="font-size: 12px; color: #777777; text-align: center; padding: 10px; border-top: 1px solid #dddddd; margin-top: 20px;">
@@ -40,6 +40,25 @@ const createEmailTemplate = ({
     return temp;
 };
 
+
+const convertTimestampIntoReadableString = (timestamp: number) => {
+    const seconds = Math.floor(timestamp / 1000);
+
+    if (seconds < 60) {
+        return `${seconds} Second${seconds === 1 ? "" : "s"}`;
+    } else if (seconds < 3600) { // 3600 seconds = 1 hour
+        const minutes = Math.floor(seconds / 60);
+        return `${minutes} Minute${minutes === 1 ? "" : "s"}`;
+    } else if (seconds < 86400) { // 86400 seconds = 1 day
+        const hours = Math.floor(seconds / 3600);
+        return `${hours} Hour${hours === 1 ? "" : "s"}`;
+    } else {
+        const days = Math.floor(seconds / 86400);
+        return `${days} Day${days === 1 ? "" : "s"}`;
+    }
+}
+
 export {
-    createEmailTemplate
+    createEmailTemplate,
+    convertTimestampIntoReadableString
 }

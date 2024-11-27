@@ -1,12 +1,14 @@
 import express, { Router } from "express";
 import { zodValidation } from "../../services/zod/index.js";
-import { registerUserZodSchema, signInUserZodSchema, verifyOTPZodSchema } from "../../services/zod/auth.zod.js";
-import { registerUser, sendOTP, verifyOTP } from "../../controllers/v1/auth.controller.js";
+import { forgotPasswordZodSchema, registerUserZodSchema, resetPasswordZodSchema, signInUserZodSchema, verifyOTPZodSchema } from "../../services/zod/auth.zod.js";
+import { forgotPassword, registerUser, resetPassword, sendOTP, signInUser, verifyOTP } from "../../controllers/v1/auth.controller.js";
 
 const router: Router = express.Router();
 
 router.post("/register", zodValidation(registerUserZodSchema), registerUser, sendOTP);
-router.post("/signin", zodValidation(signInUserZodSchema), registerUser);
+router.post("/signin", zodValidation(signInUserZodSchema), signInUser);
 router.post("/verify", zodValidation(verifyOTPZodSchema), verifyOTP);
+router.post("/forgot-password", zodValidation(forgotPasswordZodSchema), forgotPassword, sendOTP);
+router.post("/reset-password", zodValidation(resetPasswordZodSchema), resetPassword);
 
 export default router;

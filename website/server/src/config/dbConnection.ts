@@ -13,3 +13,7 @@ const connectToMongo = async () => {
         console.error("Error While Database Connection: ", error);
     }
 }
+
+export {
+    connectToMongo
+}

@@ -1,27 +1,28 @@
 import { Schema } from "mongoose";
-import { createUser, getUserByIDorEmail } from "../../db/services/user.db.service.js";
+import { createUser, findUserByIdAndUpdate, getUserByIDorEmail } from "../../db/services/user.db.service.js";
 import { apiHandler, ErrorHandlerClass, ok } from "../../services/errorHandling/index.js";
 import { generateRefreshAndAccessToken } from "../../services/jwt/index.js";
 import { RegisterUserType, SignInUserType } from "../../types/controllers/v1/auth.js";
 import { BAD_REQUEST_STATUS_CODE, FORGOT_PASSWORD_REQUEST_BODY_MSG, FORGOT_PASSWORD_REQUEST_SUBJECT_MSG, UNAUTHORIZED_REQUEST_STATUS_CODE, VERIFY_ACCOUNT_BODY_MSG, VERIFY_ACCOUNT_SUBJECT_MSG } from "../../utils/constants/common.js";
-import { EMAIL_OR_PASS_IS_WRONG_RES_MSG, OTP_EXPIRED_RES_MSG, OTP_IS_INCORRECT_RES_MSG, OTP_SENT_RES_MSG, SOMETHING_WENT_WRONG, USER_ALREADY_REGISTERED_RES_MSG, USER_IS_NOT_REGISTERED_RES_MSG, USER_IS_NOT_VERIFIED_RES_MSG, USER_LOGGED_IN_RES_MSG, USER_VERIFIED_RES_MSG } from "../../utils/constants/serverResponseMessages.js";
-import { compareHash, convertToHash, generateHashCode, generateOTP, generateOTPToken, getDomainRoot, JWTTokenVerifier } from "../../utils/controllers/v1/auth.utils.js";
+import { EMAIL_OR_PASS_IS_WRONG_RES_MSG, OTP_EXPIRED_RES_MSG, OTP_IS_INCORRECT_RES_MSG, OTP_SENT_RES_MSG, PASS_CHANGED_RES_MSG, SOMETHING_WENT_WRONG, USER_ALREADY_REGISTERED_RES_MSG, USER_IS_NOT_REGISTERED_RES_MSG, USER_IS_NOT_VERIFIED_RES_MSG, USER_LOGGED_IN_RES_MSG, USER_VERIFIED_RES_MSG } from "../../utils/constants/serverResponseMessages.js";
+import { compareHash, convertToHash, generateHashCode, generateOTP, generateOTPToken, getDomainURL, JWTTokenVerifier } from "../../utils/controllers/v1/auth.utils.js";
 import { OriginType } from "../../types/index.js";
 import { ACCESS_TOKEN_NAME, accessCookieOptions, OTP_TOKEN_NAME, otpTokenCookieOptions, TOKEN_AGE_15_MINUTE_IN_NUMBERS } from "../../utils/constants/cookies.js";
 import { SendMailType } from "../../types/nodemailer/index.js";
 import { createEmailTemplate } from "../../services/nodemailer/templates.js";
 import { UserSchemaType } from "../../types/db/schema/index.js";
 import { sendMail } from "../../services/nodemailer/sendMail.js";
+import { getDomainRoot } from "../../utils/middleware/index.js";
 
 
 const registerUser = apiHandler(async (req, res, next) => {
     const data = req.body as RegisterUserType;
-    const isUserExist = await getUserByIDorEmail(data.email);
+    const isUserExist = await getUserByIDorEmail({ data: data.email, type: "email" });
 
     if (isUserExist && isUserExist?.isVerified) {
         return next(new ErrorHandlerClass(USER_ALREADY_REGISTERED_RES_MSG, BAD_REQUEST_STATUS_CODE));
     } else if (isUserExist) {
-        req.user.id = isUserExist.id;
+        req.user.id = isUserExist._id;
         return next();
     } else {
         const newData = {
@@ -29,7 +30,7 @@ const registerUser = apiHandler(async (req, res, next) => {
             password: await convertToHash(data.password)
         }
         const newUser = await createUser(newData);
-        req.user.id = newUser.id;
+        req.user.id = newUser._id;
         return next();
     }
 });
@@ -38,13 +39,13 @@ const sendOTP = apiHandler(async (req, res, next) => {
     const origin = req.origin;
     const userId = req.user.id;
 
-    const user = await getUserByIDorEmail(userId);
+    const user = await getUserByIDorEmail({ data: userId, type: "id" });
 
     if (!user) {
         return next(new ErrorHandlerClass(SOMETHING_WENT_WRONG, UNAUTHORIZED_REQUEST_STATUS_CODE))
     }
 
-    const domainRoot = getDomainRoot(origin);
+    const domainURL = getDomainURL(origin);
 
     const otp: number = generateOTP();
     const otpToken: string = await generateOTPToken({
@@ -63,7 +64,7 @@ const sendOTP = apiHandler(async (req, res, next) => {
                     expireTime: TOKEN_AGE_15_MINUTE_IN_NUMBERS,
                     message: FORGOT_PASSWORD_REQUEST_BODY_MSG,
                     name: (user as UserSchemaType).fullName,
-                    link: `${domainRoot}/auth/verify?token=${otpToken}`,
+                    link: `${domainURL}/auth/verify?token=${otpToken}`,
                 }),
             };
             break;
@@ -76,7 +77,7 @@ const sendOTP = apiHandler(async (req, res, next) => {
                     expireTime: TOKEN_AGE_15_MINUTE_IN_NUMBERS,
                     message: VERIFY_ACCOUNT_BODY_MSG,
                     name: (user as UserSchemaType).fullName,
-                    link: `${domainRoot}/auth/verify?token=${otpToken}`,
+                    link: `${domainURL}/auth/verify?token=${otpToken}`,
                 }),
             };
     }
@@ -89,6 +90,8 @@ const sendOTP = apiHandler(async (req, res, next) => {
     user.otpToken = otpToken;
     await user.save();
 
+    const domainRoot = getDomainRoot({ origin: domainURL, forCookie: true })
+
     res.cookie(OTP_TOKEN_NAME, otpToken, {
         ...otpTokenCookieOptions,
         domain: domainRoot
@@ -99,7 +102,6 @@ const sendOTP = apiHandler(async (req, res, next) => {
         message: OTP_SENT_RES_MSG,
     });
 });
-
 
 const verifyOTP = apiHandler(async (req, res, next) => {
     const { otp, otptoken: OT } = req.body;
@@ -116,7 +118,7 @@ const verifyOTP = apiHandler(async (req, res, next) => {
         return next(new ErrorHandlerClass(OTP_EXPIRED_RES_MSG, BAD_REQUEST_STATUS_CODE));
     }
 
-    const user = await getUserByIDorEmail(payload.userId);
+    const user = await getUserByIDorEmail({ data: payload.userId, type: "id" });
 
     if (!user) {
         return next(new ErrorHandlerClass(SOMETHING_WENT_WRONG, UNAUTHORIZED_REQUEST_STATUS_CODE))
@@ -128,9 +130,13 @@ const verifyOTP = apiHandler(async (req, res, next) => {
         return next(new ErrorHandlerClass(OTP_IS_INCORRECT_RES_MSG, UNAUTHORIZED_REQUEST_STATUS_CODE));
     }
 
-    user.otp = undefined;
-    user.otpToken = undefined;
-    await user.save();
+    const updatedFields = {
+        otp: undefined,
+        otptoken: undefined,
+        isVerified: true
+    }
+
+    await findUserByIdAndUpdate({ id: user._id as Schema.Types.ObjectId, ...updatedFields })
 
     return ok({
         res,
@@ -138,14 +144,11 @@ const verifyOTP = apiHandler(async (req, res, next) => {
     });
 });
 
-
-
-
 const signInUser = apiHandler(async (req, res, next) => {
     const data = req.body as SignInUserType;
     const origin = req.origin as OriginType;
 
-    const user = await getUserByIDorEmail(data.email);
+    const user = await getUserByIDorEmail({ data: data.email, type: "email" });
 
     if (!user) {
         return next(new ErrorHandlerClass(USER_IS_NOT_REGISTERED_RES_MSG, UNAUTHORIZED_REQUEST_STATUS_CODE));
@@ -181,7 +184,7 @@ const signInUser = apiHandler(async (req, res, next) => {
 
     await user.save();
 
-    const domainRoot = getDomainRoot(origin);
+    const domainRoot = getDomainRoot({ origin: getDomainURL(origin), forCookie: true });
 
     res.cookie(ACCESS_TOKEN_NAME, accessToken, {
         ...accessCookieOptions,
@@ -194,11 +197,71 @@ const signInUser = apiHandler(async (req, res, next) => {
     });
 });
 
+const forgotPassword = apiHandler(async (req, res, next) => {
+    const { email } = await req.body;
+
+    const user = await getUserByIDorEmail({ data: email, type: "email" });
+
+    if (!user) {
+        return next(new ErrorHandlerClass(USER_IS_NOT_REGISTERED_RES_MSG, 400));
+    }
+
+    req.user.id = user._id;
+    req.from = "forgot-password";
+    next();
+});
+
+const resetPassword = apiHandler(async (req, res, next) => {
+    const { otp, otptoken: OT, newPassword } = req.body;
+
+    let otptoken = OT;
+
+    if (!otptoken) {
+        otptoken = req.cookies?.otptoken
+    }
+
+    if (!otptoken) {
+        return next(new ErrorHandlerClass(SOMETHING_WENT_WRONG, UNAUTHORIZED_REQUEST_STATUS_CODE))
+    }
+
+    const jwtPayload = JWTTokenVerifier(otptoken);
+
+    if (!jwtPayload) {
+        return next(new ErrorHandlerClass(OTP_EXPIRED_RES_MSG, 401));
+    }
+
+    const user = await getUserByIDorEmail({ data: jwtPayload.userId, type: "id" });
+
+    if (!user) {
+        return next(new ErrorHandlerClass(SOMETHING_WENT_WRONG, UNAUTHORIZED_REQUEST_STATUS_CODE));
+    }
+
+    const isOTPCorrect = await compareHash(user.otp || "", otp.toString());
+
+    if (!isOTPCorrect) {
+        return next(new ErrorHandlerClass(OTP_IS_INCORRECT_RES_MSG, UNAUTHORIZED_REQUEST_STATUS_CODE));
+    }
+
+    const hashedPassword = await generateHashCode(newPassword);
+
+    const updatedUser = {
+        id: user._id as Schema.Types.ObjectId,
+        password: hashedPassword
+    }
+    await findUserByIdAndUpdate(updatedUser)
+
+    return ok({
+        res,
+        message: PASS_CHANGED_RES_MSG,
+    });
+});
 
 
 export {
     registerUser,
     signInUser,
     sendOTP,
-    verifyOTP
+    verifyOTP,
+    forgotPassword,
+    resetPassword
 }

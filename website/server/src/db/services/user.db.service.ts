@@ -14,11 +14,16 @@ const deleteUserById = async (userId: Schema.Types.ObjectId): Promise<UserSchema
 }
 
 const findUserByIdAndUpdate = async (data: FindByIdAndUpdateUserType): Promise<UserSchemaType | null> => {
-    return await User.findByIdAndUpdate(data.id, data);
+    return await User.findByIdAndUpdate(data.id, { ...data });
 }
 
-const getUserByIDorEmail = async (data: string): Promise<UserSchemaType | null> => {
-    return await User.findOne({ $or: [{ _id: data, email: data }] });
+const getUserByIDorEmail = async ({ data, type }: { data: string, type: "id" | "email" }): Promise<UserSchemaType | null> => {
+    let user;
+    if (type === "id")
+        user = await User.findById(data);
+    else
+        user = await User.findOne({ email: data });
+    return user;;
 }
 
 

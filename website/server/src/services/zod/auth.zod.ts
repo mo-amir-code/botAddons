@@ -28,9 +28,29 @@ const signInUserZodSchema = z.object({
 
 const verifyOTPZodSchema = z.object({
     body: z.object({
-        otp: z.string({
+        otp: z.number({
             required_error: ZOD_REQUIRED_ERR.replace("{field}", "OTP")
         })
+    })
+});
+
+const forgotPasswordZodSchema = z.object({
+    body: z.object({
+        email: z.string({
+            required_error: ZOD_REQUIRED_ERR.replace("{field}", "Email")
+        }).email("Not a valid email")
+    })
+});
+
+const resetPasswordZodSchema = z.object({
+    body: z.object({
+        otp: z.number({
+            required_error: ZOD_REQUIRED_ERR.replace("{field}", "OTP")
+        }),
+        newPassword: z.string({
+            required_error: ZOD_REQUIRED_ERR.replace("{field}", "New password")
+        }).min(6, "New password length must be at least 6 characters"),
+        otptoken: z.string().optional()
     })
 });
 
@@ -38,5 +58,7 @@ const verifyOTPZodSchema = z.object({
 export {
     registerUserZodSchema,
     signInUserZodSchema,
-    verifyOTPZodSchema
+    verifyOTPZodSchema,
+    forgotPasswordZodSchema,
+    resetPasswordZodSchema
 }

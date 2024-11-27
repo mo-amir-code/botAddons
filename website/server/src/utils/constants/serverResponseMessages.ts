@@ -9,6 +9,7 @@ const SOMETHING_WENT_WRONG = "Something gone wrong!";
 const OTP_EXPIRED_RES_MSG = "OTP is expired";
 const OTP_IS_INCORRECT_RES_MSG = "OTP is incorrect";
 const USER_VERIFIED_RES_MSG = "Verified";
+const PASS_CHANGED_RES_MSG = "Password changed successfully!"
 
 
 
@@ -22,5 +23,6 @@ export {
     SOMETHING_WENT_WRONG,
     OTP_EXPIRED_RES_MSG,
     OTP_IS_INCORRECT_RES_MSG,
-    USER_VERIFIED_RES_MSG
+    USER_VERIFIED_RES_MSG,
+    PASS_CHANGED_RES_MSG
 }

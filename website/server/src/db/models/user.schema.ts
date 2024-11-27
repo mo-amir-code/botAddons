@@ -5,6 +5,7 @@ import { USER_COLLECTION_NAME } from "../../config/constants.js";
 const userSchema: Schema<UserSchemaType> = new Schema<UserSchemaType>({
     fullName: { type: String, required: [true, "Full name is required"] },
     email: { type: String, required: [true, "Email is required"], unique: true },
+    isVerified: { type: Boolean, default: false },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     password: { type: String, required: [true, "Password is required"] },
     sessions: [

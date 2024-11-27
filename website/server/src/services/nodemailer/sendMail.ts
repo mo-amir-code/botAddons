@@ -18,7 +18,7 @@ const transporter = nodemailer.createTransport({
 const sendMail = async ({ to, subject, html }: SendMailType): Promise<any> => {
     try {
         let mailOptions = {
-            from:`<info@botAddons.com>`,
+            from:`Bot Addons`,
             to,
             subject,
             html
