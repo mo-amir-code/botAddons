@@ -12,7 +12,6 @@ const USER_VERIFIED_RES_MSG = "Verified";
 const PASS_CHANGED_RES_MSG = "Password changed successfully!"
 
 
-
 export {
     USER_ALREADY_REGISTERED_RES_MSG,
     USER_IS_NOT_REGISTERED_RES_MSG,
@@ -25,4 +24,17 @@ export {
     OTP_IS_INCORRECT_RES_MSG,
     USER_VERIFIED_RES_MSG,
     PASS_CHANGED_RES_MSG
+}
+
+// Folder
+const FOLDER_CREATED_RES_MSG = "Folder created";
+const FOLDER_DELETED_RES_MSG = "Folder deleted";
+const FOLDER_UPDATE_RES_MSG = "Folder updated";
+const FOLDER_FETCHED_RES_MSG = "Folder fetched";
+
+export {
+    FOLDER_CREATED_RES_MSG,
+    FOLDER_DELETED_RES_MSG,
+    FOLDER_UPDATE_RES_MSG,
+    FOLDER_FETCHED_RES_MSG
 }
