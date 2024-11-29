@@ -1,5 +1,5 @@
-import Sidebar from "@/components/custom/sidebar"
 import Provider from "@/components/provider"
+import Sidebar from "@/components/sidebar"
 import cssText from "data-text:~style.css"
 import type {
   PlasmoCSConfig,
