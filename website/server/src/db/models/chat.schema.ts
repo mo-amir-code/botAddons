@@ -4,7 +4,7 @@ import { CHAT_COLLECTION_NAME, USER_COLLECTION_NAME } from "../../config/constan
 
 const chatSchema: Schema<ChatSchemaType> = new Schema<ChatSchemaType>({
     userId: { type: Schema.Types.ObjectId, ref: USER_COLLECTION_NAME, required: [true, "User ID is required"] },
-    title: { type: String, required: [true, "Title is required"] },
+    title: { type: String, required: [true, "Title is required"], unique: true },
     chatId: { type: String, required: [true, "Chat ID is required"], unique: true },
     isArchived: { type: Boolean, default: false },
     platform: { type: String, required: [true, "Platform is required"], enum: ["chatgpt", "claude"] },

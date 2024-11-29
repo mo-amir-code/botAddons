@@ -4,7 +4,7 @@ import { PROMPT_COLLECTION_NAME, USER_COLLECTION_NAME } from "../../config/const
 
 const promptSchema: Schema<PromptSchemaType> = new Schema<PromptSchemaType>({
     userId: { type: Schema.Types.ObjectId, ref: USER_COLLECTION_NAME, required: [true, "User ID is required"] },
-    title: { type: String, required: [true, "Title is required"] },
+    title: { type: String, required: [true, "Title is required"], unique: true },
     content: { type: String, required: [true, "Content is required"] },
 }, { timestamps: true });
 
