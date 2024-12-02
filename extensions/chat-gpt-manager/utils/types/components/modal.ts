@@ -6,6 +6,7 @@ interface ModalType {
     children: ReactNode
     openModal: OpenModalType
     setOpenModal: Function
+    title: string
 }
 
 export type {

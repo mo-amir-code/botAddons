@@ -2,28 +2,29 @@ import type { ModalType } from "@/utils/types/components/modal"
 import { useRef } from "react"
 import { IoCloseOutline } from "react-icons/io5"
 
-const Modal = ({ children, openModal, setOpenModal }: ModalType) => {
-  const modalRef = useRef<HTMLDialogElement>()
+const Modal = ({ children, openModal, setOpenModal, title }: ModalType) => {
   const modalChildRef = useRef<HTMLDivElement>()
-  
-  const handleClose = () => {
-    if (
-      modalRef?.current &&
-      modalRef?.current?.contains(modalChildRef?.current)
-    ) {
+
+  const handleClose = (e: any) => {
+    if (!modalChildRef?.current?.contains(e.target)) {
       setOpenModal(null)
     }
   }
 
   return openModal ? (
     <dialog
-      ref={modalRef}
-      onClick={() => handleClose()}
-      className=" fixed top-0 left-0 modal bg-black/30 w-full h-full flex items-center justify-center">
+      onClick={(e) => handleClose(e)}
+      className=" fixed top-0 left-0 modal bg-black/60 backdrop-blur-sm w-full h-full flex items-center justify-center">
       <div
         ref={modalChildRef}
-        className="w-[70vw] h-[75vh] bg-black border border-white/50 rounded-xl p-4 shadow-md relative">
+        className="w-[60vw] max-h-[75vh] bg-black border border-white/50 rounded-xl p-4 shadow-md relative">
+        {/* Header */}
+        <div className="">
+          <h2 className="text-3xl font-semibold">{title}</h2>
+        </div>
+        {/* Rendring Child */}
         {children}
+        {/* END Rendring Child */}
 
         {/* Close Button */}
         <button

@@ -53,6 +53,7 @@ const Sidebar = () => {
         openModal={openModal}
         setOpenModal={setOpenModal}
         children={<Search />}
+        title="Legendary Conversation History"
       />
     </main>
   )

@@ -1,9 +1,16 @@
 
 
-const searchHistoryIndexDBName = "ChatHistoryDB";
-const searchHistoryIndexDBStoreName = "conversations";
+const dbAndStores = [
+    {
+        dbName: "ChatHistoryDB",
+        storeName: "conversations",
+    },
+    {
+        dbName: "ConversationsDatabase",
+        storeName: "conversations",
+    }
+]
 
 export {
-    searchHistoryIndexDBName,
-    searchHistoryIndexDBStoreName
+    dbAndStores
 }
