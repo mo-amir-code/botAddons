@@ -1,6 +1,6 @@
 
 
-type OpenModalType = "history" | "chats" | "folders" | "prompts" | null;
+type OpenModalType = "search" | "chats" | "folders" | "prompts" | null;
 
 
 export type {

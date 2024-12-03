@@ -1,3 +1,4 @@
+import { useExtension } from "@/contexts/extensionContext"
 import { features } from "@/utils/data"
 import type { OpenModalType } from "@/utils/types/components/sidebar"
 import React, { useEffect, useState } from "react"
@@ -10,6 +11,7 @@ import { Search } from "./modals"
 
 const Sidebar = () => {
   const [openModal, setOpenModal] = useState<OpenModalType>(null)
+  const { plan } = useExtension()
 
   const getCssVariable = (name: string) => {
     const rootStyle = getComputedStyle(document.documentElement)
@@ -22,7 +24,7 @@ const Sidebar = () => {
   return (
     <main className={`antialiased w-full`}>
       <h3 className="text-[12px] p-2 w-full cursor-pointer text-ellipsis font-semibold">
-        ChatGPT Manager - Premium
+        ChatGPT Manager - {plan.toUpperCase()}
       </h3>
       <ol className="text-white w-full">
         {features.map(({ slug, title }) => (
@@ -52,8 +54,6 @@ const Sidebar = () => {
       <Modal
         openModal={openModal}
         setOpenModal={setOpenModal}
-        children={<Search />}
-        title="Legendary Conversation History"
       />
     </main>
   )

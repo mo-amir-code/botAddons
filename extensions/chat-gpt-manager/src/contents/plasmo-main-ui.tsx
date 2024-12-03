@@ -34,6 +34,8 @@ export const getInlineAnchor: PlasmoGetInlineAnchor = async () => ({
 
 export const getShadowHostId: PlasmoGetShadowHostId = () => "plasmo-inline"
 
+// chrome.runtime.sendMessage({ action: "checkAuthStatus" });
+
 function PlasmoMainUI() {
   return (
     <Provider>

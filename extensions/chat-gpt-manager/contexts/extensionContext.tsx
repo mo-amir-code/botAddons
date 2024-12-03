@@ -1,16 +1,31 @@
-import React, { createContext, useContext, useState } from "react"
+import type {
+  PlansNameType,
+  ReducerActionType,
+  UserInfoType
+} from "@/utils/types/context"
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  type Dispatch
+} from "react"
 
 interface ExtensionState {
   extensionLoading: boolean
+  isUserLoggedIn: boolean
+  plan: PlansNameType
+  userInfo: UserInfoType | null
 }
 
 const initialState: ExtensionState = {
-  extensionLoading: false
+  extensionLoading: false,
+  isUserLoggedIn: false,
+  plan: "basic",
+  userInfo: null
 }
 
 interface ExtensionActions {
-  setExtensionLoading: (loading: boolean) => void
-  resetExtension: () => void
+  dispatch: Dispatch<ReducerActionType>
 }
 
 interface ExtensionContext extends ExtensionState, ExtensionActions {}
@@ -32,22 +47,30 @@ interface ExtensionProviderProps {
 }
 
 export function ExtensionProvider({ children }: ExtensionProviderProps) {
-  const [extensionLoading, setExtensionLoading] = useState<boolean>(
-    initialState.extensionLoading
-  )
 
-  function resetExtension() {
-    setExtensionLoading(initialState.extensionLoading)
+  const handleReducer = (state: ExtensionState, action: ReducerActionType) => {
+    switch (action.type) {
+      case "extensionLoading":
+         state.extensionLoading = action.payload;
+         return state;
+      case "auth":
+         state.isUserLoggedIn = action.payload;
+         return state;
+      case "userInfo":
+         state.userInfo = action.payload;
+         return state;
+      case "plan":
+         state.plan = action.payload;
+         return state;
+      default:
+        return state
+    }
   }
 
-  const value = {
-    extensionLoading,
-    setExtensionLoading,
-    resetExtension
-  }
+  const [state, dispatch] = useReducer(handleReducer, initialState)
 
   return (
-    <ExtensionContext.Provider value={value}>
+    <ExtensionContext.Provider value={{ ...state, dispatch }}>
       {children}
     </ExtensionContext.Provider>
   )

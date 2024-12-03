@@ -2,7 +2,9 @@ import type { ModalType } from "@/utils/types/components/modal"
 import { useRef } from "react"
 import { IoCloseOutline } from "react-icons/io5"
 
-const Modal = ({ children, openModal, setOpenModal, title }: ModalType) => {
+import { Search } from "./modals"
+
+const Modal = ({ openModal, setOpenModal }: ModalType) => {
   const modalChildRef = useRef<HTMLDivElement>()
 
   const handleClose = (e: any) => {
@@ -20,10 +22,19 @@ const Modal = ({ children, openModal, setOpenModal, title }: ModalType) => {
         className="w-[60vw] min-w-[650px] max-h-[75vh] bg-black border border-white/50 rounded-xl p-4 shadow-md relative">
         {/* Header */}
         <div className="">
-          <h2 className="text-3xl font-semibold">{title}</h2>
+          <h2 className="text-3xl font-semibold">
+            {openModal === "search"
+              ? "Legendary Conversation History"
+              : ""}
+          </h2>
         </div>
         {/* Rendring Child */}
-        {children}
+        {(() => {
+          switch (openModal) {
+            case "search":
+              return <Search />
+          }
+        })()}
         {/* END Rendring Child */}
 
         {/* Close Button */}
