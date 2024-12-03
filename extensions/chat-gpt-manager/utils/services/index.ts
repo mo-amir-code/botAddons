@@ -26,7 +26,7 @@ const formatTimestamp = ({ timestamp, type }: FormatTimestampType) => {
     if (type === "time") return timeStr;
     if (type === "both") return `${dateStr} ${timeStr}`;
 
-    throw new Error('Invalid type. Use "date", "time", or "both".');
+    return null
 }
 
 export {

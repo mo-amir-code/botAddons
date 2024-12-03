@@ -1,7 +1,7 @@
 
 
 interface FormatTimestampType {
-    timestamp: string
+    timestamp: string | number
     type: FormatTimestampTypeType
 }
 

@@ -11,6 +11,9 @@ const dbAndStores = [
     }
 ]
 
+const contextLength = 60;
+
 export {
-    dbAndStores
+    dbAndStores,
+    contextLength
 }

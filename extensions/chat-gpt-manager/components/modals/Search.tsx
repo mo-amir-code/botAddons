@@ -1,4 +1,5 @@
-import { dbAndStores } from "@/utils/constants"
+import { contextLength, dbAndStores } from "@/utils/constants"
+import { formatTimestamp } from "@/utils/services"
 import type {
   ConversationObjectType,
   DefaultMessageType
@@ -14,7 +15,7 @@ const Search = () => {
   const [searchResults, setSearchResults] = useState<
     ConversationObjectType<string, number>[]
   >([])
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [exactMatchStatus, setExactMatchStatus] = useState<boolean>(false)
   const [query, setQuery] = useState<string>("")
   const [to, setTO] = useState<any>(null)
 
@@ -26,11 +27,83 @@ const Search = () => {
     setTO(timeoutId)
   }
 
-  useEffect(() => {
-    if(query.length){
-      
+  const filterAndHighlightConversations = (query: string) => {
+    const replaceWord = (text: string, word: string, replacement: string) => {
+      const trimmedWord = word.trim()
+      const regex = new RegExp(`\\b${trimmedWord}\\b\\s*`, "g")
+      return text.replace(regex, `${replacement} `)
     }
-  }, [query]);
+
+    const highlightTextWithContext = (text: string, query: string) => {
+      const regex = exactMatchStatus
+        ? new RegExp(`\\b${query.trim()}\\b`, "gi") // Match exact word
+        : new RegExp(`(${query.trim()})`, "gi")
+      const match = regex.exec(text)
+
+      if (match) {
+        const start = Math.max(0, match.index - contextLength)
+        const end = Math.min(
+          text?.length,
+          match.index + match[0]?.length + contextLength
+        )
+        const prefix = start > 0 ? "..." : ""
+        const suffix = end < text.length ? "..." : ""
+        const context = text.slice(start, end)
+        // console.log("Context: ", context)
+
+        const replacementStr = `<span style="background-color: yellow; color: black">${match[0]}</span>`
+
+        return `${prefix}${
+          exactMatchStatus
+            ? replaceWord(context, match[0], replacementStr)
+            : context.replace(match[0], replacementStr)
+        }${suffix}`
+      }
+    }
+
+    const isMatched = (text: string) => {
+      const lowerText = text?.toLowerCase()
+      if (exactMatchStatus) {
+        const trimmedQuery = query.trim()
+        const regex = new RegExp(`\\b${trimmedQuery}\\b`, "i") // Match whole phrase, case insensitive
+        return regex.test(text) ? true : false
+      } else {
+        return lowerText?.includes(query?.toLowerCase())
+      }
+    }
+
+    return conversations
+      .map((conversation) => {
+        const titleMatch = isMatched(conversation.title)
+        const messagesMatch = conversation.messages.some((message) =>
+          isMatched(message)
+        )
+
+        if (titleMatch || messagesMatch) {
+          return {
+            ...conversation,
+            title: titleMatch
+              ? highlightTextWithContext(conversation.title, query)
+              : conversation.title,
+            messages: conversation.messages
+              .filter((message) => isMatched(message))
+              .map((message) => highlightTextWithContext(message, query))
+          }
+        }
+
+        return null
+      })
+      .filter(Boolean) // Remove null results
+  }
+
+  useEffect(() => {
+    if (query.length && conversations.length) {
+      const results = filterAndHighlightConversations(query)
+      setSearchResults(results)
+    } else {
+      setSearchResults([])
+    }
+  }, [query, exactMatchStatus])
 
   useEffect(() => {
     const fetchNow = async () => {
@@ -99,12 +172,12 @@ const Search = () => {
   }, [])
 
   return (
-    <div className="py-8">
+    <div className="pt-8 pb-4">
       {/* Header */}
       <div className=" border-b border-white/60 pb-6">
         <div className="flex items-center text-white/80 gap-2 text-xl font-medium">
           <span>Exact Match</span>
-          <Toggle isOpen={isOpen} setIsOpen={setIsOpen} />
+          <Toggle isOpen={exactMatchStatus} setIsOpen={setExactMatchStatus} />
         </div>
       </div>
 
@@ -113,9 +186,46 @@ const Search = () => {
         <input
           type="text"
           placeholder="Search"
+          autoFocus
           className="w-full bg-transparent outline-none text-white/80"
           onChange={(e: any) => handleSearchOnChange(e.target.value)}
         />
+      </div>
+
+      <div className="overflow-y-auto h-[250px] space-y-6">
+        {searchResults.map((conversation, index) => (
+          <div key={index}>
+            <a
+              href={`/c/${conversation.id}`}
+              target="_self"
+              className="space-y-2">
+              <div className="flex pr-4 items-center justify-between pb-3 border-b border-white/60">
+                <h3
+                  className="text-2xl font-semibold"
+                  dangerouslySetInnerHTML={{ __html: conversation.title }}
+                />
+                <div className="font-semibold">
+                  {formatTimestamp({
+                    timestamp: conversation.update_time,
+                    type: "date"
+                  }) || ""}
+                </div>
+              </div>
+              <div className="flex gap-4 pl-6">
+                <div className="w-[2px] bg-gray-600 min-h-full rounded-full" />
+                <ul className="flex-grow space-y-2">
+                  {conversation.messages.map((message, i) => (
+                    <li
+                      key={i}
+                      className="text-lg smooth-transition hover:shadow-md shadow-white py-1"
+                      dangerouslySetInnerHTML={{ __html: message }}
+                    />
+                  ))}
+                </ul>
+              </div>
+            </a>
+          </div>
+        ))}
       </div>
     </div>
   )
