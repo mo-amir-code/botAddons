@@ -1,4 +1,4 @@
-import type { FormatTimestampType } from "../types/services";
+import type { FormatTimestampType, FilerChatsType } from "../types/services";
 
 const formatTimestamp = ({ timestamp, type }: FormatTimestampType) => {
     const date = new Date(timestamp);
@@ -29,6 +29,15 @@ const formatTimestamp = ({ timestamp, type }: FormatTimestampType) => {
     return null
 }
 
+const filterChats = ({ conversations, sort, filter }: FilerChatsType) => {
+    let updatedConversations = conversations;
+    if (filter === "removeEmptyConversations") {
+        updatedConversations = updatedConversations.filter((c) => c.title.length);
+    }
+    return updatedConversations.sort((a, b) => sort === "asc" ? a.update_time - b.update_time : b.update_time - a.update_time)
+}
+
 export {
-    formatTimestamp
+    formatTimestamp,
+    filterChats
 }

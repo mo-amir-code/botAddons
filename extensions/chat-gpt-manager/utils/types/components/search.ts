@@ -5,11 +5,15 @@ interface ConversationObjectType<MessageType, UpdateTimeType> {
     title: string
     messages: MessageType[]
     update_time: UpdateTimeType
+    is_archived: boolean
+    isArchived?: boolean
+    updateTime?: number
 }
 
 type DefaultMessageType = {
     id: string
     content: string
+    text?: string
     role: string
 }
 

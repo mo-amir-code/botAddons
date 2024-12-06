@@ -60,4 +60,8 @@
   .smooth-transition {
     @apply duration-200 ease-in-out transition-all;
   }
+
+  .overflow-height {
+    @apply h-[300px] overflow-auto
+  }
 }

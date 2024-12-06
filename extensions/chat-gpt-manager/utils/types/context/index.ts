@@ -13,7 +13,7 @@ interface ReducerActionType {
     payload: any
 }
 
-type ActionType = "extensionLoading" | "auth" | "userInfo" | "plan"
+type ActionType = "extensionLoading" | "auth" | "userInfo" | "plan" | "conversations"
 
 export type {
     PlansNameType,

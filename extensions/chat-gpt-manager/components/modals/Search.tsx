@@ -1,17 +1,15 @@
-import { contextLength, dbAndStores } from "@/utils/constants"
+import { useExtension } from "@/contexts/extensionContext"
+import { contextLength } from "@/utils/constants"
 import { formatTimestamp } from "@/utils/services"
 import type {
   ConversationObjectType,
-  DefaultMessageType
 } from "@/utils/types/components/search"
 import { useEffect, useState } from "react"
 
 import Toggle from "../buttons/Toggle"
 
 const Search = () => {
-  const [conversations, setConversations] = useState<
-    ConversationObjectType<string, number>[]
-  >([])
+  const { conversations } = useExtension()
   const [searchResults, setSearchResults] = useState<
     ConversationObjectType<string, number>[]
   >([])
@@ -22,7 +20,7 @@ const Search = () => {
   const handleSearchOnChange = async (query: string) => {
     to && clearTimeout(to)
     const timeoutId = setTimeout(() => {
-      setQuery(query)
+      setQuery(query.trim())
     }, 500)
     setTO(timeoutId)
   }
@@ -105,72 +103,6 @@ const Search = () => {
     }
   }, [query, exactMatchStatus])
 
-  useEffect(() => {
-    const fetchNow = async () => {
-      // To get a conversations
-      function getConversations(dbName: string, storeName: string) {
-        return new Promise((resolve, reject) => {
-          // Open the database
-          const request = indexedDB.open(dbName)
-
-          request.onsuccess = function (event) {
-            const db = (event.target as any).result
-
-            // Start a transaction and access the `conversations` object store
-            const transaction = db.transaction(storeName, "readonly")
-            const objectStore = transaction.objectStore(storeName)
-
-            // Get all data from the store
-            const getAllRequest = objectStore.getAll()
-
-            getAllRequest.onsuccess = function () {
-              resolve(getAllRequest.result) // Resolve with the retrieved items
-            }
-
-            getAllRequest.onerror = function () {
-              reject(getAllRequest.error) // Handle errors
-            }
-          }
-
-          request.onerror = function () {
-            reject(request.error) // Handle database opening errors
-          }
-        })
-      }
-
-      let conversations =
-        (await Promise.all(
-          dbAndStores.map(
-            async ({ dbName, storeName }) =>
-              await getConversations(dbName, storeName)
-          )
-        )) || []
-
-      conversations = conversations.flat()
-
-      conversations = conversations.map(
-        ({
-          id,
-          title,
-          messages,
-          update_time
-        }: ConversationObjectType<DefaultMessageType, string>) => {
-          return {
-            id,
-            title,
-            messages: messages.map((msg: DefaultMessageType) => msg.content),
-            update_time: new Date(update_time).getTime()
-          }
-        }
-      ) as ConversationObjectType<string, number>[]
-
-      setConversations(
-        conversations as ConversationObjectType<string, number>[]
-      )
-    }
-    fetchNow()
-  }, [])
-
   return (
     <div className="pt-8 pb-4">
       {/* Header */}
@@ -192,7 +124,7 @@ const Search = () => {
         />
       </div>
 
-      <div className="overflow-y-auto h-[250px] space-y-6">
+      <div className="overflow-height space-y-6">
         {searchResults.map((conversation, index) => (
           <div key={index}>
             <a

@@ -1,3 +1,4 @@
+import type { ConversationObjectType } from "../components/search"
 
 
 interface FormatTimestampType {
@@ -7,7 +8,18 @@ interface FormatTimestampType {
 
 type FormatTimestampTypeType = "date" | "time" | "both"
 
+interface FilerChatsType {
+    conversations: ConversationObjectType<string, number>[]
+    sort: SortType
+    filter?: FilterType
+}
+
+type SortType = "asc" | "desc"
+type FilterType = "removeEmptyConversations"
+
 export type {
     FormatTimestampType,
-    FormatTimestampTypeType
+    FormatTimestampTypeType,
+    FilerChatsType,
+    SortType
 }

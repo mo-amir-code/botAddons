@@ -1,3 +1,4 @@
+import type { ConversationObjectType } from "@/utils/types/components/search"
 import type {
   PlansNameType,
   ReducerActionType,
@@ -11,6 +12,7 @@ import React, {
 } from "react"
 
 interface ExtensionState {
+  conversations: ConversationObjectType<string, number>[]
   extensionLoading: boolean
   isUserLoggedIn: boolean
   plan: PlansNameType
@@ -18,6 +20,7 @@ interface ExtensionState {
 }
 
 const initialState: ExtensionState = {
+  conversations: [],
   extensionLoading: false,
   isUserLoggedIn: false,
   plan: "basic",
@@ -47,21 +50,18 @@ interface ExtensionProviderProps {
 }
 
 export function ExtensionProvider({ children }: ExtensionProviderProps) {
-
   const handleReducer = (state: ExtensionState, action: ReducerActionType) => {
     switch (action.type) {
       case "extensionLoading":
-         state.extensionLoading = action.payload;
-         return state;
+        return { ...state, extensionLoading: action.payload }
       case "auth":
-         state.isUserLoggedIn = action.payload;
-         return state;
+        return { ...state, isUserLoggedIn: action.payload }
       case "userInfo":
-         state.userInfo = action.payload;
-         return state;
+        return { ...state, userInfo: action.payload }
       case "plan":
-         state.plan = action.payload;
-         return state;
+        return { ...state, plan: action.payload }
+      case "conversations":
+        return { ...state, conversations: action.payload }
       default:
         return state
     }

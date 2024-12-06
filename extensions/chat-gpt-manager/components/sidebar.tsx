@@ -1,5 +1,11 @@
 import { useExtension } from "@/contexts/extensionContext"
+import { dbAndStores } from "@/utils/constants"
 import { features } from "@/utils/data"
+import { filterChats } from "@/utils/services"
+import type {
+  ConversationObjectType,
+  DefaultMessageType
+} from "@/utils/types/components/search"
 import type { OpenModalType } from "@/utils/types/components/sidebar"
 import React, { useEffect, useState } from "react"
 import { BsJournalCode } from "react-icons/bs"
@@ -7,11 +13,10 @@ import { FaFolderTree } from "react-icons/fa6"
 import { IoIosChatbubbles, IoIosSearch } from "react-icons/io"
 
 import Modal from "./Modal"
-import { Search } from "./modals"
 
 const Sidebar = () => {
   const [openModal, setOpenModal] = useState<OpenModalType>(null)
-  const { plan } = useExtension()
+  const { plan, dispatch } = useExtension()
 
   const getCssVariable = (name: string) => {
     const rootStyle = getComputedStyle(document.documentElement)
@@ -19,7 +24,86 @@ const Sidebar = () => {
   }
   // const backgroundColor = getCssVariable("--main-surface-primary")
 
-  useEffect(() => {}, [])
+  useEffect(() => {
+    const fetchNow = async () => {
+      // To get a conversations
+      function getConversations(dbName: string, storeName: string) {
+        return new Promise((resolve, reject) => {
+          // Open the database
+          const request = indexedDB.open(dbName)
+
+          request.onsuccess = function (event) {
+            const db = (event.target as any).result
+
+            // Start a transaction and access the `conversations` object store
+            const transaction = db.transaction(storeName, "readonly")
+            const objectStore = transaction.objectStore(storeName)
+
+            // Get all data from the store
+            const getAllRequest = objectStore.getAll()
+
+            getAllRequest.onsuccess = function () {
+              resolve(getAllRequest.result) // Resolve with the retrieved items
+            }
+
+            getAllRequest.onerror = function () {
+              reject(getAllRequest.error) // Handle errors
+            }
+          }
+
+          request.onerror = function () {
+            reject(request.error) // Handle database opening errors
+          }
+        })
+      }
+
+      let conversations =
+        (await Promise.all(
+          dbAndStores.map(
+            async ({ dbName, storeName }) =>
+              await getConversations(dbName, storeName)
+          )
+        )) || []
+
+      conversations = conversations.flat()
+
+      conversations = conversations.map(
+        ({
+          id,
+          title,
+          messages,
+          update_time,
+          updateTime,
+          is_archived,
+          isArchived
+        }: ConversationObjectType<DefaultMessageType, string>) => {
+          const ts: number | string = update_time || updateTime
+          return {
+            id,
+            title,
+            messages: messages.map(
+              (msg: DefaultMessageType) => msg.content || msg?.text
+            ),
+            update_time:
+              typeof ts === "string" ? new Date(ts).getTime() : ts * 1000,
+            is_archived: is_archived || isArchived
+          }
+        }
+      ) as ConversationObjectType<string, number>[]
+      dispatch({
+        type: "conversations",
+        payload: filterChats({
+          conversations: conversations as ConversationObjectType<
+            string,
+            number
+          >[],
+          sort: "desc",
+          filter: "removeEmptyConversations"
+        })
+      })
+    }
+    fetchNow()
+  }, [])
 
   return (
     <main className={`antialiased w-full`}>
@@ -51,10 +135,7 @@ const Sidebar = () => {
         ))}
       </ol>
 
-      <Modal
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-      />
+      <Modal openModal={openModal} setOpenModal={setOpenModal} />
     </main>
   )
 }
