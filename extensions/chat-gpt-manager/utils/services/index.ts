@@ -37,7 +37,23 @@ const filterChats = ({ conversations, sort, filter }: FilerChatsType) => {
     return updatedConversations.sort((a, b) => sort === "asc" ? a.update_time - b.update_time : b.update_time - a.update_time)
 }
 
+function removeDuplicatesItemsById(arr: { id: string }[]) {
+    const seen = new Set();
+
+    // Use filter to keep only objects with unique ids
+    return arr.filter(item => {
+        if (seen.has(item.id)) {
+            return false; // If the id is already in the Set, it's a duplicate
+        } else {
+            seen.add(item.id); // Otherwise, add the id to the Set
+            return true; // Keep the item
+        }
+    });
+}
+
+
 export {
     formatTimestamp,
-    filterChats
+    filterChats,
+    removeDuplicatesItemsById
 }

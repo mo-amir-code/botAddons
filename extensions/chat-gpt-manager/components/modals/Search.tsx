@@ -1,9 +1,7 @@
 import { useExtension } from "@/contexts/extensionContext"
 import { contextLength } from "@/utils/constants"
 import { formatTimestamp } from "@/utils/services"
-import type {
-  ConversationObjectType,
-} from "@/utils/types/components/search"
+import type { ConversationObjectType } from "@/utils/types/components/search"
 import { useEffect, useState } from "react"
 
 import Toggle from "../buttons/Toggle"
@@ -114,7 +112,7 @@ const Search = () => {
       </div>
 
       {/* Search Input Field */}
-      <div className="mt-8 mb-4 p-2 rounded-md border border-white/60">
+      <div className="mt-8 mb-4 p-2 flex items-center rounded-md border border-white/60">
         <input
           type="text"
           placeholder="Search"
@@ -122,6 +120,10 @@ const Search = () => {
           className="w-full bg-transparent outline-none text-white/80"
           onChange={(e: any) => handleSearchOnChange(e.target.value)}
         />
+        <div className="flex items-center gap-2">
+          <span>Found: </span>
+          {searchResults.length}
+        </div>
       </div>
 
       <div className="overflow-height space-y-6">

@@ -1,11 +1,13 @@
 import Provider from "@/components/provider"
 import Sidebar from "@/components/sidebar"
+import { setAuthToken } from "@/utils/services/auth"
 import cssText from "data-text:~style.css"
 import type {
   PlasmoCSConfig,
   PlasmoGetInlineAnchor,
   PlasmoGetShadowHostId
 } from "plasmo"
+import { useEffect } from "react"
 
 const INJECT_ELEMENT_ID =
   ".flex.flex-col.gap-2.text-token-text-primary.text-sm.false.mt-5.pb-2"
@@ -37,6 +39,10 @@ export const getShadowHostId: PlasmoGetShadowHostId = () => "plasmo-inline"
 // chrome.runtime.sendMessage({ action: "checkAuthStatus" });
 
 function PlasmoMainUI() {
+  useEffect(() => {
+    setAuthToken()
+  }, [])
+
   return (
     <Provider>
       <Sidebar />

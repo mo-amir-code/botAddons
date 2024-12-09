@@ -1,12 +1,14 @@
 import { useExtension } from "@/contexts/extensionContext"
 import { dbAndStores } from "@/utils/constants"
 import { features } from "@/utils/data"
-import { filterChats } from "@/utils/services"
+import { filterChats, removeDuplicatesItemsById } from "@/utils/services"
+import { getAuthToken } from "@/utils/services/auth"
 import type {
   ConversationObjectType,
   DefaultMessageType
 } from "@/utils/types/components/search"
 import type { OpenModalType } from "@/utils/types/components/sidebar"
+import axios from "axios"
 import React, { useEffect, useState } from "react"
 import { BsJournalCode } from "react-icons/bs"
 import { FaFolderTree } from "react-icons/fa6"
@@ -23,6 +25,18 @@ const Sidebar = () => {
     return rootStyle.getPropertyValue(name).trim()
   }
   // const backgroundColor = getCssVariable("--main-surface-primary")
+
+  const getConv = async () => {
+    const token = await getAuthToken()
+    const res = await axios.get(
+      "https://chatgpt.com/backend-api/conversations?offset=0&limit=100&order=updated&is_archived=false&s=true",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+  }
 
   useEffect(() => {
     const fetchNow = async () => {
@@ -90,6 +104,7 @@ const Sidebar = () => {
           }
         }
       ) as ConversationObjectType<string, number>[]
+      conversations = removeDuplicatesItemsById(conversations as any)
       dispatch({
         type: "conversations",
         payload: filterChats({
@@ -103,6 +118,7 @@ const Sidebar = () => {
       })
     }
     fetchNow()
+    // getConv()
   }, [])
 
   return (
