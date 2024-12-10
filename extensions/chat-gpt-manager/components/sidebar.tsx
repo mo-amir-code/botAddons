@@ -2,13 +2,15 @@ import { useExtension } from "@/contexts/extensionContext"
 import { dbAndStores } from "@/utils/constants"
 import { features } from "@/utils/data"
 import { filterChats, removeDuplicatesItemsById } from "@/utils/services"
-import { getAuthToken } from "@/utils/services/auth"
+import {
+  getAllConversations,
+  getConversations
+} from "@/utils/services/queries/conversations"
 import type {
   ConversationObjectType,
   DefaultMessageType
 } from "@/utils/types/components/search"
 import type { OpenModalType } from "@/utils/types/components/sidebar"
-import axios from "axios"
 import React, { useEffect, useState } from "react"
 import { BsJournalCode } from "react-icons/bs"
 import { FaFolderTree } from "react-icons/fa6"
@@ -18,7 +20,7 @@ import Modal from "./Modal"
 
 const Sidebar = () => {
   const [openModal, setOpenModal] = useState<OpenModalType>(null)
-  const { plan, dispatch } = useExtension()
+  const { plan, dispatch, chatsLoaded } = useExtension()
 
   const getCssVariable = (name: string) => {
     const rootStyle = getComputedStyle(document.documentElement)
@@ -27,15 +29,18 @@ const Sidebar = () => {
   // const backgroundColor = getCssVariable("--main-surface-primary")
 
   const getConv = async () => {
-    const token = await getAuthToken()
-    const res = await axios.get(
-      "https://chatgpt.com/backend-api/conversations?offset=0&limit=100&order=updated&is_archived=false&s=true",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    )
+    let conversations = await getAllConversations({ chatsLoaded, dispatch })
+    
+    conversations = [
+      ...conversations,
+      ...(await getAllConversations({
+        chatsLoaded,
+        dispatch,
+        archive: "archive"
+      }))
+    ]
+
+    dispatch({ type: "allConversations", payload: conversations })
   }
 
   useEffect(() => {
@@ -118,7 +123,7 @@ const Sidebar = () => {
       })
     }
     fetchNow()
-    // getConv()
+    getConv()
   }, [])
 
   return (
@@ -127,7 +132,7 @@ const Sidebar = () => {
         ChatGPT Manager - {plan.toUpperCase()}
       </h3>
       <ol className="text-white w-full">
-        {features.map(({ slug, title }) => (
+        {features.map(({ slug, title }, idx) => (
           <li
             key={slug}
             onClick={() => setOpenModal(slug as OpenModalType)}
@@ -136,17 +141,26 @@ const Sidebar = () => {
               {(() => {
                 switch (slug) {
                   case "search":
-                    return <IoIosSearch className="text-2xl" />
+                    return <IoIosSearch className="min-w-7 min-h-7" />
                   case "chats":
-                    return <IoIosChatbubbles className="text-2xl" />
+                    return <IoIosChatbubbles className="min-w-7 min-h-7" />
                   case "folders":
-                    return <FaFolderTree className="text-2xl" />
+                    return <FaFolderTree className="min-w-7 min-h-7" />
                   case "prompts":
-                    return <BsJournalCode className="text-2xl" />
+                    return <BsJournalCode className="min-w-7 min-h-7" />
                 }
               })()}
             </span>
-            <span>{title}</span>
+            <div className="flex flex-col ">
+              <span className="text-start">{title}</span>
+              {!!(idx === 0) && (
+                <span className="text-sm w-full text-center text-white/60">
+                  {chatsLoaded === 100
+                    ? `Synced`
+                    : `Loading history - ${chatsLoaded}%`}
+                </span>
+              )}
+            </div>
           </li>
         ))}
       </ol>

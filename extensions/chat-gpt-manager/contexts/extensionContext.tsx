@@ -12,7 +12,9 @@ import React, {
 } from "react"
 
 interface ExtensionState {
+  chatsLoaded: number
   conversations: ConversationObjectType<string, number>[]
+  allConversations: ConversationObjectType<string, number>[]
   extensionLoading: boolean
   isUserLoggedIn: boolean
   plan: PlansNameType
@@ -20,7 +22,9 @@ interface ExtensionState {
 }
 
 const initialState: ExtensionState = {
+  chatsLoaded: 0,
   conversations: [],
+  allConversations: [],
   extensionLoading: false,
   isUserLoggedIn: false,
   plan: "basic",
@@ -62,6 +66,10 @@ export function ExtensionProvider({ children }: ExtensionProviderProps) {
         return { ...state, plan: action.payload }
       case "conversations":
         return { ...state, conversations: action.payload }
+      case "allConversations":
+        return { ...state, allConversations: action.payload }
+      case "chatLoaded":
+        return { ...state, chatsLoaded: action.payload }
       default:
         return state
     }

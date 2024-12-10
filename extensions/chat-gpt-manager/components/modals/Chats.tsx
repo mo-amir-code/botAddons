@@ -1,6 +1,6 @@
 import { useExtension } from "@/contexts/extensionContext"
-import { dbAndStores } from "@/utils/constants"
 import { formatTimestamp } from "@/utils/services"
+import { updateConversation } from "@/utils/services/queries/conversations"
 import type { ChatTabType } from "@/utils/types/components/chat"
 import type { ConversationObjectType } from "@/utils/types/components/search"
 import { useEffect, useState } from "react"
@@ -9,130 +9,36 @@ const Chats = () => {
   const [results, setResults] = useState<
     ConversationObjectType<string, number>[]
   >([])
-  const { conversations, dispatch } = useExtension()
+  const { allConversations, dispatch } = useExtension()
   const [currentTab, setCurrentTab] = useState<ChatTabType>("active")
   const [selectedConversationsId, setSelectedConversationsId] = useState<
     string[]
   >([])
 
-  const performActionOnDatabase = (
-    action: string,
-    id: string,
-    dbName: string,
-    storeName: string
-  ) => {
-    return new Promise((resolve) => {
-      const dbRequest = indexedDB.open(dbName)
-
-      dbRequest.onsuccess = function (event: any) {
-        const db = event.target.result
-        const transaction = db.transaction(storeName, "readwrite")
-        const store = transaction.objectStore(storeName)
-
-        const cursorRequest = store.openCursor()
-
-        cursorRequest.onsuccess = function (event) {
-          const cursor = event.target.result
-
-          if (cursor) {
-            const doc = cursor.value
-
-            if (doc.id === id) {
-              if (action === "delete") {
-                const deleteRequest = cursor.delete()
-
-                deleteRequest.onsuccess = function () {
-                  console.log(`Deleted ID ${id} from ${dbName}/${storeName}`)
-                }
-
-                deleteRequest.onerror = function () {
-                  console.error(`Error deleting ID ${id}:`, deleteRequest.error)
-                }
-              } else if (action === "archive" || action === "unarchive") {
-                const key = "is_archived" in doc ? "is_archived" : "isArchived"
-                doc[key] = !doc[key]
-
-                const putRequest = store.put(doc)
-
-                putRequest.onsuccess = function () {
-                  console.log(
-                    `Updated ID ${id} in ${dbName}/${storeName} to ${
-                      doc[key] ? "archived" : "unarchived"
-                    }`
-                  )
-                }
-
-                putRequest.onerror = function () {
-                  console.error(`Error updating ID ${id}:`, putRequest.error)
-                }
-              }
-
-              resolve(true) // ID found and operation performed
-              return
-            }
-
-            cursor.continue() // Continue to next document
-          } else {
-            resolve(false) // ID not found in this database
-          }
-        }
-
-        cursorRequest.onerror = function () {
-          console.error(`Error searching for ID ${id}:`, cursorRequest.error)
-          resolve(false) // Resolve as not found
-        }
-      }
-
-      dbRequest.onerror = function () {
-        console.error(`Error opening database ${dbName}:`, dbRequest.error)
-        resolve(false) // Resolve as not found
-      }
-    })
-  }
-
   const handleDBUpdate = (action: "delete" | "archive" | "unarchive") => {
     if (!selectedConversationsId.length) return
 
-    async function handleActions(action: string, ids: string[]) {
-      for (const id of ids) {
-        let found = false
-
-        for (const { dbName, storeName } of dbAndStores) {
-          found = (await performActionOnDatabase(action, id, dbName, storeName))
-            ? true
-            : false
-
-          if (found) {
-            console.log(
-              `Action performed for ID ${id} in ${dbName}/${storeName}`
-            )
-            break // Stop checking other databases if ID is found
-          }
-        }
-
-        if (!found) {
-          console.warn(`ID ${id} not found in any database!`)
-        }
-      }
-    }
-
-    handleActions(action, selectedConversationsId).then(() => {
-      let updatedConversations = []
-      if (action === "archive" || action === "unarchive") {
-        updatedConversations = conversations.map((c) => {
-          return {
-            ...c,
-            is_archived: !c.is_archived
-          }
+    // Performing actions
+    switch (action) {
+      case "archive":
+        selectedConversationsId.forEach(async (id) => {
+          console.log(action, id)
+          await updateConversation({ conversationId: id, archive: "archive" })
         })
-      } else {
-        updatedConversations = conversations.filter(
-          (c) => !selectedConversationsId.includes(c.id)
-        )
-      }
-      dispatch({ type: "conversations", payload: updatedConversations })
-      setSelectedConversationsId([])
-    })
+        break
+      case "unarchive":
+        selectedConversationsId.forEach(async (id) => {
+          console.log(action, id)
+          await updateConversation({ conversationId: id, archive: "unarchive" })
+        })
+        break
+      case "delete":
+        selectedConversationsId.forEach(async (id) => {
+          console.log(action, id)
+          await updateConversation({ conversationId: id, isVisible: true })
+        })
+        break
+    }
   }
 
   const handleOnChatSelectChange = ({
@@ -168,7 +74,7 @@ const Chats = () => {
   }
 
   const handleSearchOnChange = (query: string) => {
-    const filteredConversations = conversations.filter((c) => {
+    const filteredConversations = allConversations.filter((c) => {
       if (currentTab === "active")
         return !c.is_archived && c.title.includes(query)
       else return c.is_archived && c.title.includes(query)
@@ -179,10 +85,10 @@ const Chats = () => {
   useEffect(() => {
     let filteredConversations
     if (currentTab === "active")
-      filteredConversations = conversations.filter((c) => !c.is_archived)
-    else filteredConversations = conversations.filter((c) => c.is_archived)
+      filteredConversations = allConversations.filter((c) => !c.is_archived)
+    else filteredConversations = allConversations.filter((c) => c.is_archived)
     setResults(filteredConversations)
-  }, [currentTab, conversations])
+  }, [currentTab, allConversations])
 
   return (
     <div className="space-y-4">
