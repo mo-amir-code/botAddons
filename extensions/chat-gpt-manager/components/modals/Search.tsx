@@ -5,6 +5,7 @@ import type { ConversationObjectType } from "@/utils/types/components/search"
 import { useEffect, useState } from "react"
 
 import Toggle from "../buttons/Toggle"
+import { BallLoader } from "../loaders"
 
 const Search = () => {
   const { conversations } = useExtension()
@@ -14,11 +15,14 @@ const Search = () => {
   const [exactMatchStatus, setExactMatchStatus] = useState<boolean>(false)
   const [query, setQuery] = useState<string>("")
   const [to, setTO] = useState<any>(null)
+  const [isConversationsLoading, setIsConversationsLoading] = useState(false)
 
   const handleSearchOnChange = async (query: string) => {
     to && clearTimeout(to)
+    setIsConversationsLoading(true);
     const timeoutId = setTimeout(() => {
       setQuery(query.trim())
+      setIsConversationsLoading(false);
     }, 500)
     setTO(timeoutId)
   }
@@ -126,40 +130,48 @@ const Search = () => {
         </div>
       </div>
 
-      <div className="overflow-height space-y-6">
-        {searchResults.map((conversation, index) => (
-          <div key={index}>
-            <a
-              href={`/c/${conversation.id}`}
-              target="_self"
-              className="space-y-2">
-              <div className="flex pr-4 items-center justify-between pb-3 border-b border-white/60">
-                <h3
-                  className="text-2xl font-semibold"
-                  dangerouslySetInnerHTML={{ __html: conversation.title }}
-                />
-                <div className="font-semibold">
-                  {formatTimestamp({
-                    timestamp: conversation.update_time,
-                    type: "date"
-                  }) || ""}
-                </div>
-              </div>
-              <div className="flex gap-4 pl-6">
-                <div className="w-[2px] bg-gray-600 min-h-full rounded-full" />
-                <ul className="flex-grow space-y-2">
-                  {conversation.messages.map((message, i) => (
-                    <li
-                      key={i}
-                      className="text-lg smooth-transition hover:shadow-md shadow-white py-1"
-                      dangerouslySetInnerHTML={{ __html: message }}
-                    />
-                  ))}
-                </ul>
-              </div>
-            </a>
+      <div className="h-[300px] relative">
+        {isConversationsLoading ? (
+          <div className="w-full h-full bg-black/5 backdrop-blur-md absolute top-0 left-0">
+            <BallLoader />
           </div>
-        ))}
+        ) : (
+          <div className="overflow-height space-y-6">
+            {searchResults.map((conversation, index) => (
+              <div key={index}>
+                <a
+                  href={`/c/${conversation.id}`}
+                  target="_self"
+                  className="space-y-2">
+                  <div className="flex pr-4 items-center justify-between pb-3 border-b border-white/60">
+                    <h3
+                      className="text-2xl font-semibold"
+                      dangerouslySetInnerHTML={{ __html: conversation.title }}
+                    />
+                    <div className="font-semibold">
+                      {formatTimestamp({
+                        timestamp: conversation.update_time,
+                        type: "date"
+                      }) || ""}
+                    </div>
+                  </div>
+                  <div className="flex gap-4 pl-6">
+                    <div className="w-[2px] bg-gray-600 min-h-full rounded-full" />
+                    <ul className="flex-grow space-y-2">
+                      {conversation.messages.map((message, i) => (
+                        <li
+                          key={i}
+                          className="text-lg smooth-transition hover:shadow-md shadow-white py-1"
+                          dangerouslySetInnerHTML={{ __html: message }}
+                        />
+                      ))}
+                    </ul>
+                  </div>
+                </a>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
