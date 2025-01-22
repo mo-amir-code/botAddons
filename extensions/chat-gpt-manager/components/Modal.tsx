@@ -19,7 +19,7 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
       className=" fixed top-0 left-0 modal select-none bg-black/60 backdrop-blur-sm w-full h-full flex items-center justify-center">
       <div
         ref={modalChildRef}
-        className="w-[60vw] min-w-[650px]  overflow-hidden bg-black border border-white/50 rounded-xl p-4 shadow-md relative">
+        className="w-[900px] overflow-hidden bg-black border border-white/50 rounded-xl p-4 shadow-md relative">
         {/* Header */}
         <div className="">
           <h2 className="text-3xl font-semibold">

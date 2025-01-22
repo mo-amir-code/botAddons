@@ -62,13 +62,13 @@ const Search = () => {
     }
 
     const isMatched = (text: string) => {
-      const lowerText = text?.toLowerCase()
+      const lowerText = (text || "").toLowerCase()
       if (exactMatchStatus) {
         const trimmedQuery = query.trim()
         const regex = new RegExp(`\\b${trimmedQuery}\\b`, "i") // Match whole phrase, case insensitive
         return regex.test(text) ? true : false
       } else {
-        return lowerText?.includes(query?.toLowerCase())
+        return lowerText.includes(query?.toLowerCase())
       }
     }
 

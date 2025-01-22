@@ -126,8 +126,8 @@ const Chats = () => {
   const handleSearchOnChange = (query: string) => {
     const filteredConversations = allConversations.filter((c) => {
       if (currentTab === "active")
-        return !c.is_archived && c.title.includes(query)
-      else return c.is_archived && c.title.includes(query)
+        return !c.is_archived && c.title.toLowerCase().includes(query)
+      else return c.is_archived && c.title.toLowerCase().includes(query)
     })
     setResults(filteredConversations)
   }
