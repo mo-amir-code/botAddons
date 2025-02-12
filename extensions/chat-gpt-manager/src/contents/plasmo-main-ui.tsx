@@ -10,7 +10,7 @@ import type {
 import { useEffect } from "react"
 
 const INJECT_ELEMENT_ID =
-  ".flex.flex-col.gap-2.text-token-text-primary.text-sm.false.mt-5.pb-2"
+  "nav > div:nth-of-type(2) > div > div:nth-of-type(3)"
 
 export const getStyle = () => {
   const baseFontSize = 12

@@ -1,5 +1,6 @@
 import type { ConversationObjectType } from "@/utils/types/components/search"
 import type {
+  HeaderStatesType,
   PlansNameType,
   ReducerActionType,
   UserInfoType
@@ -19,6 +20,7 @@ interface ExtensionState {
   isUserLoggedIn: boolean
   plan: PlansNameType
   userInfo: UserInfoType | null
+  headerStates: HeaderStatesType
 }
 
 const initialState: ExtensionState = {
@@ -28,7 +30,13 @@ const initialState: ExtensionState = {
   extensionLoading: false,
   isUserLoggedIn: false,
   plan: "basic",
-  userInfo: null
+  userInfo: null,
+  headerStates: {
+    exactMatchStatus: false,
+    isAddChatsOpen: false,
+    isAddFolderOpen: false,
+    isSettingsOpen: false
+  }
 }
 
 interface ExtensionActions {
@@ -70,6 +78,10 @@ export function ExtensionProvider({ children }: ExtensionProviderProps) {
         return { ...state, allConversations: action.payload }
       case "chatLoaded":
         return { ...state, chatsLoaded: action.payload }
+      case "toggleHeaderState":
+        const updatedHeader = state.headerStates;
+        updatedHeader[action.payload] = !updatedHeader[action.payload];
+        return { ...state, headerStates: updatedHeader}
       default:
         return state
     }

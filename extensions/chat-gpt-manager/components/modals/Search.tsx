@@ -6,23 +6,26 @@ import { useEffect, useState } from "react"
 
 import Toggle from "../buttons/Toggle"
 import { BallLoader } from "../loaders"
+import { SearchField } from "../common"
 
 const Search = () => {
   const { conversations } = useExtension()
   const [searchResults, setSearchResults] = useState<
     ConversationObjectType<string, number>[]
   >([])
-  const [exactMatchStatus, setExactMatchStatus] = useState<boolean>(false)
+  const {
+    headerStates: { exactMatchStatus }
+  } = useExtension()
   const [query, setQuery] = useState<string>("")
   const [to, setTO] = useState<any>(null)
   const [isConversationsLoading, setIsConversationsLoading] = useState(false)
 
   const handleSearchOnChange = async (query: string) => {
     to && clearTimeout(to)
-    setIsConversationsLoading(true);
+    setIsConversationsLoading(true)
     const timeoutId = setTimeout(() => {
       setQuery(query.trim())
-      setIsConversationsLoading(false);
+      setIsConversationsLoading(false)
     }, 500)
     setTO(timeoutId)
   }
@@ -106,24 +109,10 @@ const Search = () => {
   }, [query, exactMatchStatus])
 
   return (
-    <div className="pt-8 pb-4">
-      {/* Header */}
-      <div className=" border-b border-white/60 pb-6">
-        <div className="flex items-center text-white/80 gap-2 text-xl font-medium">
-          <span>Exact Match</span>
-          <Toggle isOpen={exactMatchStatus} setIsOpen={setExactMatchStatus} />
-        </div>
-      </div>
-
+    <div className="pb-4">
       {/* Search Input Field */}
-      <div className="mt-8 mb-4 p-2 flex items-center rounded-md border border-white/60">
-        <input
-          type="text"
-          placeholder="Search"
-          autoFocus
-          className="w-full bg-transparent outline-none text-white/80"
-          onChange={(e: any) => handleSearchOnChange(e.target.value)}
-        />
+      <div className=" mb-4 p-2 flex items-center rounded-md border border-white/60">
+       <SearchField  func={handleSearchOnChange} placeholder="Search" />
         <div className="flex items-center gap-2">
           <span>Found: </span>
           {searchResults.length}

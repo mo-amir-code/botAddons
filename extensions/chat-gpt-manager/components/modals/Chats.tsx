@@ -133,7 +133,7 @@ const Chats = () => {
   }
 
   useEffect(() => {
-    let filteredConversations
+    let filteredConversations = [];
     if (currentTab === "active")
       filteredConversations = allConversations.filter((c) => !c.is_archived)
     else filteredConversations = allConversations.filter((c) => c.is_archived)
@@ -147,8 +147,6 @@ const Chats = () => {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div></div>
 
       {/* Content */}
       <div className="flex gap-4">
@@ -167,7 +165,7 @@ const Chats = () => {
         <div className="flex-[6] space-y-3">
           {/* Search Input Field */}
           <div>
-            <div className="mt-8 mb-4 p-2 rounded-md border border-white/60">
+            <div className="mb-4 p-2 rounded-md border border-white/60">
               <input
                 type="text"
                 placeholder="Search"

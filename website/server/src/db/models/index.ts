@@ -1,6 +1,5 @@
 export { default as User } from "./user.schema.js"
 export { default as Folder } from "./folder.schema.js"
-export { default as Chat } from "./chat.schema.js"
 export { default as Prompt } from "./prompt.schema.js"
 export { default as Plan } from "./plan.schema.js"
 export { default as Subscription } from "./subscription.schema.js"
