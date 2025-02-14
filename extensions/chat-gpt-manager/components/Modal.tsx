@@ -1,9 +1,10 @@
 import { useExtension } from "@/contexts/extensionContext"
 import type { ModalType } from "@/utils/types/components/modal"
+import type { HeaderStatesName } from "@/utils/types/context"
 import { useRef } from "react"
 import { IoCloseOutline } from "react-icons/io5"
 
-import Button from "./buttons/Button"
+import Button, { type ButtonIconType } from "./buttons/Button"
 import Toggle from "./buttons/Toggle"
 import { Chats, Folders, Search } from "./modals"
 
@@ -22,6 +23,14 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
 
   const handleExactMatchStatus = () => {
     dispatch({ type: "toggleHeaderState", payload: "exactMatchStatus" })
+  }
+
+  const handleHeaderButton = (btnIconType: ButtonIconType) => {
+    let headerState: HeaderStatesName = "exactMatchStatus"
+    if (btnIconType === "chats") headerState = "isAddChatsOpen"
+    if (btnIconType === "folders") headerState = "isAddFolderOpen"
+    if (btnIconType === "settings") headerState = "isSettingsOpen"
+    dispatch({ type: "toggleHeaderState", payload: headerState })
   }
 
   return openModal ? (
@@ -48,16 +57,16 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
 
           <div className="my-4 flex items-center gap-4">
             {/* Settings Button */}
-            <Button icon="settings" title="Settings" />
+            <Button icon="settings" title="Settings" func={handleHeaderButton} />
 
             {/* Folder Button */}
             {!!(openModal === "folders") && (
-              <Button icon="folders" title="Add Folder" />
+              <Button icon="folders" title="Add Folder" func={handleHeaderButton} />
             )}
 
             {/* Chats Button */}
             {!!(openModal === "chats" && isAddChatsOpen) && (
-              <Button icon="chats" title="Add Chats" />
+              <Button icon="chats" title="Add Chats" func={handleHeaderButton} />
             )}
 
             {/* Exact Match Button for Search Modal */}

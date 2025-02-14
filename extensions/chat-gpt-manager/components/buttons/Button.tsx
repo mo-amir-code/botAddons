@@ -2,14 +2,19 @@ import { BsChatTextFill } from "react-icons/bs"
 import { FaFolderOpen } from "react-icons/fa6"
 import { IoSettingsSharp } from "react-icons/io5"
 
+export type ButtonIconType = "settings" | "folders" | "chats";
+
 type ButtonType = {
-  icon: "settings" | "folders" | "chats"
+  icon: ButtonIconType
   title: string
+  func?: Function
 }
 
-const Button = ({ icon, title }: ButtonType) => {
+const Button = ({ icon, title, func }: ButtonType) => {
   return (
-    <button className="flex items-center justify-center gap-2 border rounded-full px-3 py-2 border-primary-off-white">
+    <button
+      onClick={() => func && func(icon)}
+      className="flex items-center justify-center gap-2 border rounded-full px-3 py-2 border-primary-off-white">
       <span>
         {(() => {
           switch (icon) {
