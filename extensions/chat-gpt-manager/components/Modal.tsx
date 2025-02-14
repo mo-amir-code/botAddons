@@ -3,13 +3,14 @@ import type { ModalType } from "@/utils/types/components/modal"
 import { useRef } from "react"
 import { IoCloseOutline } from "react-icons/io5"
 
+import Button from "./buttons/Button"
 import Toggle from "./buttons/Toggle"
 import { Chats, Folders, Search } from "./modals"
 
 const Modal = ({ openModal, setOpenModal }: ModalType) => {
   const modalChildRef = useRef<HTMLDivElement>()
   const {
-    headerStates: { exactMatchStatus },
+    headerStates: { exactMatchStatus, isAddChatsOpen },
     dispatch
   } = useExtension()
 
@@ -45,7 +46,20 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
             })()}
           </h2>
 
-          <div className="my-4">
+          <div className="my-4 flex items-center gap-4">
+            {/* Settings Button */}
+            <Button icon="settings" title="Settings" />
+
+            {/* Folder Button */}
+            {!!(openModal === "folders") && (
+              <Button icon="folders" title="Add Folder" />
+            )}
+
+            {/* Chats Button */}
+            {!!(openModal === "chats" && isAddChatsOpen) && (
+              <Button icon="chats" title="Add Chats" />
+            )}
+
             {/* Exact Match Button for Search Modal */}
             {!!(openModal === "search") && (
               <div className="flex items-center text-white/80 gap-2 text-xl font-medium">
