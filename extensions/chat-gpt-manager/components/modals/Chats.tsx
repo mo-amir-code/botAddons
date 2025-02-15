@@ -5,6 +5,8 @@ import type { ChatTabType, DBActionType } from "@/utils/types/components/chat"
 import type { ConversationObjectType } from "@/utils/types/components/search"
 import { useEffect, useState } from "react"
 
+import { SearchField, SelectAll } from "../common"
+import Item from "../common/Item"
 import { BallLoader } from "../loaders"
 
 const Chats = () => {
@@ -133,7 +135,7 @@ const Chats = () => {
   }
 
   useEffect(() => {
-    let filteredConversations = [];
+    let filteredConversations = []
     if (currentTab === "active")
       filteredConversations = allConversations.filter((c) => !c.is_archived)
     else filteredConversations = allConversations.filter((c) => c.is_archived)
@@ -147,7 +149,6 @@ const Chats = () => {
 
   return (
     <div className="space-y-4">
-
       {/* Content */}
       <div className="flex gap-4">
         <aside className="flex-[2] px-2 space-y-3">
@@ -165,53 +166,29 @@ const Chats = () => {
         <div className="flex-[6] space-y-3">
           {/* Search Input Field */}
           <div>
-            <div className="mb-4 p-2 rounded-md border border-white/60">
-              <input
-                type="text"
-                placeholder="Search"
-                autoFocus
-                className="w-full bg-transparent outline-none text-white/80"
-                onChange={(e: any) => handleSearchOnChange(e.target.value)}
-              />
-            </div>
-            <div className="flex border-b border-white items-center justify-between py-3">
-              <label
-                onClick={(e) => handleOnChatSelectChange({ isAllSelect: e })}
-                className="flex gap-2 items-center">
-                <input type="checkbox" />
-                <span>Select All Chats</span>
-              </label>
-              <div className="flex items-center gap-2">
-                <span>Selected Chats:</span>
-                <span>{selectedConversationsId.length}</span>
-              </div>
-            </div>
+            <SearchField
+              func={handleSearchOnChange}
+              placeholder="Search Chats"
+            />
+            <SelectAll
+              selectedConversations={selectedConversationsId.length}
+              func={handleOnChatSelectChange}
+            />
           </div>
 
           {/* Results */}
           <div className="overflow-height">
             <ul className="space-y-2 text-white">
               {results.map(({ id, title, update_time }, idx) => (
-                <li
+                <Item
                   key={id + idx}
-                  className="py-2 select-none border-b border-white/60">
-                  <label className="flex items-center justify-between">
-                    <div className="flex gap-2 items-center">
-                      <input
-                        onChange={() => handleOnChatSelectChange({ id })}
-                        checked={isSelected(id)}
-                        type="checkbox"
-                      />
-                      <span>{title}</span>
-                    </div>
-                    <span className="bg-yellow-500 text-black">
-                      {formatTimestamp({
-                        timestamp: update_time,
-                        type: "date"
-                      })}
-                    </span>
-                  </label>
-                </li>
+                  id={id}
+                  isSelected={isSelected}
+                  onChatSelectChange={handleOnChatSelectChange}
+                  title={title}
+                  update_time={update_time}
+                  type="chat"
+                />
               ))}
             </ul>
 

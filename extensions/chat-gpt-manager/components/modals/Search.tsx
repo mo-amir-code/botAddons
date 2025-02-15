@@ -5,8 +5,8 @@ import type { ConversationObjectType } from "@/utils/types/components/search"
 import { useEffect, useState } from "react"
 
 import Toggle from "../buttons/Toggle"
-import { BallLoader } from "../loaders"
 import { SearchField } from "../common"
+import { BallLoader } from "../loaders"
 
 const Search = () => {
   const { conversations } = useExtension()
@@ -111,13 +111,16 @@ const Search = () => {
   return (
     <div className="pb-4">
       {/* Search Input Field */}
-      <div className=" mb-4 p-2 flex items-center rounded-md border border-white/60">
-       <SearchField  func={handleSearchOnChange} placeholder="Search" />
-        <div className="flex items-center gap-2">
-          <span>Found: </span>
-          {searchResults.length}
-        </div>
-      </div>
+      <SearchField
+        func={handleSearchOnChange}
+        placeholder="Search"
+        child={
+          <div className="flex items-center gap-2">
+            <span>Found: </span>
+            {searchResults.length}
+          </div>
+        }
+      />
 
       <div className="h-[300px] relative">
         {isConversationsLoading ? (
