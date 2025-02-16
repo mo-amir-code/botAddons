@@ -1,4 +1,7 @@
-import type { ConversationObjectType } from "../components/search"
+import type {
+  ConversationObjectType,
+  FoldersWindow
+} from "../components/search"
 
 type PlansNameType = "basic" | "premium" | "lifetime"
 
@@ -14,27 +17,28 @@ interface UserInfoType {
 // }
 
 type ReducerActionType =
-  | { type: "extensionLoading"; payload: boolean }
-  | { type: "auth"; payload: boolean }
-  | { type: "userInfo"; payload: UserInfoType | null }
-  | { type: "plan"; payload: PlansNameType }
-  | { type: "conversations"; payload: ConversationObjectType<string, number>[] }
+  | { type: "EXTENSION_LOADING"; payload: boolean }
+  | { type: "AUTH"; payload: boolean }
+  | { type: "USER_INFO"; payload: UserInfoType | null }
+  | { type: "PLAN"; payload: PlansNameType }
+  | { type: "CONVERSATIONS"; payload: ConversationObjectType<string, number>[] }
   | {
-      type: "allConversations"
+      type: "ALL_CONVERSATIONS"
       payload: ConversationObjectType<string, number>[]
     }
-  | { type: "chatLoaded"; payload: number }
-  | { type: "toggleHeaderState"; payload: HeaderStatesName }
+  | { type: "CHAT_LOADED"; payload: number }
+  | { type: "TOGGLE_HEADER_STATE"; payload: HeaderStatesName }
+  | { type: "FOLDERS_WINDOW"; payload: FoldersWindow }
 
 type ActionType =
-  | "extensionLoading"
-  | "auth"
-  | "userInfo"
-  | "plan"
-  | "conversations"
-  | "allConversations"
-  | "chatLoaded"
-  | "toggleHeaderState"
+  | "EXTENSION_LOADING"
+  | "AUTH"
+  | "USER_INFO"
+  | "PLAN"
+  | "CONVERSATIONS"
+  | "ALL_CONVERSATIONS"
+  | "CHAT_LOADED"
+  | "TOGGLE_HEADER_STATE"
 
 interface HeaderStatesType {
   exactMatchStatus: boolean

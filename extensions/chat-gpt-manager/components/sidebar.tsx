@@ -40,7 +40,7 @@ const Sidebar = () => {
       }))
     ]
 
-    dispatch({ type: "allConversations", payload: conversations })
+    dispatch({ type: "ALL_CONVERSATIONS", payload: conversations })
   }
 
   useEffect(() => {
@@ -128,7 +128,7 @@ const Sidebar = () => {
       ) as ConversationObjectType<string, number>[]
       conversations = removeDuplicatesItemsById(conversations as any)
       dispatch({
-        type: "conversations",
+        type: "CONVERSATIONS",
         payload: filterChats({
           conversations: conversations as ConversationObjectType<
             string,

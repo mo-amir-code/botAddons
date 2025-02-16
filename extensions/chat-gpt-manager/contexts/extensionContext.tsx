@@ -1,4 +1,7 @@
-import type { ConversationObjectType } from "@/utils/types/components/search"
+import type {
+  ConversationObjectType,
+  FoldersWindow
+} from "@/utils/types/components/search"
 import type {
   HeaderStatesType,
   PlansNameType,
@@ -21,6 +24,7 @@ interface ExtensionState {
   plan: PlansNameType
   userInfo: UserInfoType | null
   headerStates: HeaderStatesType
+  foldersWindow: FoldersWindow
 }
 
 const initialState: ExtensionState = {
@@ -36,6 +40,10 @@ const initialState: ExtensionState = {
     isAddChatsOpen: false,
     isAddFolderOpen: false,
     isSettingsOpen: false
+  },
+  foldersWindow: {
+    type: null,
+    folders: []
   }
 }
 
@@ -64,24 +72,26 @@ interface ExtensionProviderProps {
 export function ExtensionProvider({ children }: ExtensionProviderProps) {
   const handleReducer = (state: ExtensionState, action: ReducerActionType) => {
     switch (action.type) {
-      case "extensionLoading":
+      case "EXTENSION_LOADING":
         return { ...state, extensionLoading: action.payload }
-      case "auth":
+      case "AUTH":
         return { ...state, isUserLoggedIn: action.payload }
-      case "userInfo":
+      case "USER_INFO":
         return { ...state, userInfo: action.payload }
-      case "plan":
+      case "PLAN":
         return { ...state, plan: action.payload }
-      case "conversations":
+      case "CONVERSATIONS":
         return { ...state, conversations: action.payload }
-      case "allConversations":
+      case "ALL_CONVERSATIONS":
         return { ...state, allConversations: action.payload }
-      case "chatLoaded":
+      case "CHAT_LOADED":
         return { ...state, chatsLoaded: action.payload }
-      case "toggleHeaderState":
-        const updatedHeader = state.headerStates;
-        updatedHeader[action.payload] = !updatedHeader[action.payload];
-        return { ...state, headerStates: updatedHeader}
+      case "TOGGLE_HEADER_STATE":
+        const updatedHeader = state.headerStates
+        updatedHeader[action.payload] = !updatedHeader[action.payload]
+        return { ...state, headerStates: updatedHeader }
+      case "FOLDERS_WINDOW":
+        return { ...state, foldersWindow: action.payload }
       default:
         return state
     }

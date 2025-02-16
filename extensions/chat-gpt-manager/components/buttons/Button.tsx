@@ -1,11 +1,12 @@
 import { BsChatTextFill } from "react-icons/bs"
 import { FaFolderOpen } from "react-icons/fa6"
 import { IoSettingsSharp } from "react-icons/io5"
+import { MdDelete } from "react-icons/md";
 
-export type ButtonIconType = "settings" | "folders" | "chats";
+export type ButtonIconType = "settings" | "folders" | "chats" | "delete";
 
 type ButtonType = {
-  icon: ButtonIconType
+  icon?: ButtonIconType
   title: string
   func?: Function
 }
@@ -24,6 +25,8 @@ const Button = ({ icon, title, func }: ButtonType) => {
               return <FaFolderOpen className="w-6 h-6" />
             case "chats":
               return <BsChatTextFill className="w-6 h-6" />
+            case "delete":
+              return <MdDelete className="w-6 h-6" />
             default:
               return
           }

@@ -1,5 +1,6 @@
 import { useState } from "react"
 
+import Button from "../buttons/Button"
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
 
@@ -17,7 +18,7 @@ const Folders = () => {
   const dummy = () => {}
 
   return (
-    <div>
+    <div className="relative">
       <SearchField placeholder="Search Folder" func={setQuery} />
       <SelectAll selectedConversations={1} func={handleSelectItems} />
 
@@ -28,9 +29,14 @@ const Folders = () => {
           onChatSelectChange={dummy}
           title="Hello"
           update_time={8292927381}
-          type="folder"
+          itemType="folder"
+          modalType="folders"
         />
       </ul>
+
+      <div className="pt-4 flex items-center justify-end">
+        <Button title="Delete" func={dummy} icon="delete" />
+      </div>
     </div>
   )
 }

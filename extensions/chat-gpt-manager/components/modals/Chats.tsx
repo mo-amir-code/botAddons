@@ -52,7 +52,7 @@ const Chats = () => {
         break
     }
 
-    dispatch({ type: "allConversations", payload: updatedAllConversations })
+    dispatch({ type: "ALL_CONVERSATIONS", payload: updatedAllConversations })
     setSelectedConversationsId([])
   }
 
@@ -187,7 +187,8 @@ const Chats = () => {
                   onChatSelectChange={handleOnChatSelectChange}
                   title={title}
                   update_time={update_time}
-                  type="chat"
+                  itemType="chat"
+                  modalType="chats"
                 />
               ))}
             </ul>

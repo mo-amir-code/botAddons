@@ -15,7 +15,7 @@ const SignInForm = () => {
     try {
       const res = await httpAxios.post("/auth/signin", data)
       if (res.status === 200) {
-        dispatch({ type: "auth", payload: true })
+        dispatch({ type: "AUTH", payload: true })
       }
     } catch (error:any) {
       console.error(error?.response?.data?.message)

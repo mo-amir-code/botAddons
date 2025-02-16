@@ -2,27 +2,30 @@ import { useExtension } from "@/contexts/extensionContext"
 import type { ModalType } from "@/utils/types/components/modal"
 import type { HeaderStatesName } from "@/utils/types/context"
 import { useRef } from "react"
-import { IoCloseOutline } from "react-icons/io5"
+import { IoArrowBack, IoCloseOutline } from "react-icons/io5"
+import { MdEditSquare } from "react-icons/md"
 
 import Button, { type ButtonIconType } from "./buttons/Button"
 import Toggle from "./buttons/Toggle"
-import { Chats, Folders, Search } from "./modals"
+import { Chats, Folders, Prompts, Search } from "./modals"
 
 const Modal = ({ openModal, setOpenModal }: ModalType) => {
   const modalChildRef = useRef<HTMLDivElement>()
   const {
     headerStates: { exactMatchStatus, isAddChatsOpen },
-    dispatch
+    dispatch,
+    foldersWindow
   } = useExtension()
 
   const handleClose = (e: any) => {
     if (!modalChildRef?.current?.contains(e.target)) {
+      dispatch({ type: "FOLDERS_WINDOW", payload: { folders: [], type: null } })
       setOpenModal(null)
     }
   }
 
   const handleExactMatchStatus = () => {
-    dispatch({ type: "toggleHeaderState", payload: "exactMatchStatus" })
+    dispatch({ type: "TOGGLE_HEADER_STATE", payload: "exactMatchStatus" })
   }
 
   const handleHeaderButton = (btnIconType: ButtonIconType) => {
@@ -30,7 +33,16 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
     if (btnIconType === "chats") headerState = "isAddChatsOpen"
     if (btnIconType === "folders") headerState = "isAddFolderOpen"
     if (btnIconType === "settings") headerState = "isSettingsOpen"
-    dispatch({ type: "toggleHeaderState", payload: headerState })
+    dispatch({ type: "TOGGLE_HEADER_STATE", payload: headerState })
+  }
+
+  const handleBack = () => {
+    const newFoldersWindow = { ...foldersWindow }
+    if (newFoldersWindow.folders.length) newFoldersWindow.folders.pop()
+    if (newFoldersWindow.folders.length === 0) {
+      newFoldersWindow.type = null
+    }
+    dispatch({ type: "FOLDERS_WINDOW", payload: newFoldersWindow })
   }
 
   return openModal ? (
@@ -42,31 +54,59 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
         className="w-[900px] overflow-hidden bg-primary-bg border border-primary-off-white/50 rounded-xl p-4 shadow-md relative">
         {/* Header */}
         <div className="border-b border-white/60 mb-4">
-          <h2 className="text-3xl font-semibold text-primary-white">
-            {(() => {
-              switch (openModal) {
-                case "search":
-                  return "Legendary Conversation History"
-                case "chats":
-                  return "Manage Conversations"
-                case "folders":
-                  return "Manage Folders"
-              }
-            })()}
-          </h2>
+          <div className="flex items-center gap-4">
+            {!!foldersWindow.type && (
+              <div
+                onClick={() => handleBack()}
+                className="rounded-full w-10 h-10 border border-primary-off-white flex items-center justify-center">
+                <IoArrowBack className="w-8 h-8" />
+              </div>
+            )}
+            <h2 className="text-3xl font-semibold text-primary-white">
+              {(() => {
+                switch (openModal) {
+                  case "search":
+                    return "Legendary Conversation History"
+                  case "chats":
+                    return "Manage Conversations"
+                  case "folders":
+                    return "Manage Folders"
+                  case "prompts":
+                    return "Manage Prompts"
+                }
+              })()}
+            </h2>
+            {!!foldersWindow.type && (
+              <div className="rounded-full w-10 h-10 flex items-center justify-center">
+                <MdEditSquare className="w-9 h-9" />
+              </div>
+            )}
+          </div>
 
           <div className="my-4 flex items-center gap-4">
             {/* Settings Button */}
-            <Button icon="settings" title="Settings" func={handleHeaderButton} />
+            <Button
+              icon="settings"
+              title="Settings"
+              func={handleHeaderButton}
+            />
 
             {/* Folder Button */}
             {!!(openModal === "folders") && (
-              <Button icon="folders" title="Add Folder" func={handleHeaderButton} />
+              <Button
+                icon="folders"
+                title="Add Folder"
+                func={handleHeaderButton}
+              />
             )}
 
             {/* Chats Button */}
-            {!!(openModal === "chats" && isAddChatsOpen) && (
-              <Button icon="chats" title="Add Chats" func={handleHeaderButton} />
+            {!!(openModal === "folders" && foldersWindow.type === "chats") && (
+              <Button
+                icon="chats"
+                title="Add Chats"
+                func={handleHeaderButton}
+              />
             )}
 
             {/* Exact Match Button for Search Modal */}
@@ -91,6 +131,8 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
               return <Chats />
             case "folders":
               return <Folders />
+            case "prompts":
+              return <Prompts />
           }
         })()}
         {/* END Rendring Child */}

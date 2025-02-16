@@ -40,7 +40,7 @@ const getAllConversations = async ({ dispatch, chatsLoaded, archive = "unarchive
                 percentage = Math.floor(percentage)
 
                 if (chatsLoaded < percentage && archive === "unarchive")
-                    dispatch({ type: "chatLoaded", payload: percentage })
+                    dispatch({ type: "CHAT_LOADED", payload: percentage })
 
                 return res?.data?.items || []
             })
@@ -48,7 +48,7 @@ const getAllConversations = async ({ dispatch, chatsLoaded, archive = "unarchive
     ]
 
     if (archive === "unarchive")
-        dispatch({ type: "chatLoaded", payload: 100 })
+        dispatch({ type: "CHAT_LOADED", payload: 100 })
 
     conversations = conversations.flat().map((c) => {
         return {
