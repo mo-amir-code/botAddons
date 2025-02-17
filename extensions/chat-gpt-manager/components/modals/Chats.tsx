@@ -1,5 +1,4 @@
 import { useExtension } from "@/contexts/extensionContext"
-import { formatTimestamp } from "@/utils/services"
 import { updateConversation } from "@/utils/services/queries/conversations"
 import type { ChatTabType, DBActionType } from "@/utils/types/components/chat"
 import type { ConversationObjectType } from "@/utils/types/components/search"

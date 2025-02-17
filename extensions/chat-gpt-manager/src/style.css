@@ -172,3 +172,7 @@
   }
 }
 /* END BAll Loader */
+
+.modal {
+  z-index: 9999; /* Ensure it appears above other elements */
+}

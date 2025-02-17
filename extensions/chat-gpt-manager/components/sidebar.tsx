@@ -2,10 +2,7 @@ import { useExtension } from "@/contexts/extensionContext"
 import { dbAndStores } from "@/utils/constants"
 import { features } from "@/utils/data"
 import { filterChats, removeDuplicatesItemsById } from "@/utils/services"
-import {
-  getAllConversations,
-  getConversations
-} from "@/utils/services/queries/conversations"
+import { getAllConversations } from "@/utils/services/queries/conversations"
 import type {
   ConversationObjectType,
   DefaultMessageType
@@ -16,7 +13,7 @@ import { BsJournalCode } from "react-icons/bs"
 import { FaFolderTree } from "react-icons/fa6"
 import { IoIosChatbubbles, IoIosSearch } from "react-icons/io"
 
-import Modal from "./Modal"
+import { ChildModal, Modal } from "../sections"
 
 const Sidebar = () => {
   const [openModal, setOpenModal] = useState<OpenModalType>(null)
@@ -30,7 +27,7 @@ const Sidebar = () => {
 
   const getConv = async () => {
     let conversations = await getAllConversations({ chatsLoaded, dispatch })
-    
+
     conversations = [
       ...conversations,
       ...(await getAllConversations({
@@ -49,49 +46,49 @@ const Sidebar = () => {
       function getConversations(dbName: string, storeName: string) {
         return new Promise((resolve) => {
           // Open the database
-          const request = indexedDB.open(dbName);
-      
+          const request = indexedDB.open(dbName)
+
           request.onupgradeneeded = function (event) {
             // Handle if the database structure needs to be upgraded
-            const db = (event.target as any).result;
+            const db = (event.target as any).result
             if (!db.objectStoreNames.contains(storeName)) {
               // If the store does not exist during upgrade, resolve with an empty array
-              resolve([]);
+              resolve([])
             }
-          };
-      
+          }
+
           request.onsuccess = function (event) {
-            const db = (event.target as any).result;
-      
+            const db = (event.target as any).result
+
             // Check if the object store exists
             if (!db.objectStoreNames.contains(storeName)) {
               // Resolve with an empty array if the store does not exist
-              resolve([]);
-              return;
+              resolve([])
+              return
             }
-      
+
             // Start a transaction and access the object store
-            const transaction = db.transaction(storeName, "readonly");
-            const objectStore = transaction.objectStore(storeName);
-      
+            const transaction = db.transaction(storeName, "readonly")
+            const objectStore = transaction.objectStore(storeName)
+
             // Get all data from the store
-            const getAllRequest = objectStore.getAll();
-      
+            const getAllRequest = objectStore.getAll()
+
             getAllRequest.onsuccess = function () {
-              resolve(getAllRequest.result); // Resolve with the retrieved items
-            };
-      
+              resolve(getAllRequest.result) // Resolve with the retrieved items
+            }
+
             getAllRequest.onerror = function () {
-              resolve([]); // If fetching fails, resolve with an empty array
-            };
-          };
-      
+              resolve([]) // If fetching fails, resolve with an empty array
+            }
+          }
+
           request.onerror = function () {
             // Handle database opening errors by resolving with an empty array
-            resolve([]);
-          };
-        });
-      }      
+            resolve([])
+          }
+        })
+      }
 
       let conversations =
         (await Promise.all(
@@ -183,6 +180,7 @@ const Sidebar = () => {
       </ol>
 
       <Modal openModal={openModal} setOpenModal={setOpenModal} />
+      <ChildModal />
     </main>
   )
 }

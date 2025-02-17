@@ -5,14 +5,14 @@ import { useRef } from "react"
 import { IoArrowBack, IoCloseOutline } from "react-icons/io5"
 import { MdEditSquare } from "react-icons/md"
 
-import Button, { type ButtonIconType } from "./buttons/Button"
-import Toggle from "./buttons/Toggle"
-import { Chats, Folders, Prompts, Search } from "./modals"
+import Button, { type ButtonIconType } from "../components/buttons/Button"
+import Toggle from "../components/buttons/Toggle"
+import { Chats, Folders, Prompts, Search } from "../components/modals"
 
 const Modal = ({ openModal, setOpenModal }: ModalType) => {
   const modalChildRef = useRef<HTMLDivElement>()
   const {
-    headerStates: { exactMatchStatus, isAddChatsOpen },
+    headerStates: { exactMatchStatus },
     dispatch,
     foldersWindow
   } = useExtension()
@@ -33,6 +33,7 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
     if (btnIconType === "chats") headerState = "isAddChatsOpen"
     if (btnIconType === "folders") headerState = "isAddFolderOpen"
     if (btnIconType === "settings") headerState = "isSettingsOpen"
+    if (btnIconType === "prompt") headerState = "isAddPromptOpen"
     dispatch({ type: "TOGGLE_HEADER_STATE", payload: headerState })
   }
 
@@ -48,7 +49,7 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
   return openModal ? (
     <dialog
       onClick={(e) => handleClose(e)}
-      className=" fixed top-0 left-0 modal select-none bg-black/60 backdrop-blur-sm w-full h-full flex items-center justify-center">
+      className=" fixed top-0 left-0 select-none bg-black/60 backdrop-blur-sm w-full h-full flex items-center justify-center">
       <div
         ref={modalChildRef}
         className="w-[900px] overflow-hidden bg-primary-bg border border-primary-off-white/50 rounded-xl p-4 shadow-md relative">
@@ -77,7 +78,14 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
               })()}
             </h2>
             {!!foldersWindow.type && (
-              <div className="rounded-full w-10 h-10 flex items-center justify-center">
+              <div
+                onClick={() =>
+                  dispatch({
+                    type: "TOGGLE_HEADER_STATE",
+                    payload: "isFolderEditingOpen"
+                  })
+                }
+                className="rounded-full w-10 h-10 flex items-center justify-center">
                 <MdEditSquare className="w-9 h-9" />
               </div>
             )}
@@ -105,6 +113,15 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
               <Button
                 icon="chats"
                 title="Add Chats"
+                func={handleHeaderButton}
+              />
+            )}
+
+            {/* Prompt Button */}
+            {!!(openModal === "prompts") && (
+              <Button
+                icon="prompt"
+                title="Add Prompt"
                 func={handleHeaderButton}
               />
             )}

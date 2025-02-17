@@ -29,6 +29,7 @@ type ReducerActionType =
   | { type: "CHAT_LOADED"; payload: number }
   | { type: "TOGGLE_HEADER_STATE"; payload: HeaderStatesName }
   | { type: "FOLDERS_WINDOW"; payload: FoldersWindow }
+  | { type: "RESET_HEADER_STATES" }
 
 type ActionType =
   | "EXTENSION_LOADING"
@@ -45,6 +46,8 @@ interface HeaderStatesType {
   isSettingsOpen: boolean
   isAddChatsOpen: boolean
   isAddFolderOpen: boolean
+  isAddPromptOpen: boolean
+  isFolderEditingOpen: boolean
 }
 
 type HeaderStatesName =
@@ -52,6 +55,8 @@ type HeaderStatesName =
   | "isSettingsOpen"
   | "isAddChatsOpen"
   | "isAddFolderOpen"
+  | "isAddPromptOpen"
+  | "isFolderEditingOpen"
 
 export type {
   PlansNameType,

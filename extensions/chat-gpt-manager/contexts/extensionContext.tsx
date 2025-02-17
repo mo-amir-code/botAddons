@@ -39,7 +39,9 @@ const initialState: ExtensionState = {
     exactMatchStatus: false,
     isAddChatsOpen: false,
     isAddFolderOpen: false,
-    isSettingsOpen: false
+    isSettingsOpen: false,
+    isAddPromptOpen: false,
+    isFolderEditingOpen: false
   },
   foldersWindow: {
     type: null,
@@ -92,6 +94,10 @@ export function ExtensionProvider({ children }: ExtensionProviderProps) {
         return { ...state, headerStates: updatedHeader }
       case "FOLDERS_WINDOW":
         return { ...state, foldersWindow: action.payload }
+      case "RESET_HEADER_STATES":
+        const newHeaderStates = { ...state.headerStates }
+        for (let obj in newHeaderStates) newHeaderStates[obj] = false
+        return { ...state, headerStates: newHeaderStates }
       default:
         return state
     }
