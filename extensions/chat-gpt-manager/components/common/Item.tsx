@@ -4,12 +4,13 @@ import type { OpenModalType } from "@/utils/types/components/sidebar"
 import React from "react"
 import { BsChatTextFill } from "react-icons/bs"
 import { FaFolderOpen } from "react-icons/fa6"
+import { TbPrompt } from "react-icons/tb"
 
 interface ItemType {
   id: number | string
   title: string
   update_time: number
-  itemType?: "folder" | "chat"
+  itemType?: "folder" | "chat" | "prompt"
   isSelected: Function
   onChatSelectChange: Function
   modalType: OpenModalType
@@ -27,7 +28,7 @@ const Item = ({
   const { dispatch, foldersWindow } = useExtension()
 
   const handleDoubleClick = () => {
-    if (itemType !== "folder") return;
+    if (itemType !== "folder") return
     const newFoldersWindow = { ...foldersWindow }
     newFoldersWindow.type = modalType === "folders" ? "chats" : "prompts"
     newFoldersWindow.folders.push(title)
@@ -53,6 +54,8 @@ const Item = ({
                     return <FaFolderOpen className="w-5 h-5" />
                   case "chat":
                     return <BsChatTextFill className="w-5 h-5" />
+                  case "prompt":
+                    return <TbPrompt className="w-5 h-5" />
                   default:
                     return
                 }

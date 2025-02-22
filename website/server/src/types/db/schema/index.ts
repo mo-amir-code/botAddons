@@ -29,9 +29,10 @@ type SessionType = {
 type SessionPlatformType = "chatgpt" | "claude" | "website";
 
 interface FolderSchemaType extends MongoDBSchemaDefaultFieldType {
+    parent?: Schema.Types.ObjectId
     userId: Schema.Types.ObjectId
     title: string
-    chats: Schema.Types.ObjectId[]
+    chats: string[]
     prompts: Schema.Types.ObjectId[]
     type: FolderType
     platform: FolderPlatformType

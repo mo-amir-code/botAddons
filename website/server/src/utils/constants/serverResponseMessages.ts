@@ -31,10 +31,12 @@ const FOLDER_CREATED_RES_MSG = "Folder created";
 const FOLDER_DELETED_RES_MSG = "Folder deleted";
 const FOLDER_UPDATE_RES_MSG = "Folder updated";
 const FOLDER_FETCHED_RES_MSG = "Folder fetched";
+const FOLDER_FILES_FETCHED_RES_MSG = "Folder files fetched";
 
 export {
     FOLDER_CREATED_RES_MSG,
     FOLDER_DELETED_RES_MSG,
     FOLDER_UPDATE_RES_MSG,
-    FOLDER_FETCHED_RES_MSG
+    FOLDER_FETCHED_RES_MSG,
+    FOLDER_FILES_FETCHED_RES_MSG
 }

@@ -1,12 +1,9 @@
-import axios from "axios";
-
+import { SERVER_ORIGIN } from "@/config/constants"
+import axios from "axios"
 
 const httpAxios = axios.create({
-    baseURL: "http://localhost:8080/api/v1",
-    withCredentials: true
-});
+  baseURL: SERVER_ORIGIN,
+  withCredentials: true
+})
 
-
-export {
-    httpAxios
-}
+export { httpAxios }

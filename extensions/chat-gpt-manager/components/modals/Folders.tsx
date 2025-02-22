@@ -1,10 +1,16 @@
-import { useState } from "react"
+import type { FolderFileType } from "@/utils/types/components/modal"
+import type { ConversationObjectType } from "@/utils/types/components/search"
+import { useEffect, useState } from "react"
 
 import Button from "../buttons/Button"
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
 
 const Folders = () => {
+  const [folderFiles, setFolderFiles] = useState<FolderFileType<string>[]>([])
+  const [chatsFiles, setChatsFiles] = useState<
+    ConversationObjectType<string, number>[]
+  >([])
   const [query, setQuery] = useState<string>("")
 
   const handleSelectItems = ({
@@ -16,6 +22,10 @@ const Folders = () => {
   }) => {}
 
   const dummy = () => {}
+
+  useEffect(() => {
+    
+  }, [])
 
   return (
     <div className="relative">
