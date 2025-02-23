@@ -1,22 +1,18 @@
-import { FolderPlatformType, FolderType } from "../schema/index.js"
-
+import { FolderPlatformType, FolderType } from "../schema/index.js";
 
 interface FindFolderByIdAndUpdate {
-    id: string,
-    userId?: string
-    title?: string
-    chats?: string[]
-    prompts?: string[]
-    type?: FolderType
-    platform?: FolderPlatformType
+  id: string;
+  userId?: string;
+  title?: string;
+  chats?: string[];
+  prompts?: string[];
+  type?: FolderType;
+  platform?: FolderPlatformType;
 }
 
 type GetFoldersType = {
-    userId: string
-    type: FolderType
-}
+  type: FolderType;
+  id?: string;
+};
 
-export type {
-    FindFolderByIdAndUpdate,
-    GetFoldersType
-}
+export type { FindFolderByIdAndUpdate, GetFoldersType };

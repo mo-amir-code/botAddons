@@ -1,17 +1,22 @@
+import { useExtension } from "@/contexts/extensionContext"
+import { fetchFolders } from "@/utils/services/queries/folder"
 import type { FolderFileType } from "@/utils/types/components/modal"
 import type { ConversationObjectType } from "@/utils/types/components/search"
+import type { FetchFoldersQueryType } from "@/utils/types/services/queries"
 import { useEffect, useState } from "react"
 
 import Button from "../buttons/Button"
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
+import { SERVER_ORIGIN } from "@/config/constants"
 
 const Folders = () => {
-  const [folderFiles, setFolderFiles] = useState<FolderFileType<string>[]>([])
-  const [chatsFiles, setChatsFiles] = useState<
-    ConversationObjectType<string, number>[]
-  >([])
+  const [allFiles, setAllFiles] = useState<any>([])
   const [query, setQuery] = useState<string>("")
+
+  const {
+    foldersWindow: { folders }
+  } = useExtension()
 
   const handleSelectItems = ({
     isAllSelect,
@@ -24,8 +29,19 @@ const Folders = () => {
   const dummy = () => {}
 
   useEffect(() => {
-    
-  }, [])
+    const fetchNow = async () => {
+      let obj: FetchFoldersQueryType = { type: "chats" }
+      if (folders.length) {
+        obj["id"] = folders[folders.length - 1]
+        const file = allFiles.find((f) => f.title == obj["id"])
+        obj["id"] = file.id
+      }
+      const res = await fetchFolders(obj)
+      console.log(res)
+    }
+
+    fetchNow()
+  }, [folders, allFiles])
 
   return (
     <div className="relative">

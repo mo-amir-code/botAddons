@@ -49,16 +49,32 @@ const updateFolderHandler = apiHandler(async (req, res) => {
 });
 
 const getFoldersHandler = apiHandler(async (req, res) => {
-  const { userId, type } = req.query as GetFoldersType;
+  const { type, id } = req.query as GetFoldersType;
+  const { id: userId } = req.user;
 
-  const folders = await Folder.find({ userId, type, parent: undefined }).select(
-    "-userId -platform"
-  );
+  let files;
+
+  if (!id) {
+    files = await Folder.find({ userId, type, parent: undefined }).select(
+      "-userId -platform"
+    );
+  } else {
+    files = await Folder.findById(id);
+
+    if (files.type === "prompts") {
+      files = await Folder.findById(id).populate("prompts");
+    }
+
+    const folders = await Folder.find({ parent: id }).select(
+      "-userId -platform"
+    );
+    files["folders"] = folders;
+  }
 
   return ok({
     res,
     message: FOLDER_FETCHED_RES_MSG,
-    data: folders,
+    data: files,
   });
 });
 

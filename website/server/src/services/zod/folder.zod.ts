@@ -28,12 +28,10 @@ const deleteFolderByIdZodSchema = z.object({
 
 const getFoldersByUserIdZodSchema = z.object({
   query: z.object({
-    userId: z.string({
-      required_error: ZOD_REQUIRED_ERR.replace("{field}", "User ID"),
-    }),
     type: z.enum(["chats", "prompts"], {
       required_error: ZOD_REQUIRED_ERR.replace("{field}", "Type"),
     }),
+    id: z.string().optional(),
   }),
 });
 
@@ -49,18 +47,9 @@ const updateFolderZodSchema = z.object({
   }),
 });
 
-const getFoldersFilesZodSchema = z.object({
-  query: z.object({
-    id: z.string({
-      required_error: ZOD_REQUIRED_ERR.replace("{field}", "Folder ID"),
-    }),
-  }),
-});
-
 export {
   createFolderZodSchema,
   deleteFolderByIdZodSchema,
   updateFolderZodSchema,
   getFoldersByUserIdZodSchema,
-  getFoldersFilesZodSchema,
 };

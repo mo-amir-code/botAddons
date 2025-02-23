@@ -1,17 +1,33 @@
+export type AuthSessionUserType = {
+  id: string
+  email: string
+  image: string
+  picture: string
+}
 
-
+export interface AuthSessionType {
+  user: AuthSessionUserType
+  accessToken: string
+  expires: string
+}
 
 const setAuthToken = async () => {
-    const response = await fetch("/api/auth/session")
-    const sessionData = await response.json();
-    chrome.storage.local.set({ cat: sessionData?.accessToken });
+  const response = await fetch("/api/auth/session")
+  const sessionData = (await response.json()) as AuthSessionType
+  chrome.storage.local.set({
+    cat: sessionData?.accessToken
+  })
+  chrome.storage.local.set({
+    user: sessionData.user
+  })
 }
 
 const getAuthToken = async () => {
-    return (await chrome.storage.local.get("cat") as any)?.cat;
+  return ((await chrome.storage.local.get("cat")) as any)?.cat
 }
 
-export {
-    setAuthToken,
-    getAuthToken
+const getSessionUserInfo = async () => {
+  return ((await chrome.storage.local.get("user")) as any)?.user
 }
+
+export { setAuthToken, getAuthToken, getSessionUserInfo }

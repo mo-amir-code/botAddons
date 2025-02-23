@@ -2,6 +2,8 @@ import { useExtension } from "@/contexts/extensionContext"
 import { dbAndStores } from "@/utils/constants"
 import { features } from "@/utils/data"
 import { filterChats, removeDuplicatesItemsById } from "@/utils/services"
+import { getSessionUserInfo, type AuthSessionUserType } from "@/utils/services/auth"
+import { httpAxios } from "@/utils/services/axios"
 import { getAllConversations } from "@/utils/services/queries/conversations"
 import type {
   ConversationObjectType,
@@ -38,6 +40,16 @@ const Sidebar = () => {
     ]
 
     dispatch({ type: "ALL_CONVERSATIONS", payload: conversations })
+  }
+
+  const handleAutoAuth = async () => {
+    const userInfo = await getSessionUserInfo() as AuthSessionUserType
+    const res = await httpAxios.post("/auth/auto", {
+      email: userInfo.email
+    })
+    if (res.status === 200) {
+      dispatch({ type: "AUTH", payload: true })
+    }
   }
 
   useEffect(() => {
@@ -138,6 +150,7 @@ const Sidebar = () => {
     }
     fetchNow()
     getConv()
+    handleAutoAuth()
   }, [])
 
   return (

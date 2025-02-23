@@ -3,7 +3,6 @@ import { zodValidation } from "../../services/zod/index.js";
 import {
   createFolderHandler,
   deleteFolderByIdHandler,
-  getFolderFilesHandler,
   getFoldersHandler,
   updateFolderHandler,
 } from "../../controllers/v1/folder.controller.js";
@@ -11,7 +10,6 @@ import {
   createFolderZodSchema,
   deleteFolderByIdZodSchema,
   getFoldersByUserIdZodSchema,
-  getFoldersFilesZodSchema,
   updateFolderZodSchema,
 } from "../../services/zod/folder.zod.js";
 
@@ -25,10 +23,5 @@ router.delete(
 );
 router.patch("/", zodValidation(updateFolderZodSchema), updateFolderHandler);
 router.get("/", zodValidation(getFoldersByUserIdZodSchema), getFoldersHandler);
-router.get(
-  "/files",
-  zodValidation(getFoldersFilesZodSchema),
-  getFolderFilesHandler
-);
 
 export default router;

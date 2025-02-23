@@ -30,6 +30,7 @@ import {
   PASS_CHANGED_RES_MSG,
   SOMETHING_WENT_WRONG,
   USER_ALREADY_REGISTERED_RES_MSG,
+  USER_IS_NOT_EXIST_RES_MSG,
   USER_IS_NOT_REGISTERED_RES_MSG,
   USER_IS_NOT_VERIFIED_RES_MSG,
   USER_LOGGED_IN_RES_MSG,
@@ -57,6 +58,7 @@ import { createEmailTemplate } from "../../services/nodemailer/templates.js";
 import { UserSchemaType } from "../../types/db/schema/index.js";
 import { sendMail } from "../../services/nodemailer/sendMail.js";
 import { getDomainRoot } from "../../utils/middleware/index.js";
+import { Response } from "express";
 
 const registerUser = apiHandler(async (req, res, next) => {
   const data = req.body as RegisterUserType;
@@ -255,37 +257,7 @@ const signInUser = apiHandler(async (req, res, next) => {
     );
   }
 
-  const { accessToken } = await generateRefreshAndAccessToken({
-    userId: user._id as Schema.Types.ObjectId,
-  });
-
-  const userSessions = user.sessions || [];
-
-  const isAccessTokenExist = userSessions.find((s) => s.platform === origin);
-
-  const newSession = {
-    platform: origin,
-    accessToken: accessToken,
-  };
-
-  if (!userSessions?.length || !isAccessTokenExist) {
-    user.sessions = [...userSessions, newSession];
-  } else {
-    const sessionIndex = userSessions.findIndex((s) => s.platform === origin);
-    userSessions[sessionIndex] = newSession;
-  }
-
-  await user.save();
-
-  const domainRoot = getDomainRoot({
-    origin: getDomainURL(origin),
-    forCookie: true,
-  });
-
-  res.cookie(ACCESS_TOKEN_NAME, accessToken, {
-    ...accessCookieOptions,
-    domain: domainRoot,
-  });
+  await handleSetCookies({ user, origin, res });
 
   return ok({
     res,
@@ -372,6 +344,70 @@ const resetPassword = apiHandler(async (req, res, next) => {
   });
 });
 
+const autoAuth = apiHandler(async (req, res, next) => {
+  const { email } = req.body as { email: string };
+  const origin = req.origin as OriginType;
+  const user = await getUserByIDorEmail({ type: "email", data: email });
+
+  if (!user) {
+    return next(
+      new ErrorHandlerClass(USER_IS_NOT_EXIST_RES_MSG, BAD_REQUEST_STATUS_CODE)
+    );
+  }
+
+  await handleSetCookies({ user, origin, res });
+
+  return ok({
+    message: USER_LOGGED_IN_RES_MSG,
+    res,
+  });
+});
+
+// Common function to set cookie while authentication
+const handleSetCookies = async ({
+  user,
+  origin,
+  res,
+}: {
+  user: UserSchemaType;
+  origin: OriginType;
+  res: Response;
+}) => {
+  const { accessToken } = await generateRefreshAndAccessToken({
+    userId: user._id as Schema.Types.ObjectId,
+  });
+
+  const userSessions = user.sessions || [];
+
+  const isAccessTokenExist = userSessions.find((s) => s.platform === origin);
+
+  const newSession = {
+    platform: origin,
+    accessToken: accessToken,
+  };
+
+  if (!userSessions?.length || !isAccessTokenExist) {
+    user.sessions = [...userSessions, newSession];
+  } else {
+    let sessionIndex = userSessions.findIndex((s) => s.platform === origin);
+    sessionIndex = sessionIndex === -1 ? 0 : sessionIndex;
+    userSessions[sessionIndex] = newSession;
+  }
+
+  await user.save();
+  console.log("Origin: ", origin);
+  const domainRoot = getDomainRoot({
+    origin: getDomainURL(origin),
+    forCookie: true,
+  });
+  console.log("URL: ", domainRoot);
+
+  res.cookie(ACCESS_TOKEN_NAME, accessToken, {
+    ...accessCookieOptions,
+    domain: domainRoot,
+  });
+};
+
 export {
   registerUser,
   signInUser,
@@ -379,4 +415,5 @@ export {
   verifyOTP,
   forgotPassword,
   resetPassword,
+  autoAuth,
 };

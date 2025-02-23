@@ -1,3 +1,4 @@
+import type { FoldersType } from "../components/search"
 
 
 interface ConversationUpdateType {
@@ -6,6 +7,12 @@ interface ConversationUpdateType {
     conversationId: string
 }
 
+interface FetchFoldersQueryType {
+    type: FoldersType
+    id?: string
+}
+
 export type {
-    ConversationUpdateType
+    ConversationUpdateType,
+    FetchFoldersQueryType
 }

@@ -10,6 +10,7 @@ const OTP_EXPIRED_RES_MSG = "OTP is expired";
 const OTP_IS_INCORRECT_RES_MSG = "OTP is incorrect";
 const USER_VERIFIED_RES_MSG = "Verified";
 const PASS_CHANGED_RES_MSG = "Password changed successfully!"
+const USER_IS_NOT_EXIST_RES_MSG = "User is not exist."
 
 
 export {
@@ -23,7 +24,8 @@ export {
     OTP_EXPIRED_RES_MSG,
     OTP_IS_INCORRECT_RES_MSG,
     USER_VERIFIED_RES_MSG,
-    PASS_CHANGED_RES_MSG
+    PASS_CHANGED_RES_MSG,
+    USER_IS_NOT_EXIST_RES_MSG
 }
 
 // Folder

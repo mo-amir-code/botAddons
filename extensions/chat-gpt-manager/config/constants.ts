@@ -1,5 +1,5 @@
-const ENVIRONMENT = process.env.ENVIRONMENT;
-const SERVER_ORIGIN = process.env.SERVER_ORIGIN;
+const ENVIRONMENT = process.env.PLASMO_PUBLIC_ENVIRONMENT;
+const SERVER_ORIGIN = process.env.PLASMO_PUBLIC_SERVER_ORIGIN;
 
 export {
     ENVIRONMENT,
