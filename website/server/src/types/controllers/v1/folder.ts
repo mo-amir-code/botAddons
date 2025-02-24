@@ -1,12 +1,13 @@
-import { FolderPlatformType, FolderType } from "../../db/schema/index.js"
+import { FolderPlatformType, FolderType } from "../../db/schema/index.js";
 
-interface CreateFolderType {
-    userId: string
-    title: string
-    type: FolderType
-    platform: FolderPlatformType
+interface CreateFolderBodyType {
+  title: string;
+  type: FolderType;
 }
 
-export type {
-    CreateFolderType
+interface CreateFolderType extends CreateFolderBodyType {
+  userId: string;
+  platform: FolderPlatformType;
 }
+
+export type { CreateFolderBodyType, CreateFolderType };

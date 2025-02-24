@@ -9,8 +9,7 @@ const ROOT_DOMAIN = process.env.ROOT_DOMAIN;
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const DB_URI = process.env.DB_URI!;
 const COMPANY_NAME = process.env.COMPANY_NAME;
-// const ENVIRONMENT = process.env.ENVIRONMENT;
-let ENVIRONMENT:string = "production";
+const ENVIRONMENT = process.env.ENVIRONMENT;
 
 export {
   APP_PORT,

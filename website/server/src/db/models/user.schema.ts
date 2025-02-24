@@ -11,7 +11,7 @@ const userSchema: Schema<UserSchemaType> = new Schema<UserSchemaType>({
     sessions: [
         {
             platform: { type: String, enum: ["chatgpt", "claude", "website"] },
-            accessToken: { type: String, required: [true, "Acess token is required"] }
+            refreshToken: { type: String, required: [true, "Refresh token is required"] }
         }
     ],
     otp: { type: String },

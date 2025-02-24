@@ -373,7 +373,7 @@ const handleSetCookies = async ({
   origin: OriginType;
   res: Response;
 }) => {
-  const { accessToken } = await generateRefreshAndAccessToken({
+  const { accessToken, refreshToken } = await generateRefreshAndAccessToken({
     userId: user._id as Schema.Types.ObjectId,
   });
 
@@ -383,24 +383,18 @@ const handleSetCookies = async ({
 
   const newSession = {
     platform: origin,
-    accessToken: accessToken,
+    refreshToken: refreshToken,
   };
 
   if (!userSessions?.length || !isAccessTokenExist) {
     user.sessions = [...userSessions, newSession];
-  } else {
-    let sessionIndex = userSessions.findIndex((s) => s.platform === origin);
-    sessionIndex = sessionIndex === -1 ? 0 : sessionIndex;
-    userSessions[sessionIndex] = newSession;
   }
 
   await user.save();
-  console.log("Origin: ", origin);
   const domainRoot = getDomainRoot({
     origin: getDomainURL(origin),
     forCookie: true,
   });
-  console.log("URL: ", domainRoot);
 
   res.cookie(ACCESS_TOKEN_NAME, accessToken, {
     ...accessCookieOptions,

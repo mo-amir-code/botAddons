@@ -8,7 +8,6 @@ import { useEffect, useState } from "react"
 import Button from "../buttons/Button"
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
-import { SERVER_ORIGIN } from "@/config/constants"
 
 const Folders = () => {
   const [allFiles, setAllFiles] = useState<any>([])
@@ -37,11 +36,11 @@ const Folders = () => {
         obj["id"] = file.id
       }
       const res = await fetchFolders(obj)
-      console.log(res)
+      setAllFiles(res.data?.data || []);
     }
 
     fetchNow()
-  }, [folders, allFiles])
+  }, [folders])
 
   return (
     <div className="relative">
@@ -49,15 +48,17 @@ const Folders = () => {
       <SelectAll selectedConversations={1} func={handleSelectItems} />
 
       <ul className="mt-2">
-        <Item
-          id={1}
-          isSelected={dummy}
-          onChatSelectChange={dummy}
-          title="Hello"
-          update_time={8292927381}
-          itemType="folder"
-          modalType="folders"
-        />
+        {allFiles.map(() => (
+          <Item
+            id={1}
+            isSelected={dummy}
+            onChatSelectChange={dummy}
+            title="Hello"
+            update_time={8292927381}
+            itemType="folder"
+            modalType="folders"
+          />
+        ))}
       </ul>
 
       <div className="pt-4 flex items-center justify-end">

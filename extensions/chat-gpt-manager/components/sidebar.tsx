@@ -2,12 +2,16 @@ import { useExtension } from "@/contexts/extensionContext"
 import { dbAndStores } from "@/utils/constants"
 import { features } from "@/utils/data"
 import { filterChats, removeDuplicatesItemsById } from "@/utils/services"
-import { getSessionUserInfo, type AuthSessionUserType } from "@/utils/services/auth"
+import {
+  getSessionUserInfo,
+  type AuthSessionUserType
+} from "@/utils/services/auth"
 import { httpAxios } from "@/utils/services/axios"
 import { getAllConversations } from "@/utils/services/queries/conversations"
 import type {
   ConversationObjectType,
-  DefaultMessageType
+  DefaultMessageType,
+  FoldersWindow
 } from "@/utils/types/components/search"
 import type { OpenModalType } from "@/utils/types/components/sidebar"
 import React, { useEffect, useState } from "react"
@@ -43,7 +47,7 @@ const Sidebar = () => {
   }
 
   const handleAutoAuth = async () => {
-    const userInfo = await getSessionUserInfo() as AuthSessionUserType
+    const userInfo = (await getSessionUserInfo()) as AuthSessionUserType
     const res = await httpAxios.post("/auth/auto", {
       email: userInfo.email
     })
@@ -152,6 +156,23 @@ const Sidebar = () => {
     getConv()
     handleAutoAuth()
   }, [])
+
+  useEffect(() => {
+    const payload: FoldersWindow = {
+      type: "chats",
+      folders: []
+    }
+    if (openModal === "folders") {
+      payload.type = "chats"
+    } else if (openModal === "prompts") {
+      payload.type = "prompts"
+    }
+
+    dispatch({
+      type: "FOLDERS_WINDOW",
+      payload
+    })
+  }, [openModal])
 
   return (
     <main className={`antialiased w-full`}>

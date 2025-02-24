@@ -11,6 +11,8 @@ const OTP_IS_INCORRECT_RES_MSG = "OTP is incorrect";
 const USER_VERIFIED_RES_MSG = "Verified";
 const PASS_CHANGED_RES_MSG = "Password changed successfully!"
 const USER_IS_NOT_EXIST_RES_MSG = "User is not exist."
+const UNAUTHORIZED_REQUEST_RES_MSG = "Authentication is required."
+const SESSION_EXPIRED_RES_MSG = "Session expired. Please login again"
 
 
 export {
@@ -25,7 +27,9 @@ export {
     OTP_IS_INCORRECT_RES_MSG,
     USER_VERIFIED_RES_MSG,
     PASS_CHANGED_RES_MSG,
-    USER_IS_NOT_EXIST_RES_MSG
+    USER_IS_NOT_EXIST_RES_MSG,
+    UNAUTHORIZED_REQUEST_RES_MSG,
+    SESSION_EXPIRED_RES_MSG
 }
 
 // Folder

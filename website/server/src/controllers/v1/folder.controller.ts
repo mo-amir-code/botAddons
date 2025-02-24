@@ -5,12 +5,14 @@ import {
   findFolderByIdAndUpdate,
 } from "../../db/services/folder.db.service.js";
 import { apiHandler, ok } from "../../services/errorHandling/index.js";
-import { CreateFolderType } from "../../types/controllers/v1/folder.js";
+import {
+  CreateFolderBodyType,
+  CreateFolderType,
+} from "../../types/controllers/v1/folder.js";
 import {
   FindFolderByIdAndUpdate,
   GetFoldersType,
 } from "../../types/db/services/folder.types.js";
-// import { OriginType } from "../../types/index.js";
 import {
   FOLDER_CREATED_RES_MSG,
   FOLDER_DELETED_RES_MSG,
@@ -20,8 +22,17 @@ import {
 } from "../../utils/constants/serverResponseMessages.js";
 
 const createFolderHandler = apiHandler(async (req, res) => {
-  const data = req.body as CreateFolderType;
-  const newFolder = await createFolder(data);
+  const data = req.body as CreateFolderBodyType;
+  let origin = req.origin as any;
+  origin = origin === "website" ? "all" : origin;
+
+  const newFolderData: CreateFolderType = {
+    ...data,
+    platform: origin,
+    userId: req.user.id,
+  };
+
+  const newFolder = await createFolder(newFolderData);
   return ok({
     res,
     message: FOLDER_CREATED_RES_MSG,

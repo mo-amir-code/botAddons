@@ -1,17 +1,27 @@
 import Button from "@/components/buttons/Button"
 import { SearchField } from "@/components/common"
 import { useExtension } from "@/contexts/extensionContext"
+import { httpAxios } from "@/utils/services/axios"
 import { useState } from "react"
 
 const AddFolder = () => {
   const [newFolderName, setNewFolderName] = useState<string>("")
   const {
     dispatch,
-    headerStates: { isFolderEditingOpen }
+    headerStates: { isFolderEditingOpen },
+    foldersWindow
   } = useExtension()
 
-  const handleSubmit = () => {
-    alert(newFolderName)
+  const handleSubmit = async () => {
+    try {
+      const res = await httpAxios.post("/folder", {
+        title: newFolderName,
+        type: foldersWindow.type
+      })
+      console.log(res);
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   const handleClose = () => {

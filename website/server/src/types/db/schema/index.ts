@@ -8,7 +8,7 @@ interface MongoDBSchemaDefaultFieldType extends Document {
 }
 
 
-interface UserSchemaType extends Document {
+interface UserSchemaType extends MongoDBSchemaDefaultFieldType {
     fullName: string
     email: string
     role: UserRoleType
@@ -23,7 +23,7 @@ type UserRoleType = "user" | "admin";
 
 type SessionType = {
     platform: SessionPlatformType
-    accessToken: string
+    refreshToken: string
 }
 
 type SessionPlatformType = "chatgpt" | "claude" | "website";
