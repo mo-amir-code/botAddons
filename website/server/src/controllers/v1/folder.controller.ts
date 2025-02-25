@@ -9,6 +9,7 @@ import {
   CreateFolderBodyType,
   CreateFolderType,
 } from "../../types/controllers/v1/folder.js";
+import { PromptSchemaType } from "../../types/db/schema/index.js";
 import {
   FindFolderByIdAndUpdate,
   GetFoldersType,
@@ -67,19 +68,76 @@ const getFoldersHandler = apiHandler(async (req, res) => {
 
   if (!id) {
     files = await Folder.find({ userId, type, parent: undefined }).select(
-      "-userId -platform"
+      "title chats prompts createdAt updatedAt"
     );
+    files = files.map((item) => {
+      return {
+        id: item._id,
+        title: item.title,
+        isFolder: true,
+        totalItems: type === "chats" ? item.chats.length : item.prompts.length,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+      };
+    });
+    files = {
+      isRoot: true,
+      items: files,
+    };
   } else {
     files = await Folder.findById(id);
 
+    let items =
+      files?.chats?.map((convId: string, idx: number) => {
+        return {
+          id: idx,
+          conversationId: convId,
+          isFolder: false,
+        };
+      }) || [];
+
     if (files.type === "prompts") {
       files = await Folder.findById(id).populate("prompts");
+
+      items = files.prompts.map((item: PromptSchemaType) => {
+        return {
+          id: item._id,
+          title: item.title,
+          content: item.content,
+          isFolder: false,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+        };
+      });
     }
 
-    const folders = await Folder.find({ parent: id }).select(
-      "-userId -platform"
+    let folders = await Folder.find({ parent: id }).select(
+      "title chats prompts createdAt updatedAt"
     );
-    files["folders"] = folders;
+
+    folders = folders.map((item) => {
+      return {
+        id: item._id,
+        title: item.title,
+        isFolder: true,
+        totalItems: type === "chats" ? item.chats.length : item.prompts.length,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+      };
+    });
+
+    items = [...folders, ...items];
+
+    files = {
+      isRoot: false,
+      info: {
+        id: files._id,
+        title: files.title,
+        createdAt: files.createdAt,
+        updatedAt: files.updatedAt,
+      },
+      items,
+    };
   }
 
   return ok({

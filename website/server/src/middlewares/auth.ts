@@ -34,8 +34,6 @@ const isUserAuthenticated = apiHandler(async (req, res, next) => {
     );
   }
 
-  console.log("Step 1: ", accesstoken);
-
   try {
     const payload = JWTTokenVerifier(accesstoken);
     if (!payload) {
@@ -46,7 +44,6 @@ const isUserAuthenticated = apiHandler(async (req, res, next) => {
         )
       );
     }
-    console.log("Step 2: ", payload);
     req.user.id = payload.userId;
   } catch (error: any) {
     if (error.message !== "jwt expired") {
@@ -60,8 +57,6 @@ const isUserAuthenticated = apiHandler(async (req, res, next) => {
 
     const payload = jwt.decode(accesstoken) as any;
     const user = await getUserByIDorEmail({ type: "id", data: payload.userId });
-
-    console.log("Step 3: ", payload);
 
     if (!user) {
       return next(
@@ -83,8 +78,6 @@ const isUserAuthenticated = apiHandler(async (req, res, next) => {
       );
     }
 
-    console.log("Step 4: ", session);
-
     try {
       const payload = JWTTokenVerifier(session.refreshToken);
       if (!payload) {
@@ -96,8 +89,6 @@ const isUserAuthenticated = apiHandler(async (req, res, next) => {
         );
       }
 
-      console.log("Step 5: ", payload);
-
       const { accessToken } = await generateRefreshAndAccessToken({
         userId: user._id,
       });
@@ -106,8 +97,6 @@ const isUserAuthenticated = apiHandler(async (req, res, next) => {
         origin: getDomainURL(origin),
         forCookie: true,
       });
-
-      console.log("Step 6: ", domainRoot);
 
       res.cookie(ACCESS_TOKEN_NAME, accessToken, {
         ...accessCookieOptions,

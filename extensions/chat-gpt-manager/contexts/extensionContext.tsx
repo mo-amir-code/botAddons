@@ -1,3 +1,4 @@
+import type { FolderInfoType } from "@/utils/types/components/modal"
 import type {
   ConversationObjectType,
   FoldersWindow
@@ -25,6 +26,7 @@ interface ExtensionState {
   userInfo: UserInfoType | null
   headerStates: HeaderStatesType
   foldersWindow: FoldersWindow
+  currentFolderInfo: FolderInfoType | null
 }
 
 const initialState: ExtensionState = {
@@ -46,7 +48,8 @@ const initialState: ExtensionState = {
   foldersWindow: {
     type: null,
     folders: []
-  }
+  },
+  currentFolderInfo: null
 }
 
 interface ExtensionActions {
@@ -98,6 +101,8 @@ export function ExtensionProvider({ children }: ExtensionProviderProps) {
         const newHeaderStates = { ...state.headerStates }
         for (let obj in newHeaderStates) newHeaderStates[obj] = false
         return { ...state, headerStates: newHeaderStates }
+      case "CURRENT_FOLDER_INFO":
+        return { ...state, currentFolderInfo: action.payload }
       default:
         return state
     }

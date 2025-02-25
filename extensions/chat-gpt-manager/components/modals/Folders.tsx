@@ -1,7 +1,7 @@
 import { useExtension } from "@/contexts/extensionContext"
+import { stringTimeIntoNumber } from "@/utils/services"
 import { fetchFolders } from "@/utils/services/queries/folder"
 import type { FolderFileType } from "@/utils/types/components/modal"
-import type { ConversationObjectType } from "@/utils/types/components/search"
 import type { FetchFoldersQueryType } from "@/utils/types/services/queries"
 import { useEffect, useState } from "react"
 
@@ -10,12 +10,13 @@ import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
 
 const Folders = () => {
-  const [allFiles, setAllFiles] = useState<any>([])
+  const [allFiles, setAllFiles] = useState<FolderFileType>({
+    isRoot: true,
+    items: []
+  })
   const [query, setQuery] = useState<string>("")
 
-  const {
-    foldersWindow: { folders }
-  } = useExtension()
+  const { foldersWindow, dispatch } = useExtension()
 
   const handleSelectItems = ({
     isAllSelect,
@@ -29,18 +30,27 @@ const Folders = () => {
 
   useEffect(() => {
     const fetchNow = async () => {
-      let obj: FetchFoldersQueryType = { type: "chats" }
-      if (folders.length) {
-        obj["id"] = folders[folders.length - 1]
-        const file = allFiles.find((f) => f.title == obj["id"])
-        obj["id"] = file.id
+      try {
+        let obj: FetchFoldersQueryType = { type: "chats" }
+        if (foldersWindow.folders.length) {
+          obj["id"] = foldersWindow.folders[foldersWindow.folders.length - 1]
+          const file = allFiles?.items?.find((f) => f.title == obj["id"])
+          obj["id"] = file.id as string
+        }
+        const res = await fetchFolders(obj)
+        const data = res.data.data
+        setAllFiles(data)
+        if (!data?.isRoot) {
+          dispatch({ type: "CURRENT_FOLDER_INFO", payload: data?.info })
+        }
+      } catch (error) {
+        console.error(error)
       }
-      const res = await fetchFolders(obj)
-      setAllFiles(res.data?.data || []);
     }
 
     fetchNow()
-  }, [folders])
+    console.log(foldersWindow)
+  }, [foldersWindow])
 
   return (
     <div className="relative">
@@ -48,14 +58,15 @@ const Folders = () => {
       <SelectAll selectedConversations={1} func={handleSelectItems} />
 
       <ul className="mt-2">
-        {allFiles.map(() => (
+        {allFiles?.items?.map(({ id, title, createdAt, isFolder }) => (
           <Item
-            id={1}
+            key={id}
+            id={id}
             isSelected={dummy}
             onChatSelectChange={dummy}
-            title="Hello"
-            update_time={8292927381}
-            itemType="folder"
+            title={title}
+            update_time={stringTimeIntoNumber(createdAt)}
+            itemType={isFolder ? "folder" : "chat"}
             modalType="folders"
           />
         ))}

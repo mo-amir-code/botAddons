@@ -12,13 +12,35 @@ interface PromptFileType {
   content: string
 }
 
-interface FolderFileType<ChatType> {
-  id: string
-  parent?: string
-  title: string
-  chats: ChatType[]
-  prompts: PromptFileType[]
-  type: FoldersType
+interface FolderFileType {
+  isRoot: boolean
+  info?: FolderInfoType
+  items: FolderItemType[]
 }
 
-export type { ModalType, PromptFileType, FolderFileType }
+type FolderInfoType = {
+  id: string
+  title: string
+  createdAt: string
+  updatedAt: string
+}
+
+type FolderItemType = {
+  id: string | number
+  title: string
+  isFolder: boolean
+  totalItems: number
+  createdAt: string
+  updatedAt: string
+} & (
+  | { content: string; conversationId?: never }
+  | { conversationId: string; content?: never }
+)
+
+export type {
+  ModalType,
+  PromptFileType,
+  FolderFileType,
+  FolderInfoType,
+  FolderItemType
+}

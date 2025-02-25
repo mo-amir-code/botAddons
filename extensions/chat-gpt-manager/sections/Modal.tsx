@@ -14,7 +14,8 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
   const {
     headerStates: { exactMatchStatus },
     dispatch,
-    foldersWindow
+    foldersWindow,
+    currentFolderInfo
   } = useExtension()
 
   const handleClose = (e: any) => {
@@ -64,18 +65,23 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
               </div>
             )}
             <h2 className="text-3xl font-semibold text-primary-white">
-              {(() => {
-                switch (openModal) {
-                  case "search":
-                    return "Legendary Conversation History"
-                  case "chats":
-                    return "Manage Conversations"
-                  case "folders":
-                    return "Manage Folders"
-                  case "prompts":
-                    return "Manage Prompts"
-                }
-              })()}
+              {!(
+                currentFolderInfo &&
+                (openModal === "folders" || openModal === "prompts")
+              )
+                ? (() => {
+                    switch (openModal) {
+                      case "search":
+                        return "Legendary Conversation History"
+                      case "chats":
+                        return "Manage Conversations"
+                      case "folders":
+                        return "Manage Folders"
+                      case "prompts":
+                        return "Manage Prompts"
+                    }
+                  })()
+                : currentFolderInfo.title}
             </h2>
             {!!foldersWindow.type && (
               <div
