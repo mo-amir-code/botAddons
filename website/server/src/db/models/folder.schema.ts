@@ -17,7 +17,6 @@ const folderSchema: Schema<FolderSchemaType> = new Schema<FolderSchemaType>(
     title: {
       type: String,
       required: [true, "Title is required"],
-      unique: true,
     },
     chats: [{ type: String }],
     prompts: [

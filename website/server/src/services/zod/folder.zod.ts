@@ -9,14 +9,17 @@ const createFolderZodSchema = z.object({
     type: z.enum(["chats", "prompts"], {
       required_error: ZOD_REQUIRED_ERR.replace("{field}", "Type"),
     }),
+    parent: z.string().optional(),
   }),
 });
 
 const deleteFolderByIdZodSchema = z.object({
   body: z.object({
-    folderId: z.string({
-      required_error: ZOD_REQUIRED_ERR.replace("{field}", "Folder ID"),
-    }),
+    ids: z
+      .string({
+        required_error: ZOD_REQUIRED_ERR.replace("{field}", "Folder ID"),
+      })
+      .array(),
   }),
 });
 

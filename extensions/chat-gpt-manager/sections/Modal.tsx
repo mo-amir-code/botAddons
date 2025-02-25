@@ -57,7 +57,7 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
         {/* Header */}
         <div className="border-b border-white/60 mb-4">
           <div className="flex items-center gap-4">
-            {!!foldersWindow.type && (
+            {!!foldersWindow.folders.length && (
               <div
                 onClick={() => handleBack()}
                 className="rounded-full w-10 h-10 border border-primary-off-white flex items-center justify-center">
@@ -83,7 +83,7 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
                   })()
                 : currentFolderInfo.title}
             </h2>
-            {!!foldersWindow.type && (
+            {!!foldersWindow.folders.length && (
               <div
                 onClick={() =>
                   dispatch({
@@ -115,7 +115,7 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
             )}
 
             {/* Chats Button */}
-            {!!(openModal === "folders" && foldersWindow.type === "chats") && (
+            {!!(openModal === "folders" && foldersWindow.folders.length) && (
               <Button
                 icon="chats"
                 title="Add Chats"

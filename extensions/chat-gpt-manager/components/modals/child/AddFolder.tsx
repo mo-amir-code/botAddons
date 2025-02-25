@@ -2,23 +2,56 @@ import Button from "@/components/buttons/Button"
 import { SearchField } from "@/components/common"
 import { useExtension } from "@/contexts/extensionContext"
 import { httpAxios } from "@/utils/services/axios"
+import type { FolderFileType } from "@/utils/types/components/modal"
 import { useState } from "react"
+import toast from "react-hot-toast"
 
 const AddFolder = () => {
   const [newFolderName, setNewFolderName] = useState<string>("")
   const {
     dispatch,
     headerStates: { isFolderEditingOpen },
-    foldersWindow
+    foldersWindow,
+    currentFolderInfo,
+    folderAllFiles
   } = useExtension()
+
+  const handleEditFolder = async () => {
+    const res = await httpAxios.patch("/folder", {
+      id: currentFolderInfo.id,
+      title: newFolderName
+    })
+
+    const data = res.data
+
+    dispatch({
+      type: "CURRENT_FOLDER_INFO",
+      payload: { ...currentFolderInfo, title: newFolderName }
+    })
+
+    toast.success(data.message)
+  }
 
   const handleSubmit = async () => {
     try {
-      const res = await httpAxios.post("/folder", {
+      if (isFolderEditingOpen) return await handleEditFolder()
+
+      let body = {
         title: newFolderName,
         type: foldersWindow.type
-      })
-      console.log(res);
+      }
+      if (currentFolderInfo) {
+        body["parent"] = currentFolderInfo.id
+      }
+      const res = await httpAxios.post("/folder", body)
+
+      const data = res.data
+
+      let payloadData: FolderFileType = { ...folderAllFiles }
+      payloadData.items = [...folderAllFiles.items, data.data]
+
+      dispatch({ type: "FOLDER_ALL_FILES", payload: payloadData })
+      toast.success(data.message)
     } catch (error) {
       console.error(error)
     }

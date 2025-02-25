@@ -34,16 +34,26 @@ const createFolderHandler = apiHandler(async (req, res) => {
   };
 
   const newFolder = await createFolder(newFolderData);
+
+  const resData = {
+    id: newFolder._id,
+    title: newFolder.title,
+    isFolder: true,
+    totalItems: 0,
+    createdAt: newFolder.createdAt,
+    updatedAt: newFolder.updatedAt,
+  };
+
   return ok({
     res,
     message: FOLDER_CREATED_RES_MSG,
-    data: newFolder,
+    data: resData,
   });
 });
 
 const deleteFolderByIdHandler = apiHandler(async (req, res) => {
-  const { folderId } = req.body as { folderId: string };
-  await deleteFolderById(folderId);
+  const { ids } = req.body as { ids: string[] };
+  await Folder.deleteMany({ _id: { $in: ids } });
 
   return ok({
     res,

@@ -1,4 +1,7 @@
-import type { FolderInfoType } from "@/utils/types/components/modal"
+import type {
+  FolderFileType,
+  FolderInfoType
+} from "@/utils/types/components/modal"
 import type {
   ConversationObjectType,
   FoldersWindow
@@ -27,6 +30,7 @@ interface ExtensionState {
   headerStates: HeaderStatesType
   foldersWindow: FoldersWindow
   currentFolderInfo: FolderInfoType | null
+  folderAllFiles: FolderFileType
 }
 
 const initialState: ExtensionState = {
@@ -49,7 +53,11 @@ const initialState: ExtensionState = {
     type: null,
     folders: []
   },
-  currentFolderInfo: null
+  currentFolderInfo: null,
+  folderAllFiles: {
+    isRoot: true,
+    items: []
+  }
 }
 
 interface ExtensionActions {
@@ -103,6 +111,8 @@ export function ExtensionProvider({ children }: ExtensionProviderProps) {
         return { ...state, headerStates: newHeaderStates }
       case "CURRENT_FOLDER_INFO":
         return { ...state, currentFolderInfo: action.payload }
+      case "FOLDER_ALL_FILES":
+        return { ...state, folderAllFiles: action.payload }
       default:
         return state
     }

@@ -1,4 +1,4 @@
-import type { FolderInfoType } from "../components/modal"
+import type { FolderFileType, FolderInfoType } from "../components/modal"
 import type {
   ConversationObjectType,
   FoldersWindow
@@ -32,6 +32,7 @@ type ReducerActionType =
   | { type: "FOLDERS_WINDOW"; payload: FoldersWindow }
   | { type: "RESET_HEADER_STATES" }
   | { type: "CURRENT_FOLDER_INFO"; payload: FolderInfoType | null }
+  | { type: "FOLDER_ALL_FILES"; payload: FolderFileType }
 
 type ActionType =
   | "EXTENSION_LOADING"
@@ -43,6 +44,7 @@ type ActionType =
   | "CHAT_LOADED"
   | "TOGGLE_HEADER_STATE"
   | "CURRENT_FOLDER_INFO"
+  | "FOLDER_ALL_FILES"
 
 interface HeaderStatesType {
   exactMatchStatus: boolean
