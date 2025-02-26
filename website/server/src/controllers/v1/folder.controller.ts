@@ -3,23 +3,31 @@ import {
   createFolder,
   deleteFolderById,
   findFolderByIdAndUpdate,
+  getFolderById,
 } from "../../db/services/folder.db.service.js";
-import { apiHandler, ok } from "../../services/errorHandling/index.js";
+import {
+  apiHandler,
+  ErrorHandlerClass,
+  ok,
+} from "../../services/errorHandling/index.js";
 import {
   CreateFolderBodyType,
   CreateFolderType,
+  DeleteFoldersBodyType,
 } from "../../types/controllers/v1/folder.js";
 import { PromptSchemaType } from "../../types/db/schema/index.js";
 import {
   FindFolderByIdAndUpdate,
   GetFoldersType,
 } from "../../types/db/services/folder.types.js";
+import { BAD_REQUEST_STATUS_CODE } from "../../utils/constants/common.js";
 import {
   FOLDER_CREATED_RES_MSG,
   FOLDER_DELETED_RES_MSG,
   FOLDER_FETCHED_RES_MSG,
   FOLDER_FILES_FETCHED_RES_MSG,
   FOLDER_UPDATE_RES_MSG,
+  SOMETHING_WENT_WRONG,
 } from "../../utils/constants/serverResponseMessages.js";
 
 const createFolderHandler = apiHandler(async (req, res) => {
@@ -51,9 +59,30 @@ const createFolderHandler = apiHandler(async (req, res) => {
   });
 });
 
-const deleteFolderByIdHandler = apiHandler(async (req, res) => {
-  const { ids } = req.body as { ids: string[] };
-  await Folder.deleteMany({ _id: { $in: ids } });
+const deleteFolderByIdHandler = apiHandler(async (req, res, next) => {
+  const { ids, folderId } = req.body as DeleteFoldersBodyType;
+  const folderIds = ids.filter((id) => !id.includes("-"));
+
+  if (folderIds.length) await Folder.deleteMany({ _id: { $in: folderIds } });
+
+  const chatIds = ids.filter((id) => id.includes("-"));
+
+  if (!chatIds.length)
+    return ok({
+      res,
+      message: FOLDER_DELETED_RES_MSG,
+    });
+
+  const folder = await getFolderById(folderId);
+
+  if (!folder) {
+    return next(
+      new ErrorHandlerClass(SOMETHING_WENT_WRONG, BAD_REQUEST_STATUS_CODE)
+    );
+  }
+
+  folder.chats = folder.chats.filter((cId) => !chatIds.includes(cId));
+  await folder.save();
 
   return ok({
     res,

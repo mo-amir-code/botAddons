@@ -1,20 +1,29 @@
 import Button from "@/components/buttons/Button"
 import { SearchField } from "@/components/common"
 import { useExtension } from "@/contexts/extensionContext"
+import { httpAxios } from "@/utils/services/axios"
 import { useState } from "react"
 
 const AddPrompt = () => {
   const [title, setTitle] = useState<string>("")
   const [content, setContent] = useState<string>("")
-  const { dispatch } = useExtension()
+  const { dispatch, currentFolderInfo } = useExtension()
 
   const handleContent = (content: string) => {
     if (content.length > 3000) return
     setContent(content)
   }
 
-  const handleSubmit = () => {
-    alert(title)
+  const handleSubmit = async () => {
+    try {
+      await httpAxios.post("/prompt", {
+        title,
+        content,
+        folderId: currentFolderInfo?.id
+      });
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const handleClose = () => {

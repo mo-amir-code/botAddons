@@ -29,9 +29,9 @@ type FolderItemType = {
   id: string | number
   title: string
   isFolder: boolean
-  totalItems: number
-  createdAt: string
-  updatedAt: string
+  totalItems?: number
+  createdAt: string | number
+  updatedAt: string | number
 } & (
   | { content: string; conversationId?: never }
   | { conversationId: string; content?: never }

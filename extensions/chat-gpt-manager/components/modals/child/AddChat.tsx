@@ -2,65 +2,133 @@ import Button from "@/components/buttons/Button"
 import { SearchField, SelectAll } from "@/components/common"
 import Item from "@/components/common/Item"
 import { useExtension } from "@/contexts/extensionContext"
-import { useState } from "react"
+import { httpAxios } from "@/utils/services/axios"
+import type { FolderItemType } from "@/utils/types/components/modal"
+import type { ConversationObjectType } from "@/utils/types/components/search"
+import { useEffect, useState } from "react"
 
 const AddChat = () => {
-  const [isAllSelected, setIsAllSelected] = useState(false)
-  const [searchQuery, setSearchQuery] = useState<string>("")
-  const { dispatch } = useExtension()
+  const [results, setResults] = useState<
+    ConversationObjectType<string, number>[]
+  >([])
+  const [selectedItemsId, setSelectedItemsId] = useState<string[]>([])
+  const { dispatch, allConversations, currentFolderInfo, folderAllFiles } =
+    useExtension()
 
-  const handleSelect = ({ isSelectAll }: { isSelectAll?: boolean }) => {
-    setIsAllSelected(isAllSelected ? true : false)
+  const handleSelectItems = ({
+    isAllSelect,
+    id
+  }: {
+    isAllSelect?: boolean
+    id: string
+  }) => {
+    let updatedSelectedItemsId = [...selectedItemsId]
+    if (isAllSelect) {
+      updatedSelectedItemsId = results
+        .filter((c) => !c.is_archived)
+        .map((c) => c.id)
+      setSelectedItemsId(updatedSelectedItemsId)
+      return
+    } else if (isAllSelect === false) {
+      setSelectedItemsId([])
+      return
+    }
+
+    const isExist = updatedSelectedItemsId.find((cId) => cId == id)
+
+    if (isExist) {
+      updatedSelectedItemsId = updatedSelectedItemsId.filter(
+        (cId) => cId !== id
+      )
+    } else {
+      updatedSelectedItemsId.push(id)
+    }
+
+    setSelectedItemsId(updatedSelectedItemsId)
   }
 
   const isSelected = (id: string) => {
-    return false
+    return selectedItemsId.find((cId) => cId === id) ? true : false
   }
 
-  const handleAddChats = () => {}
+  const handleAddChats = async () => {
+    try {
+      await httpAxios.post("/chat", {
+        ids: selectedItemsId,
+        folderId: currentFolderInfo.id
+      })
+      const newItems: FolderItemType[] = selectedItemsId.map((cId) => {
+        const conv = allConversations.find((item) => item.id === cId)
+        const newItem: FolderItemType = {
+          id: cId,
+          conversationId: cId,
+          title: conv.title,
+          isFolder: false,
+          updatedAt: conv.update_time,
+          createdAt: conv.update_time
+        }
+        return newItem
+      })
+      const updatedFolderAllFiles = { ...folderAllFiles }
+      updatedFolderAllFiles.items.push(...newItems)
+      dispatch({ type: "FOLDER_ALL_FILES", payload: updatedFolderAllFiles })
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   const handleClose = () => {
     dispatch({ type: "RESET_HEADER_STATES" })
   }
 
+  const handleSearchOnChange = (query: string) => {
+    const filteredConversations = allConversations.filter((c) => {
+      return !c.is_archived && c.title.toLowerCase().includes(query)
+    })
+    setResults(filteredConversations)
+  }
+
+  useEffect(() => {
+    if (allConversations.length) {
+      setResults(allConversations.filter((c) => !c.is_archived))
+    }
+  }, [allConversations])
+
+  useEffect(() => {
+    const filteredResults = results.filter(
+      (c) => !folderAllFiles.items.some((it) => it?.conversationId === c.id)
+    )
+    if (filteredResults.length < results.length) {
+      setResults(filteredResults)
+    }
+  }, [results])
+
   return (
     <div className="w-[600px] relative">
-      <SearchField placeholder={"Search Chats"} func={setSearchQuery} />
-      <SelectAll selectedConversations={1} func={handleSelect} />
+      <SearchField placeholder={"Search Chats"} func={handleSearchOnChange} />
+      <SelectAll
+        selectedConversations={selectedItemsId.length}
+        func={handleSelectItems}
+      />
 
       <div className="overflow-height mt-2">
         <ul className="space-y-2 text-white">
-          <Item
-            id={1}
-            isSelected={isSelected}
-            onChatSelectChange={handleSelect}
-            title={"testing"}
-            update_time={929829382}
-            itemType="chat"
-            modalType="folders"
-          />
-          <Item
-            id={1}
-            isSelected={isSelected}
-            onChatSelectChange={handleSelect}
-            title={"testing"}
-            update_time={929829382}
-            itemType="chat"
-            modalType="folders"
-          />
-          <Item
-            id={1}
-            isSelected={isSelected}
-            onChatSelectChange={handleSelect}
-            title={"testing"}
-            update_time={929829382}
-            itemType="chat"
-            modalType="folders"
-          />
+          {results.map(({ id, title, update_time }, idx) => (
+            <Item
+              key={id + idx}
+              id={id}
+              isSelected={isSelected}
+              onChatSelectChange={handleSelectItems}
+              title={title}
+              update_time={update_time}
+              itemType="chat"
+              modalType="folders"
+            />
+          ))}
         </ul>
       </div>
 
-      <div className="absolute bottom-2 right-2 flex items-center justify-end gap-2">
+      <div className="flex items-center justify-end gap-2 mt-2">
         <Button title="Close" func={handleClose} />
         <Button title="Add" func={handleAddChats} />
       </div>

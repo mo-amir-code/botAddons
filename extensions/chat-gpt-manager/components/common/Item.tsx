@@ -9,7 +9,7 @@ import { TbPrompt } from "react-icons/tb"
 interface ItemType {
   id: number | string
   title: string
-  update_time: number
+  update_time?: number | string
   itemType?: "folder" | "chat" | "prompt"
   isSelected: Function
   onChatSelectChange: Function
@@ -64,13 +64,15 @@ const Item = ({
             <span>{title}</span>
           </div>
         </div>
-        <span
-          className={`${itemType === "chat" ? "bg-yellow-500 text-black" : "text-primary-white"}`}>
-          {formatTimestamp({
-            timestamp: update_time,
-            type: "date"
-          })}
-        </span>
+        {!!update_time && (
+          <span
+            className={`${itemType === "chat" ? "bg-yellow-500 text-black" : "text-primary-white"}`}>
+            {formatTimestamp({
+              timestamp: update_time,
+              type: "date"
+            })}
+          </span>
+        )}
       </label>
     </li>
   )

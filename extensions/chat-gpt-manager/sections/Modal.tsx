@@ -106,7 +106,7 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
             />
 
             {/* Folder Button */}
-            {!!(openModal === "folders") && (
+            {!!(openModal === "folders" || openModal === "prompts") && (
               <Button
                 icon="folders"
                 title="Add Folder"

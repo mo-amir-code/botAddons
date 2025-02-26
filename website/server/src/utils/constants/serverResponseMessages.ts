@@ -29,12 +29,12 @@ export {
     PASS_CHANGED_RES_MSG,
     USER_IS_NOT_EXIST_RES_MSG,
     UNAUTHORIZED_REQUEST_RES_MSG,
-    SESSION_EXPIRED_RES_MSG
+    SESSION_EXPIRED_RES_MSG,
 }
 
 // Folder
 const FOLDER_CREATED_RES_MSG = "Folder created";
-const FOLDER_DELETED_RES_MSG = "Folder deleted";
+const FOLDER_DELETED_RES_MSG = "Folder/Files deleted";
 const FOLDER_UPDATE_RES_MSG = "Folder updated";
 const FOLDER_FETCHED_RES_MSG = "Folder fetched";
 const FOLDER_FILES_FETCHED_RES_MSG = "Folder files fetched";
@@ -45,4 +45,12 @@ export {
     FOLDER_UPDATE_RES_MSG,
     FOLDER_FETCHED_RES_MSG,
     FOLDER_FILES_FETCHED_RES_MSG
+}
+
+// Chats
+const CHATS_ADDED_RES_MSG = "Chats added"
+
+
+export {
+    CHATS_ADDED_RES_MSG
 }

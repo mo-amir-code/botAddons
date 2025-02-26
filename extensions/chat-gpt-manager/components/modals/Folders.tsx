@@ -1,7 +1,7 @@
 import { useExtension } from "@/contexts/extensionContext"
-import { stringTimeIntoNumber } from "@/utils/services"
 import { httpAxios } from "@/utils/services/axios"
 import { fetchFolders } from "@/utils/services/queries/folder"
+import type { FolderItemType } from "@/utils/types/components/modal"
 import type { FetchFoldersQueryType } from "@/utils/types/services/queries"
 import { useEffect, useState } from "react"
 
@@ -10,10 +10,16 @@ import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
 
 const Folders = () => {
-  const [query, setQuery] = useState<string>("")
   const [selectedItemsId, setSelectedItemsId] = useState<string[]>([])
+  const [results, setResults] = useState<FolderItemType[]>([])
 
-  const { foldersWindow, dispatch, folderAllFiles } = useExtension()
+  const {
+    foldersWindow,
+    dispatch,
+    folderAllFiles,
+    allConversations,
+    currentFolderInfo
+  } = useExtension()
 
   const handleSelectItems = ({
     isAllSelect,
@@ -24,9 +30,10 @@ const Folders = () => {
   }) => {
     let updatedSelectedItemsId = [...selectedItemsId]
     if (isAllSelect) {
-      updatedSelectedItemsId = folderAllFiles.items.map(
-        (item) => item.id
-      ) as string[]
+      updatedSelectedItemsId = results.map((item) => {
+        if (item.isFolder) return item.id
+        return item.conversationId
+      }) as string[]
       setSelectedItemsId(updatedSelectedItemsId)
       return
     } else if (isAllSelect === false) {
@@ -54,16 +61,25 @@ const Folders = () => {
   const handleDelete = async () => {
     try {
       await httpAxios.delete("/folder", {
-        data: { ids: selectedItemsId }
+        data: { ids: selectedItemsId, folderId: currentFolderInfo.id }
       })
       let newFolderAllFiles = { ...folderAllFiles }
       newFolderAllFiles.items = newFolderAllFiles.items.filter(
-        (item) => !selectedItemsId.includes(item.id as string)
+        (item) =>
+          !selectedItemsId.includes(item.conversationId || (item.id as string))
       )
       dispatch({ type: "FOLDER_ALL_FILES", payload: newFolderAllFiles })
     } catch (error) {
       console.log(error)
     }
+  }
+
+  const handleQuery = (query: string) => {
+    setResults(
+      folderAllFiles.items.filter((item) =>
+        item.title.toLowerCase().includes(query.toLowerCase())
+      )
+    )
   }
 
   useEffect(() => {
@@ -76,7 +92,18 @@ const Folders = () => {
           obj["id"] = file.id as string
         }
         const res = await fetchFolders(obj)
-        const data = res.data.data
+        let data = res.data.data
+        data.items = data.items.map((item) => {
+          if (item.isFolder) return item
+          const conv = allConversations.find(
+            (c) => c.id === item.conversationId
+          )
+          return {
+            ...item,
+            title: conv?.title,
+            updatedAt: conv?.update_time
+          }
+        })
         dispatch({ type: "FOLDER_ALL_FILES", payload: data })
         dispatch({ type: "CURRENT_FOLDER_INFO", payload: data?.info })
       } catch (error) {
@@ -85,25 +112,29 @@ const Folders = () => {
     }
 
     fetchNow()
-  }, [foldersWindow])
+  }, [foldersWindow, allConversations])
+
+  useEffect(() => {
+    setResults(folderAllFiles.items)
+  }, [folderAllFiles])
 
   return (
     <div className="relative">
-      <SearchField placeholder="Search Folder" func={setQuery} />
+      <SearchField placeholder="Search Folder" func={handleQuery} />
       <SelectAll
         selectedConversations={selectedItemsId.length}
         func={handleSelectItems}
       />
 
       <ul className="mt-2">
-        {folderAllFiles?.items?.map(({ id, title, createdAt, isFolder }) => (
+        {results?.map(({ id, title, updatedAt, isFolder, conversationId }) => (
           <Item
             key={id}
-            id={id}
+            id={isFolder ? id : conversationId}
             isSelected={isSelected}
             onChatSelectChange={handleSelectItems}
             title={title}
-            update_time={stringTimeIntoNumber(createdAt)}
+            update_time={updatedAt ? updatedAt : undefined}
             itemType={isFolder ? "folder" : "chat"}
             modalType="folders"
           />
