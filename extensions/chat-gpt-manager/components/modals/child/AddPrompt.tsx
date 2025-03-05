@@ -7,7 +7,7 @@ import { useState } from "react"
 const AddPrompt = () => {
   const [title, setTitle] = useState<string>("")
   const [content, setContent] = useState<string>("")
-  const { dispatch, currentFolderInfo } = useExtension()
+  const { dispatch, currentFolderInfo, folderAllFiles } = useExtension()
 
   const handleContent = (content: string) => {
     if (content.length > 3000) return
@@ -16,11 +16,24 @@ const AddPrompt = () => {
 
   const handleSubmit = async () => {
     try {
-      await httpAxios.post("/prompt", {
+      const res = await httpAxios.post("/prompt", {
         title,
         content,
         folderId: currentFolderInfo?.id
-      });
+      })
+
+      let updatedFolderAllFiles = { ...folderAllFiles }
+
+      updatedFolderAllFiles.items.push({
+        id: res.data.data.promptId,
+        title,
+        isFolder: false,
+        content,
+        createdAt: res.data.data.updatedAt,
+        updatedAt: res.data.data.updatedAt
+      })
+
+      dispatch({ type: "FOLDER_ALL_FILES", payload: updatedFolderAllFiles })
     } catch (error) {
       console.log(error)
     }
@@ -31,14 +44,14 @@ const AddPrompt = () => {
   }
 
   return (
-    <div className="w-[600px]">
+    <div className="w-[400px]">
       <SearchField placeholder={"Enter Prompt Title"} func={setTitle} />
       <div>
         <div className="mb-4 p-2 flex items-center rounded-md border border-white/60">
           <textarea
             placeholder={"Start Writing Your Prompt..."}
             autoFocus
-            rows={8}
+            rows={16}
             value={content}
             className="w-full bg-transparent outline-none text-white/80"
             onChange={(e: any) => handleContent(e.target.value)}

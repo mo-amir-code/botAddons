@@ -21,6 +21,9 @@ const deleteFolderByIdZodSchema = z.object({
       })
       .array(),
     folderId: z.string().optional(),
+    type: z.enum(["chats", "prompts"], {
+      required_error: ZOD_REQUIRED_ERR.replace("{field}", "Type"),
+    }),
   }),
 });
 

@@ -13,15 +13,38 @@ const Prompts = () => {
   const [selectedItemsId, setSelectedItemsId] = useState<string[]>([])
   const [results, setResults] = useState<FolderItemType[]>([])
 
-  const { folderAllFiles, foldersWindow, dispatch } = useExtension()
+  const { folderAllFiles, foldersWindow, dispatch, currentFolderInfo } =
+    useExtension()
 
   const handleSelectItems = ({
     isAllSelect,
     id
   }: {
     isAllSelect?: boolean
-    id: number
-  }) => {}
+    id: string
+  }) => {
+    let updatedSelectedItemsId = [...selectedItemsId]
+    if (isAllSelect) {
+      updatedSelectedItemsId = results.map((item) => item.id) as string[]
+      setSelectedItemsId(updatedSelectedItemsId)
+      return
+    } else if (isAllSelect === false) {
+      setSelectedItemsId([])
+      return
+    }
+
+    const isExist = updatedSelectedItemsId.find((cId) => cId == id)
+
+    if (isExist) {
+      updatedSelectedItemsId = updatedSelectedItemsId.filter(
+        (cId) => cId !== id
+      )
+    } else {
+      updatedSelectedItemsId.push(id)
+    }
+
+    setSelectedItemsId(updatedSelectedItemsId)
+  }
 
   const isSelected = (id: string) => {
     return selectedItemsId.find((cId) => cId === id) ? true : false
@@ -37,6 +60,19 @@ const Prompts = () => {
 
   const handleDelete = async () => {
     try {
+      await httpAxios.delete("/prompt", {
+        data: {
+          ids: selectedItemsId,
+          folderId: currentFolderInfo?.id,
+          type: foldersWindow.type
+        }
+      })
+      let newFolderAllFiles = { ...folderAllFiles }
+      newFolderAllFiles.items = newFolderAllFiles.items.filter(
+        (item) =>
+          !selectedItemsId.includes(item.conversationId || (item.id as string))
+      )
+      dispatch({ type: "FOLDER_ALL_FILES", payload: newFolderAllFiles })
     } catch (error) {
       console.log(error)
     }
@@ -47,9 +83,7 @@ const Prompts = () => {
       try {
         let obj: FetchFoldersQueryType = { type: "prompts" }
         if (foldersWindow.folders.length) {
-          obj["id"] = foldersWindow.folders[foldersWindow.folders.length - 1]
-          const file = folderAllFiles?.items?.find((f) => f.title == obj["id"])
-          obj["id"] = file.id as string
+          obj["id"] = foldersWindow.folders[foldersWindow.folders.length - 1].id
         }
         const res = await fetchFolders(obj)
         let data = res.data.data
@@ -70,13 +104,20 @@ const Prompts = () => {
   return (
     <div>
       <SearchField placeholder="Search Folder" func={handleQuery} />
-      <SelectAll selectedConversations={1} func={handleSelectItems} />
+      <SelectAll
+        isChecked={
+          selectedItemsId.length === folderAllFiles.items.length &&
+          folderAllFiles.items.length > 0
+        }
+        selectedConversations={selectedItemsId.length}
+        func={handleSelectItems}
+      />
 
-      <ul className="mt-2">
-        {results?.map(({ id, title, updatedAt, isFolder, conversationId }) => (
+      <ul className="mt-2 overflow-height">
+        {results?.map(({ id, title, updatedAt, isFolder }) => (
           <Item
             key={id}
-            id={isFolder ? id : conversationId}
+            id={id}
             isSelected={isSelected}
             onChatSelectChange={handleSelectItems}
             title={title}

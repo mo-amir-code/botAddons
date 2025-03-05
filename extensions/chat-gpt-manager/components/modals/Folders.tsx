@@ -61,7 +61,11 @@ const Folders = () => {
   const handleDelete = async () => {
     try {
       await httpAxios.delete("/folder", {
-        data: { ids: selectedItemsId, folderId: currentFolderInfo.id }
+        data: {
+          ids: selectedItemsId,
+          folderId: currentFolderInfo?.id,
+          type: foldersWindow.type
+        }
       })
       let newFolderAllFiles = { ...folderAllFiles }
       newFolderAllFiles.items = newFolderAllFiles.items.filter(
@@ -87,9 +91,7 @@ const Folders = () => {
       try {
         let obj: FetchFoldersQueryType = { type: "chats" }
         if (foldersWindow.folders.length) {
-          obj["id"] = foldersWindow.folders[foldersWindow.folders.length - 1]
-          const file = folderAllFiles?.items?.find((f) => f.title == obj["id"])
-          obj["id"] = file.id as string
+          obj["id"] = foldersWindow.folders[foldersWindow.folders.length - 1].id
         }
         const res = await fetchFolders(obj)
         let data = res.data.data
@@ -122,11 +124,15 @@ const Folders = () => {
     <div className="relative">
       <SearchField placeholder="Search Folder" func={handleQuery} />
       <SelectAll
+        isChecked={
+          selectedItemsId.length === folderAllFiles.items.length &&
+          folderAllFiles.items.length > 0
+        }
         selectedConversations={selectedItemsId.length}
         func={handleSelectItems}
       />
 
-      <ul className="mt-2">
+      <ul className="mt-2 overflow-height">
         {results?.map(({ id, title, updatedAt, isFolder, conversationId }) => (
           <Item
             key={id}

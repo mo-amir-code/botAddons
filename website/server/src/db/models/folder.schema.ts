@@ -2,7 +2,6 @@ import mongoose, { Schema } from "mongoose";
 import { FolderSchemaType } from "../../types/db/schema/index.js";
 import {
   FOLDER_COLLECTION_NAME,
-  PROMPT_COLLECTION_NAME,
   USER_COLLECTION_NAME,
 } from "../../config/constants.js";
 
@@ -19,13 +18,6 @@ const folderSchema: Schema<FolderSchemaType> = new Schema<FolderSchemaType>(
       required: [true, "Title is required"],
     },
     chats: [{ type: String }],
-    prompts: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: PROMPT_COLLECTION_NAME,
-        required: [true, "Prompt ID is required"],
-      },
-    ],
     type: {
       type: String,
       required: [true, "Folder type is required"],

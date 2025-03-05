@@ -1,4 +1,4 @@
-import { Folder } from "../../db/models/index.js";
+import { Folder, Prompt } from "../../db/models/index.js";
 import {
   createFolder,
   deleteFolderById,
@@ -105,21 +105,45 @@ const getFoldersHandler = apiHandler(async (req, res) => {
 
   if (!id) {
     files = await Folder.find({ userId, type, parent: undefined }).select(
-      "title chats prompts createdAt updatedAt"
+      "title chats createdAt updatedAt"
     );
-    files = files.map((item) => {
-      return {
-        id: item._id,
-        title: item.title,
-        isFolder: true,
-        totalItems: type === "chats" ? item.chats.length : item.prompts.length,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt,
-      };
-    });
+
+    files = await Promise.all(
+      files.map(async (item) => {
+        let promptCount;
+        if (item.type != "chats")
+          promptCount = await Prompt.countDocuments({ folderId: item._id });
+        return {
+          id: item._id,
+          title: item.title,
+          isFolder: true,
+          totalItems: item.type === "chats" ? item.chats.length : promptCount,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+        };
+      })
+    );
+
+    let items: any = [];
+
+    if (type === "prompts") {
+      items = await Prompt.find({ userId, folderId: undefined });
+
+      items = items.map((item: PromptSchemaType) => {
+        return {
+          id: item._id,
+          title: item.title,
+          content: item.content,
+          isFolder: false,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+        };
+      });
+    }
+
     files = {
       isRoot: true,
-      items: files,
+      items: [...files, ...items],
     };
   } else {
     files = await Folder.findById(id);
@@ -134,7 +158,7 @@ const getFoldersHandler = apiHandler(async (req, res) => {
       }) || [];
 
     if (files.type === "prompts") {
-      files = await Folder.findById(id).populate("prompts");
+      files.prompts = await Prompt.find({ folderId: files._id });
 
       items = files.prompts.map((item: PromptSchemaType) => {
         return {
@@ -149,19 +173,24 @@ const getFoldersHandler = apiHandler(async (req, res) => {
     }
 
     let folders = await Folder.find({ parent: id }).select(
-      "title chats prompts createdAt updatedAt"
+      "title chats createdAt updatedAt"
     );
 
-    folders = folders.map((item) => {
-      return {
-        id: item._id,
-        title: item.title,
-        isFolder: true,
-        totalItems: type === "chats" ? item.chats.length : item.prompts.length,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt,
-      };
-    });
+    folders = await Promise.all(
+      folders.map(async (item) => {
+        let promptCount;
+        if (item.type != "chats")
+          promptCount = await Prompt.countDocuments({ folderId: item._id });
+        return {
+          id: item._id,
+          title: item.title,
+          isFolder: true,
+          totalItems: type === "chats" ? item.chats.length : promptCount,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+        };
+      })
+    );
 
     items = [...folders, ...items];
 
@@ -189,7 +218,7 @@ const getFolderFilesHandler = apiHandler(async (req, res) => {
   let files = await Folder.findById(id);
 
   if (files.type === "prompts") {
-    files = await Folder.findById(id).populate("prompts");
+    files.prompts = await Prompt.find({ folderId: id });
   }
 
   const folders = await Folder.find({ parent: id }).select("-userId -platform");

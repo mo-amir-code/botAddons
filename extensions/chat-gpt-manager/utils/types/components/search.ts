@@ -19,7 +19,7 @@ type FoldersType = "chats" | "prompts" | null
 
 interface FoldersWindow {
   type: FoldersType
-  folders: string[]
+  folders: { folderName: string; id: string }[]
 }
 
 export type {

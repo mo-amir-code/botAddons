@@ -20,7 +20,9 @@ type ButtonType = {
 const Button = ({ icon, title, func }: ButtonType) => {
   return (
     <button
-      onClick={() => func && func(icon)}
+      onClick={() => {
+        if (func) func(icon)
+      }}
       className="flex items-center justify-center gap-2 border rounded-full px-3 py-2 border-primary-off-white">
       {!!icon && (
         <span>

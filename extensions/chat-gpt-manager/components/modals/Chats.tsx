@@ -99,7 +99,6 @@ const Chats = () => {
     isAllSelect?: any
     id?: string
   }) => {
-    console.log(isAllSelect, id)
     let updatedConversationsId = []
     if (isAllSelect && isAllSelect?.target?.checked) {
       updatedConversationsId = results.map((c) => c.id)
@@ -170,6 +169,10 @@ const Chats = () => {
               placeholder="Search Chats"
             />
             <SelectAll
+              isChecked={
+                selectedConversationsId.length === results.length &&
+                results.length > 0
+              }
               selectedConversations={selectedConversationsId.length}
               func={handleOnChatSelectChange}
             />

@@ -14,6 +14,7 @@ interface CreateFolderType extends CreateFolderBodyType {
 type DeleteFoldersBodyType = {
   ids: string[]
   folderId?: string
+  type: FolderType
 }
 
 export type { CreateFolderBodyType, CreateFolderType, DeleteFoldersBodyType };

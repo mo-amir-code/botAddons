@@ -31,7 +31,10 @@ const Item = ({
     if (itemType !== "folder") return
     const newFoldersWindow = { ...foldersWindow }
     newFoldersWindow.type = modalType === "folders" ? "chats" : "prompts"
-    newFoldersWindow.folders.push(title)
+    newFoldersWindow.folders.push({
+      folderName: title,
+      id: id as string
+    })
     dispatch({ type: "FOLDERS_WINDOW", payload: newFoldersWindow })
   }
 

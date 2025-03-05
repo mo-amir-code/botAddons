@@ -69,7 +69,7 @@ const AddFolder = () => {
         placeholder={
           isFolderEditingOpen ? "Enter New Folder Name" : "Enter Folder Name"
         }
-        defaultValue={currentFolderInfo?.title}
+        defaultValue={isFolderEditingOpen ? currentFolderInfo?.title : ""}
         func={setNewFolderName}
       />
       <div className="flex items-center justify-start gap-4">
