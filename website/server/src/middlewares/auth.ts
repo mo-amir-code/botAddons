@@ -34,87 +34,72 @@ const isUserAuthenticated = apiHandler(async (req, res, next) => {
     );
   }
 
-  try {
-    const payload = JWTTokenVerifier(accesstoken);
-    if (!payload) {
-      return next(
-        new ErrorHandlerClass(
-          UNAUTHORIZED_REQUEST_RES_MSG,
-          UNAUTHORIZED_REQUEST_STATUS_CODE
-        )
-      );
-    }
+  let payload = JWTTokenVerifier(accesstoken);
+  if (payload) {
     req.user.id = payload.userId;
-  } catch (error: any) {
-    if (error.message !== "jwt expired") {
-      return next(
-        new ErrorHandlerClass(
-          UNAUTHORIZED_REQUEST_RES_MSG,
-          UNAUTHORIZED_REQUEST_STATUS_CODE
-        )
-      );
-    }
-
-    const payload = jwt.decode(accesstoken) as any;
-    const user = await getUserByIDorEmail({ type: "id", data: payload.userId });
-
-    if (!user) {
-      return next(
-        new ErrorHandlerClass(
-          UNAUTHORIZED_REQUEST_RES_MSG,
-          UNAUTHORIZED_REQUEST_STATUS_CODE
-        )
-      );
-    }
-
-    const session = user.sessions?.find((s) => s.platform === origin);
-
-    if (!session) {
-      return next(
-        new ErrorHandlerClass(
-          UNAUTHORIZED_REQUEST_RES_MSG,
-          UNAUTHORIZED_REQUEST_STATUS_CODE
-        )
-      );
-    }
-
-    try {
-      const payload = JWTTokenVerifier(session.refreshToken);
-      if (!payload) {
-        return next(
-          new ErrorHandlerClass(
-            UNAUTHORIZED_REQUEST_RES_MSG,
-            UNAUTHORIZED_REQUEST_STATUS_CODE
-          )
-        );
-      }
-
-      const { accessToken } = await generateRefreshAndAccessToken({
-        userId: user._id,
-      });
-
-      const domainRoot = getDomainRoot({
-        origin: getDomainURL(origin),
-        forCookie: true,
-      });
-
-      res.cookie(ACCESS_TOKEN_NAME, accessToken, {
-        ...accessCookieOptions,
-        domain: domainRoot,
-      });
-
-      req.user.id = user._id;
-    } catch (error) {
-      return next(
-        new ErrorHandlerClass(
-          SESSION_EXPIRED_RES_MSG,
-          UNAUTHORIZED_REQUEST_STATUS_CODE
-        )
-      );
-    }
+    return next();
   }
 
-  next();
+  payload = jwt.decode(accesstoken) as any;
+
+  if (!payload) {
+    return next(
+      new ErrorHandlerClass(
+        UNAUTHORIZED_REQUEST_RES_MSG,
+        UNAUTHORIZED_REQUEST_STATUS_CODE
+      )
+    );
+  }
+
+  const user = await getUserByIDorEmail({ type: "id", data: payload.userId });
+
+  if (!user) {
+    return next(
+      new ErrorHandlerClass(
+        UNAUTHORIZED_REQUEST_RES_MSG,
+        UNAUTHORIZED_REQUEST_STATUS_CODE
+      )
+    );
+  }
+
+  const session = user.sessions?.find((s) => s.platform === origin);
+
+  if (!session) {
+    return next(
+      new ErrorHandlerClass(
+        UNAUTHORIZED_REQUEST_RES_MSG,
+        UNAUTHORIZED_REQUEST_STATUS_CODE
+      )
+    );
+  }
+
+  payload = JWTTokenVerifier(session.refreshToken);
+
+  if (payload) {
+    const { accessToken } = await generateRefreshAndAccessToken({
+      userId: user._id,
+    });
+
+    const domainRoot = getDomainRoot({
+      origin: getDomainURL(origin),
+      forCookie: true,
+    });
+
+    res.cookie(ACCESS_TOKEN_NAME, accessToken, {
+      ...accessCookieOptions,
+      domain: domainRoot,
+    });
+
+    req.user.id = user._id;
+    return next();
+  }
+
+  return next(
+    new ErrorHandlerClass(
+      SESSION_EXPIRED_RES_MSG,
+      UNAUTHORIZED_REQUEST_STATUS_CODE
+    )
+  );
 });
 
 export { isUserAuthenticated };

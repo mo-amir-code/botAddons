@@ -63,26 +63,24 @@ const deleteFolderByIdHandler = apiHandler(async (req, res, next) => {
   const { ids, folderId } = req.body as DeleteFoldersBodyType;
   const folderIds = ids.filter((id) => !id.includes("-"));
 
-  if (folderIds.length) await Folder.deleteMany({ _id: { $in: folderIds } });
+  for (const childFolderId of folderIds) {
+    deleteFolderRecursively(childFolderId);
+  }
 
   const chatIds = ids.filter((id) => id.includes("-"));
 
-  if (!chatIds.length)
-    return ok({
-      res,
-      message: FOLDER_DELETED_RES_MSG,
-    });
+  if (folderId) {
+    const folder = await getFolderById(folderId);
 
-  const folder = await getFolderById(folderId);
+    if (!folder) {
+      return next(
+        new ErrorHandlerClass(SOMETHING_WENT_WRONG, BAD_REQUEST_STATUS_CODE)
+      );
+    }
 
-  if (!folder) {
-    return next(
-      new ErrorHandlerClass(SOMETHING_WENT_WRONG, BAD_REQUEST_STATUS_CODE)
-    );
+    folder.chats = folder.chats.filter((cId) => !chatIds.includes(cId));
+    await folder.save();
   }
-
-  folder.chats = folder.chats.filter((cId) => !chatIds.includes(cId));
-  await folder.save();
 
   return ok({
     res,
@@ -203,6 +201,23 @@ const getFolderFilesHandler = apiHandler(async (req, res) => {
     data: files,
   });
 });
+
+const deleteFolderRecursively = async (folderId: string) => {
+  try {
+    // Find all child folders
+    const childFolders = await Folder.find({ parent: folderId });
+
+    // Recursively delete child folders
+    for (const child of childFolders) {
+      await deleteFolderRecursively(child._id.toString());
+    }
+
+    // Finally, delete the folder itself
+    await Folder.findByIdAndDelete(folderId);
+  } catch (error) {
+    console.error("Error deleting folder:", error);
+  }
+};
 
 export {
   createFolderHandler,

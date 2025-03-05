@@ -59,6 +59,7 @@ import { UserSchemaType } from "../../types/db/schema/index.js";
 import { sendMail } from "../../services/nodemailer/sendMail.js";
 import { getDomainRoot } from "../../utils/middleware/index.js";
 import { Response } from "express";
+import { ENVIRONMENT } from "../../config/constants.js";
 
 const registerUser = apiHandler(async (req, res, next) => {
   const data = req.body as RegisterUserType;
@@ -346,6 +347,7 @@ const resetPassword = apiHandler(async (req, res, next) => {
 
 const autoAuth = apiHandler(async (req, res, next) => {
   const { email } = req.body as { email: string };
+  const { accesstoken } = req.cookies;
   const origin = req.origin as OriginType;
   const user = await getUserByIDorEmail({ type: "email", data: email });
 
@@ -355,7 +357,11 @@ const autoAuth = apiHandler(async (req, res, next) => {
     );
   }
 
-  await handleSetCookies({ user, origin, res });
+  const payload = JWTTokenVerifier(accesstoken);
+  
+  if (!payload) {
+    await handleSetCookies({ user, origin, res });
+  }
 
   return ok({
     message: USER_LOGGED_IN_RES_MSG,
@@ -377,22 +383,33 @@ const handleSetCookies = async ({
     userId: user._id as Schema.Types.ObjectId,
   });
 
-  const userSessions = user.sessions || [];
+  let userSessions = user.sessions || [];
 
-  const isAccessTokenExist = userSessions.find((s) => s.platform === origin);
+  const isRefreshTokenExist = userSessions.find((s) => s.platform === origin);
 
   const newSession = {
     platform: origin,
     refreshToken: refreshToken,
   };
 
-  if (!userSessions?.length || !isAccessTokenExist) {
-    user.sessions = [...userSessions, newSession];
+  if (isRefreshTokenExist) {
+    const payload = JWTTokenVerifier(isRefreshTokenExist.refreshToken);
+
+    if (!payload) {
+      const idx = userSessions.findIndex((s) => s.platform === origin);
+      userSessions[idx] = newSession;
+    }
   }
+
+  if (!userSessions?.length || !isRefreshTokenExist) {
+    userSessions = [...userSessions, newSession];
+  }
+
+  user.sessions = userSessions;
 
   await user.save();
   const domainRoot = getDomainRoot({
-    origin: getDomainURL(origin),
+    origin: ENVIRONMENT === "development" ? undefined : getDomainURL(origin),
     forCookie: true,
   });
 

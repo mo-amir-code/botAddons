@@ -1,5 +1,5 @@
-import { CookieOptions } from "express"
-
+import { CookieOptions } from "express";
+import { ENVIRONMENT } from "../../config/constants.js";
 
 const ACCESS_TOKEN_EXPIRY_TIME = "10d";
 const REFRESH_TOKEN_EXPIRY_TIME = "30d";
@@ -17,37 +17,36 @@ const REFRESH_TOKEN_NAME = "refreshtoken";
 const OTP_TOKEN_NAME = "otptoken";
 
 const commonCookieTokenOptions: CookieOptions = {
-    secure: true,
-    httpOnly: true,
-    sameSite: "none",
+  secure: true,
+  httpOnly: true,
+  sameSite: "none",
 };
 
 const accessCookieOptions: CookieOptions = {
-    ...commonCookieTokenOptions,
-    maxAge: COOKIE_AGE_21_DAY
+  ...commonCookieTokenOptions,
+  maxAge: COOKIE_AGE_7_DAY,
 };
 
 const refreshCookieOptions: CookieOptions = {
-    ...commonCookieTokenOptions,
-    maxAge: COOKIE_AGE_7_DAY
+  ...commonCookieTokenOptions,
+  maxAge: COOKIE_AGE_21_DAY,
 };
 
 const otpTokenCookieOptions: CookieOptions = {
-    ...commonCookieTokenOptions,
-    maxAge: TOKEN_AGE_15_MINUTE_IN_NUMBERS
+  ...commonCookieTokenOptions,
+  maxAge: TOKEN_AGE_15_MINUTE_IN_NUMBERS,
 };
 
-
 export {
-    accessCookieOptions,
-    refreshCookieOptions,
-    ACCESS_TOKEN_EXPIRY_TIME,
-    REFRESH_TOKEN_EXPIRY_TIME,
-    SINGLE_MINUTE_IN_NUMBERS,
-    TOKEN_AGE_15_MINUTE_IN_NUMBERS,
-    SINGLE_DAY_IN_NUMBERS,
-    ACCESS_TOKEN_NAME,
-    REFRESH_TOKEN_NAME,
-    otpTokenCookieOptions,
-    OTP_TOKEN_NAME
-}
+  accessCookieOptions,
+  refreshCookieOptions,
+  ACCESS_TOKEN_EXPIRY_TIME,
+  REFRESH_TOKEN_EXPIRY_TIME,
+  SINGLE_MINUTE_IN_NUMBERS,
+  TOKEN_AGE_15_MINUTE_IN_NUMBERS,
+  SINGLE_DAY_IN_NUMBERS,
+  ACCESS_TOKEN_NAME,
+  REFRESH_TOKEN_NAME,
+  otpTokenCookieOptions,
+  OTP_TOKEN_NAME,
+};

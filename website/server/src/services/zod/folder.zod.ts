@@ -20,9 +20,7 @@ const deleteFolderByIdZodSchema = z.object({
         required_error: ZOD_REQUIRED_ERR.replace("{field}", "Folder/Files Ids"),
       })
       .array(),
-    folderId: z.string({
-      required_error: ZOD_REQUIRED_ERR.replace("{field}", "Folder ID"),
-    }),
+    folderId: z.string().optional(),
   }),
 });
 
