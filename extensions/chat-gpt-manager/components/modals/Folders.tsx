@@ -64,7 +64,7 @@ const Folders = () => {
         data: {
           ids: selectedItemsId,
           folderId: currentFolderInfo?.id,
-          type: foldersWindow.type
+          type: "chats"
         }
       })
       let newFolderAllFiles = { ...folderAllFiles }

@@ -20,6 +20,7 @@ const deleteFolderByIdZodSchema = z.object({
         required_error: ZOD_REQUIRED_ERR.replace("{field}", "Folder/Files Ids"),
       })
       .array(),
+    promptIds: z.string().array().optional(),
     folderId: z.string().optional(),
     type: z.enum(["chats", "prompts"], {
       required_error: ZOD_REQUIRED_ERR.replace("{field}", "Type"),

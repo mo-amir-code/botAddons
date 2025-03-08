@@ -9,8 +9,13 @@ import Button from "../buttons/Button"
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
 
+type SelectedItemType = {
+  id: string
+  isFolder: boolean
+}
+
 const Prompts = () => {
-  const [selectedItemsId, setSelectedItemsId] = useState<string[]>([])
+  const [selectedItemsId, setSelectedItemsId] = useState<SelectedItemType[]>([])
   const [results, setResults] = useState<FolderItemType[]>([])
 
   const { folderAllFiles, foldersWindow, dispatch, currentFolderInfo } =
@@ -25,7 +30,12 @@ const Prompts = () => {
   }) => {
     let updatedSelectedItemsId = [...selectedItemsId]
     if (isAllSelect) {
-      updatedSelectedItemsId = results.map((item) => item.id) as string[]
+      updatedSelectedItemsId = results.map((item) => {
+        return {
+          isFolder: item.isFolder,
+          id: item.id
+        }
+      }) as SelectedItemType[]
       setSelectedItemsId(updatedSelectedItemsId)
       return
     } else if (isAllSelect === false) {
@@ -33,21 +43,24 @@ const Prompts = () => {
       return
     }
 
-    const isExist = updatedSelectedItemsId.find((cId) => cId == id)
+    const isExist = updatedSelectedItemsId.find((cId) => cId.id == id)
 
     if (isExist) {
       updatedSelectedItemsId = updatedSelectedItemsId.filter(
-        (cId) => cId !== id
+        (cId) => cId.id !== id
       )
     } else {
-      updatedSelectedItemsId.push(id)
+      updatedSelectedItemsId.push({
+        id,
+        isFolder: results.find((it) => it.id == id).isFolder
+      })
     }
 
     setSelectedItemsId(updatedSelectedItemsId)
   }
 
   const isSelected = (id: string) => {
-    return selectedItemsId.find((cId) => cId === id) ? true : false
+    return selectedItemsId.find((cId) => cId.id === id) ? true : false
   }
 
   const handleQuery = (query: string) => {
@@ -60,17 +73,22 @@ const Prompts = () => {
 
   const handleDelete = async () => {
     try {
-      await httpAxios.delete("/prompt", {
+      await httpAxios.delete("/folder", {
         data: {
-          ids: selectedItemsId,
+          ids: selectedItemsId.filter((it) => it.isFolder).map((it) => it.id),
           folderId: currentFolderInfo?.id,
-          type: foldersWindow.type
+          promptIds: selectedItemsId
+            .filter((it) => !it.isFolder)
+            .map((it) => it.id),
+          type: "prompts"
         }
       })
       let newFolderAllFiles = { ...folderAllFiles }
       newFolderAllFiles.items = newFolderAllFiles.items.filter(
         (item) =>
-          !selectedItemsId.includes(item.conversationId || (item.id as string))
+          !selectedItemsId.some(
+            (it) => it.id == item.conversationId || item.id == it.id
+          )
       )
       dispatch({ type: "FOLDER_ALL_FILES", payload: newFolderAllFiles })
     } catch (error) {

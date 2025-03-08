@@ -15,7 +15,7 @@ import {
   CreateFolderType,
   DeleteFoldersBodyType,
 } from "../../types/controllers/v1/folder.js";
-import { PromptSchemaType } from "../../types/db/schema/index.js";
+import { FolderType, PromptSchemaType } from "../../types/db/schema/index.js";
 import {
   FindFolderByIdAndUpdate,
   GetFoldersType,
@@ -60,26 +60,35 @@ const createFolderHandler = apiHandler(async (req, res) => {
 });
 
 const deleteFolderByIdHandler = apiHandler(async (req, res, next) => {
-  const { ids, folderId } = req.body as DeleteFoldersBodyType;
-  const folderIds = ids.filter((id) => !id.includes("-"));
+  const { ids, folderId, type, promptIds } = req.body as DeleteFoldersBodyType;
 
-  for (const childFolderId of folderIds) {
-    deleteFolderRecursively(childFolderId);
-  }
+  if (type === "prompts") {
+    await Promise.all(
+      ids.map((folderId) => deleteFolderRecursively(folderId.toString(), type))
+    );
 
-  const chatIds = ids.filter((id) => id.includes("-"));
+    await Prompt.deleteMany({ _id: { $in: promptIds } });
+  } else {
+    const folderIds = ids.filter((id) => !id.includes("-"));
 
-  if (folderId) {
-    const folder = await getFolderById(folderId);
-
-    if (!folder) {
-      return next(
-        new ErrorHandlerClass(SOMETHING_WENT_WRONG, BAD_REQUEST_STATUS_CODE)
-      );
+    for (const childFolderId of folderIds) {
+      deleteFolderRecursively(childFolderId, type);
     }
 
-    folder.chats = folder.chats.filter((cId) => !chatIds.includes(cId));
-    await folder.save();
+    const chatIds = ids.filter((id) => id.includes("-"));
+
+    if (folderId) {
+      const folder = await getFolderById(folderId);
+
+      if (!folder) {
+        return next(
+          new ErrorHandlerClass(SOMETHING_WENT_WRONG, BAD_REQUEST_STATUS_CODE)
+        );
+      }
+
+      folder.chats = folder.chats.filter((cId) => !chatIds.includes(cId));
+      await folder.save();
+    }
   }
 
   return ok({
@@ -231,18 +240,19 @@ const getFolderFilesHandler = apiHandler(async (req, res) => {
   });
 });
 
-const deleteFolderRecursively = async (folderId: string) => {
+const deleteFolderRecursively = async (folderId: string, type?: FolderType) => {
   try {
     // Find all child folders
     const childFolders = await Folder.find({ parent: folderId });
 
-    // Recursively delete child folders
-    for (const child of childFolders) {
-      await deleteFolderRecursively(child._id.toString());
-    }
+    await Promise.all(
+      childFolders.map((child) =>
+        deleteFolderRecursively(child._id.toString(), type)
+      )
+    );
 
-    // Finally, delete the folder itself
     await Folder.findByIdAndDelete(folderId);
+    if (type == "prompts") await Prompt.deleteMany({ folderId: folderId });
   } catch (error) {
     console.error("Error deleting folder:", error);
   }

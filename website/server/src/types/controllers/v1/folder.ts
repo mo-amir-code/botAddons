@@ -13,6 +13,7 @@ interface CreateFolderType extends CreateFolderBodyType {
 
 type DeleteFoldersBodyType = {
   ids: string[]
+  promptIds?: string[]
   folderId?: string
   type: FolderType
 }
