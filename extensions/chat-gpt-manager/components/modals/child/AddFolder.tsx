@@ -3,8 +3,7 @@ import { SearchField } from "@/components/common"
 import { useExtension } from "@/contexts/extensionContext"
 import { httpAxios } from "@/utils/services/axios"
 import type { FolderFileType } from "@/utils/types/components/modal"
-import { useState } from "react"
-import toast from "react-hot-toast"
+import { useRef, useState } from "react"
 
 const AddFolder = () => {
   const [newFolderName, setNewFolderName] = useState<string>("")
@@ -15,21 +14,21 @@ const AddFolder = () => {
     currentFolderInfo,
     folderAllFiles
   } = useExtension()
+  const inputRef = useRef<HTMLInputElement>()
 
   const handleEditFolder = async () => {
-    const res = await httpAxios.patch("/folder", {
+    await httpAxios.patch("/folder", {
       id: currentFolderInfo.id,
       title: newFolderName
     })
-
-    const data = res.data
 
     dispatch({
       type: "CURRENT_FOLDER_INFO",
       payload: { ...currentFolderInfo, title: newFolderName }
     })
 
-    toast.success(data.message)
+    setNewFolderName("")
+    if (inputRef?.current) inputRef.current.value = ""
   }
 
   const handleSubmit = async () => {
@@ -51,7 +50,9 @@ const AddFolder = () => {
       payloadData.items = [...folderAllFiles.items, data.data]
 
       dispatch({ type: "FOLDER_ALL_FILES", payload: payloadData })
-      toast.success(data.message)
+
+      setNewFolderName("")
+      if (inputRef?.current) inputRef.current.value = ""
     } catch (error) {
       console.error(error)
     }
@@ -71,6 +72,8 @@ const AddFolder = () => {
         }
         defaultValue={isFolderEditingOpen ? currentFolderInfo?.title : ""}
         func={setNewFolderName}
+        handleSubmit={handleSubmit}
+        inputRef={inputRef}
       />
       <div className="flex items-center justify-start gap-4">
         <Button title="Close" func={handleClose} />

@@ -4,6 +4,7 @@ import { features } from "@/utils/data"
 import { filterChats, removeDuplicatesItemsById } from "@/utils/services"
 import {
   getSessionUserInfo,
+  setPrompts,
   type AuthSessionUserType
 } from "@/utils/services/auth"
 import { httpAxios } from "@/utils/services/axios"
@@ -53,6 +54,8 @@ const Sidebar = () => {
     })
     if (res.status === 200) {
       dispatch({ type: "AUTH", payload: true })
+      const res = await httpAxios.get("/prompts")
+      setPrompts(res?.data?.data);
     }
   }
 

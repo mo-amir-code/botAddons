@@ -54,3 +54,13 @@ const CHATS_ADDED_RES_MSG = "Chats added"
 export {
     CHATS_ADDED_RES_MSG
 }
+
+
+// Prompts
+const PROMPT_ADDED_RES_MSG ="Prompt added";
+const PROMPTS_FETCHED_RES_MSG = "Prompts fetched";
+
+export {
+    PROMPT_ADDED_RES_MSG,
+    PROMPTS_FETCHED_RES_MSG
+}

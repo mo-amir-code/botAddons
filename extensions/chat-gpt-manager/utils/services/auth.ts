@@ -30,4 +30,21 @@ const getSessionUserInfo = async () => {
   return ((await chrome.storage.local.get("user")) as any)?.user
 }
 
-export { setAuthToken, getAuthToken, getSessionUserInfo }
+const setPrompts = (data: any) => {
+  chrome.storage.local.set({
+    prompts: data
+  })
+}
+
+const getPrompts = async () => {
+  const data = ((await chrome.storage.local.get("cat")) as any)?.prompts
+  return data
+}
+
+export {
+  setAuthToken,
+  getAuthToken,
+  getSessionUserInfo,
+  setPrompts,
+  getPrompts
+}

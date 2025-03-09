@@ -73,6 +73,7 @@ const Folders = () => {
           !selectedItemsId.includes(item.conversationId || (item.id as string))
       )
       dispatch({ type: "FOLDER_ALL_FILES", payload: newFolderAllFiles })
+      setSelectedItemsId([])
     } catch (error) {
       console.log(error)
     }
@@ -118,6 +119,7 @@ const Folders = () => {
 
   useEffect(() => {
     setResults(folderAllFiles.items)
+    setSelectedItemsId([])
   }, [folderAllFiles])
 
   return (

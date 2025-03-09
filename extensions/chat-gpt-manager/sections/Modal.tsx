@@ -41,9 +41,6 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
   const handleBack = () => {
     const newFoldersWindow = { ...foldersWindow }
     if (newFoldersWindow.folders.length) newFoldersWindow.folders.pop()
-    if (newFoldersWindow.folders.length === 0) {
-      newFoldersWindow.type = null
-    }
     dispatch({ type: "FOLDERS_WINDOW", payload: newFoldersWindow })
   }
 

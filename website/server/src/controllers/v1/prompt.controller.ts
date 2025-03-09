@@ -1,16 +1,28 @@
-import { getFolderById } from "../../db/services/folder.db.service.js";
-import { createPrompt } from "../../db/services/prompt.db.service.js";
+import {
+  createPrompt,
+  getPrompts,
+} from "../../db/services/prompt.db.service.js";
 import {
   apiHandler,
-  ErrorHandlerClass,
   ok,
 } from "../../services/errorHandling/index.js";
 import { AddPromptBodyType } from "../../types/controllers/v1/prompt.js";
-import { BAD_REQUEST_STATUS_CODE } from "../../utils/constants/common.js";
 import {
-  CHATS_ADDED_RES_MSG,
-  SOMETHING_WENT_WRONG,
+  PROMPT_ADDED_RES_MSG,
+  PROMPTS_FETCHED_RES_MSG,
 } from "../../utils/constants/serverResponseMessages.js";
+
+const getPromptHandler = apiHandler(async (req, res) => {
+  const userId = req.user.id;
+
+  const prompts = await getPrompts({ userId });
+
+  return ok({
+    res,
+    message: PROMPTS_FETCHED_RES_MSG,
+    data: prompts,
+  });
+});
 
 const addPromptHandler = apiHandler(async (req, res, next) => {
   const { title, content, folderId } = req.body as AddPromptBodyType;
@@ -27,12 +39,12 @@ const addPromptHandler = apiHandler(async (req, res, next) => {
 
   return ok({
     res,
-    message: CHATS_ADDED_RES_MSG,
+    message: PROMPT_ADDED_RES_MSG,
     data: {
       promptId: newPrompt._id,
-      updatedAt: newPrompt.updatedAt
+      updatedAt: newPrompt.updatedAt,
     },
   });
 });
 
-export { addPromptHandler };
+export { addPromptHandler, getPromptHandler };

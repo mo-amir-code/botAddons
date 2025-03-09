@@ -91,6 +91,7 @@ const Prompts = () => {
           )
       )
       dispatch({ type: "FOLDER_ALL_FILES", payload: newFolderAllFiles })
+      setSelectedItemsId([])
     } catch (error) {
       console.log(error)
     }
@@ -117,6 +118,7 @@ const Prompts = () => {
 
   useEffect(() => {
     setResults(folderAllFiles.items)
+    setSelectedItemsId([])
   }, [folderAllFiles])
 
   return (
