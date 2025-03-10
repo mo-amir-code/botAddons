@@ -15,29 +15,50 @@ type ButtonType = {
   icon?: ButtonIconType
   title: string
   func?: Function
+  isEnabled?: boolean
 }
 
-const Button = ({ icon, title, func }: ButtonType) => {
+const Button = ({ icon, title, func, isEnabled }: ButtonType) => {
   return (
     <button
       onClick={() => {
         if (func) func(icon)
       }}
-      className="flex items-center justify-center gap-2 border rounded-full px-3 py-2 border-primary-off-white">
+      className={`flex items-center justify-center gap-2 border rounded-full px-3 py-2 ${isEnabled ? "border-primary-red bg-white" : "border-primary-off-white"}`}>
       {!!icon && (
         <span>
           {(() => {
             switch (icon) {
               case "settings":
-                return <IoSettingsSharp className="w-6 h-6" />
+                return (
+                  <IoSettingsSharp
+                    className={`w-6 h-6 ${isEnabled ? "text-primary-red" : ""} `}
+                  />
+                )
               case "folders":
-                return <FaFolderOpen className="w-6 h-6" />
+                return (
+                  <FaFolderOpen
+                    className={`w-6 h-6 ${isEnabled ? "text-primary-red" : ""} `}
+                  />
+                )
               case "chats":
-                return <BsChatTextFill className="w-6 h-6" />
+                return (
+                  <BsChatTextFill
+                    className={`w-6 h-6 ${isEnabled ? "text-primary-red" : ""} `}
+                  />
+                )
               case "delete":
-                return <MdDelete className="w-6 h-6" />
+                return (
+                  <MdDelete
+                    className={`w-6 h-6 ${isEnabled ? "text-primary-red" : ""} `}
+                  />
+                )
               case "prompt":
-                return <TbPrompt className="w-6 h-6" />
+                return (
+                  <TbPrompt
+                    className={`w-6 h-6 ${isEnabled ? "text-primary-red" : ""} `}
+                  />
+                )
               default:
                 return
             }

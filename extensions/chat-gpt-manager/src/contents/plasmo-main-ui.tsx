@@ -13,7 +13,7 @@ import { useEffect } from "react"
 
 export const getStyle = () => {
   const baseFontSize = 12
-  let updatedCssText = cssText.replaceAll(":root", ":host(plasmo-csui)")
+  let updatedCssText = cssText.replaceAll(":root", ":host(botaddons-ui)")
   const remRegex = /([\d.]+)rem/g
   updatedCssText = updatedCssText.replace(remRegex, (match, remValue) => {
     const pixels = parseFloat(remValue) * baseFontSize
@@ -33,9 +33,7 @@ export const getInlineAnchor: PlasmoGetInlineAnchor = async () => ({
   insertPosition: "afterbegin"
 })
 
-export const getShadowHostId: PlasmoGetShadowHostId = () => "plasmo-inline"
-
-// chrome.runtime.sendMessage({ action: "checkAuthStatus" });
+export const getShadowHostId: PlasmoGetShadowHostId = () => "botaddons-inline"
 
 function PlasmoMainUI() {
   useEffect(() => {

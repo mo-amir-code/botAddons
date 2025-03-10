@@ -1,18 +1,16 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  mode: "jit",
   darkMode: ["class"],
   content: [
     "src/**/*.{ts,tsx}",
     "components/**/*.{ts,tsx}",
     "sections/**/*.{ts,tsx}"
   ],
-  safelist: [
-    "bg-secondary-bg",
-    "hover:bg-secondary-bg"
-  ],
   theme: {
     extend: {
       colors: {
+        "primary-red": "#F24949",
         "primary-white": "#E7E7E7",
         "primary-bg": "#2F2F2F",
         "secondary-bg": "#171717",

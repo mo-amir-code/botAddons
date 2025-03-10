@@ -59,6 +59,8 @@ const Folders = () => {
   }
 
   const handleDelete = async () => {
+    if (selectedItemsId.length === 0) return
+
     try {
       await httpAxios.delete("/folder", {
         data: {
@@ -121,9 +123,9 @@ const Folders = () => {
     setResults(folderAllFiles.items)
     setSelectedItemsId([])
   }, [folderAllFiles])
-  
+
   return (
-    <div className="relative">      
+    <div className="relative">
       <SearchField placeholder="Search Folder" func={handleQuery} />
       <SelectAll
         isChecked={
@@ -150,7 +152,12 @@ const Folders = () => {
       </ul>
 
       <div className="pt-4 flex items-center justify-end">
-        <Button title="Delete" func={handleDelete} icon="delete" />
+        <Button
+          title="Delete"
+          func={handleDelete}
+          icon="delete"
+          isEnabled={selectedItemsId.length !== 0}
+        />
       </div>
     </div>
   )

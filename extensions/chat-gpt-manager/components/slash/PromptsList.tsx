@@ -4,6 +4,7 @@ import type { PromptFileType, PromptTriggerType } from "@/utils/types/components
 import { useEffect, useState, useRef } from "react"
 
 const PromptsList = () => {
+  const [element, setElement] = useState<HTMLParagraphElement | null>(null);
   const [promptTrigger, setPromptTrigger] = useState<PromptTriggerType>({
     isPromptOpen: false,
     promptQuery: "",
@@ -16,7 +17,10 @@ const PromptsList = () => {
   // Handle selection by ID
   const handleSelect = (id: string) => {
     const prompt = prompts.find((prompt) => prompt.id === id)
-    setSelectedPrompt(prompt)
+    if(element) {
+      element.innerHTML = `${prompt?.content}`
+      element.focus()
+    }
   }
 
   // Update selected prompt when results change
@@ -50,6 +54,8 @@ const PromptsList = () => {
   useEffect(() => {
     const element = document.querySelector(PROMPT_INPUT_ELEMENT_INJECT_ID) as HTMLParagraphElement
     if (element) {
+      setElement(element)
+
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           if (mutation.type === "childList" || mutation.type === "characterData") {
@@ -81,6 +87,13 @@ const PromptsList = () => {
         ? results.findIndex((prompt) => prompt.id === selectedPrompt.id)
         : -1
 
+      
+      if(e.key == "Tab") {
+        if(selectedPrompt) {
+          element.innerHTML = `${selectedPrompt.content}`
+        }
+      }
+
       if (e.key === "ArrowDown") {
         e.preventDefault()
         const nextIndex = (currentIndex + 1) % results.length
@@ -94,14 +107,14 @@ const PromptsList = () => {
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [results, selectedPrompt, promptTrigger?.isPromptOpen])
+  }, [results, selectedPrompt, promptTrigger?.isPromptOpen, element])
 
   if (!promptTrigger?.isPromptOpen) return null
 
   return (
     <div
       style={{ backgroundColor: colors["primary-bg"] }}
-      className="scrollbar-hide w-full h-[40vh] float-end overflow-auto rounded-3xl"
+      className="scrollbar-hide w-full h-[40vh] z-50 float-end overflow-auto rounded-3xl"
     >
       <ul ref={listRef} className="w-full">
         {results.map((prompt) => (

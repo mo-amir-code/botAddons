@@ -2,6 +2,14 @@ import { PromptsList } from "@/components/slash"
 import { PROMPT_LIST_ELEMENT_INJECT_ID } from "@/config/constants"
 import { useEffect, useRef } from "react"
 import { createRoot } from "react-dom/client"
+import cssText from "data-text:~style.css"
+
+
+export const getStyle = () => {
+  const style = document.createElement("style")
+  style.textContent = cssText
+  return style
+}
 
 const SlashCommand = () => {
   const observerRef = useRef(null)
@@ -18,7 +26,9 @@ const SlashCommand = () => {
 
   // Function to inject PromptsList
   const initiateSlashCommand = () => {
-    const promptListElement = document.querySelector(PROMPT_LIST_ELEMENT_INJECT_ID)
+    const promptListElement = document.querySelector(
+      PROMPT_LIST_ELEMENT_INJECT_ID
+    )
 
     if (promptListElement) {
       // Clean up any existing injection
@@ -51,8 +61,13 @@ const SlashCommand = () => {
 
     // Set up MutationObserver to watch for DOM changes
     observerRef.current = new MutationObserver((mutations) => {
-      const promptListElement = document.querySelector(PROMPT_LIST_ELEMENT_INJECT_ID)
-      if (promptListElement && !document.getElementById("prompt-list-container")) {
+      const promptListElement = document.querySelector(
+        PROMPT_LIST_ELEMENT_INJECT_ID
+      )
+      if (
+        promptListElement &&
+        !document.getElementById("prompt-list-container")
+      ) {
         initiateSlashCommand() // Re-inject if target exists but container is missing
       } else if (!promptListElement) {
         cleanup() // Clean up if target is gone
@@ -61,7 +76,7 @@ const SlashCommand = () => {
 
     observerRef.current.observe(document.body, {
       childList: true,
-      subtree: true,
+      subtree: true
     })
 
     // Initial injection
