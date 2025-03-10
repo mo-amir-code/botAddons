@@ -1,6 +1,7 @@
 import type {
   FolderFileType,
-  FolderInfoType
+  FolderInfoType,
+  PromptTriggerType
 } from "@/utils/types/components/modal"
 import type {
   ConversationObjectType,

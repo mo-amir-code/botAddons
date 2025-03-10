@@ -14,37 +14,36 @@ export interface AuthSessionType {
 const setAuthToken = async () => {
   const response = await fetch("/api/auth/session")
   const sessionData = (await response.json()) as AuthSessionType
-  chrome.storage.local.set({
-    cat: sessionData?.accessToken
+  setDataInLocalStorage({
+    key: "cat",
+    data: sessionData?.accessToken
   })
-  chrome.storage.local.set({
-    user: sessionData.user
-  })
-}
-
-const getAuthToken = async () => {
-  return ((await chrome.storage.local.get("cat")) as any)?.cat
-}
-
-const getSessionUserInfo = async () => {
-  return ((await chrome.storage.local.get("user")) as any)?.user
-}
-
-const setPrompts = (data: any) => {
-  chrome.storage.local.set({
-    prompts: data
+  setDataInLocalStorage({
+    key: "user",
+    data: sessionData?.user
   })
 }
 
-const getPrompts = async () => {
-  const data = ((await chrome.storage.local.get("cat")) as any)?.prompts
-  return data
+type LocalStorageKeyTypes = "cat" | "user" | "prompts" | "promptsTrigger"
+
+const setDataInLocalStorage = ({
+  key,
+  data
+}: {
+  key: LocalStorageKeyTypes
+  data: any
+}) => {
+  chrome.storage.local.set({
+    [key]: data
+  })
+}
+
+const getDataFromLocalStorage = async (key: LocalStorageKeyTypes) => {
+  return ((await chrome.storage.local.get(key)) as any)?.[key]
 }
 
 export {
   setAuthToken,
-  getAuthToken,
-  getSessionUserInfo,
-  setPrompts,
-  getPrompts
+  setDataInLocalStorage,
+  getDataFromLocalStorage
 }

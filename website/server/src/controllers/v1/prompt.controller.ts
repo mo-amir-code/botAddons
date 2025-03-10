@@ -2,11 +2,9 @@ import {
   createPrompt,
   getPrompts,
 } from "../../db/services/prompt.db.service.js";
-import {
-  apiHandler,
-  ok,
-} from "../../services/errorHandling/index.js";
+import { apiHandler, ok } from "../../services/errorHandling/index.js";
 import { AddPromptBodyType } from "../../types/controllers/v1/prompt.js";
+import { PromptSchemaType } from "../../types/db/schema/index.js";
 import {
   PROMPT_ADDED_RES_MSG,
   PROMPTS_FETCHED_RES_MSG,
@@ -15,7 +13,14 @@ import {
 const getPromptHandler = apiHandler(async (req, res) => {
   const userId = req.user.id;
 
-  const prompts = await getPrompts({ userId });
+  let prompts: any = await getPrompts({ userId });
+  prompts = prompts.map((prompt: PromptSchemaType) => {
+    return {
+      id: prompt._id,
+      title: prompt.title,
+      content: prompt.content,
+    };
+  });
 
   return ok({
     res,

@@ -6,11 +6,16 @@ module.exports = {
     "components/**/*.{ts,tsx}",
     "sections/**/*.{ts,tsx}"
   ],
+  safelist: [
+    "bg-secondary-bg",
+    "hover:bg-secondary-bg"
+  ],
   theme: {
     extend: {
       colors: {
         "primary-white": "#E7E7E7",
         "primary-bg": "#2F2F2F",
+        "secondary-bg": "#171717",
         "primary-off-white": "#888888",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

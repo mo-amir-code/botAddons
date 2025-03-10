@@ -1,4 +1,3 @@
-import type { FoldersType } from "./search"
 import type { OpenModalType } from "./sidebar"
 
 interface ModalType {
@@ -37,10 +36,16 @@ type FolderItemType = {
   | { conversationId: string; content?: never }
 )
 
+type PromptTriggerType = {
+  isPromptOpen: boolean
+  promptQuery: string
+}
+
 export type {
   ModalType,
   PromptFileType,
   FolderFileType,
   FolderInfoType,
-  FolderItemType
+  FolderItemType,
+  PromptTriggerType
 }

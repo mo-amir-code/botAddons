@@ -3,8 +3,8 @@ import { dbAndStores } from "@/utils/constants"
 import { features } from "@/utils/data"
 import { filterChats, removeDuplicatesItemsById } from "@/utils/services"
 import {
-  getSessionUserInfo,
-  setPrompts,
+  getDataFromLocalStorage,
+  setDataInLocalStorage,
   type AuthSessionUserType
 } from "@/utils/services/auth"
 import { httpAxios } from "@/utils/services/axios"
@@ -48,14 +48,16 @@ const Sidebar = () => {
   }
 
   const handleAutoAuth = async () => {
-    const userInfo = (await getSessionUserInfo()) as AuthSessionUserType
+    const userInfo = (await getDataFromLocalStorage(
+      "user"
+    )) as AuthSessionUserType
     const res = await httpAxios.post("/auth/auto", {
       email: userInfo.email
     })
     if (res.status === 200) {
       dispatch({ type: "AUTH", payload: true })
-      const res = await httpAxios.get("/prompts")
-      setPrompts(res?.data?.data);
+      const res = await httpAxios.get("/prompt")
+      setDataInLocalStorage({ key: "prompts", data: res?.data?.data })
     }
   }
 

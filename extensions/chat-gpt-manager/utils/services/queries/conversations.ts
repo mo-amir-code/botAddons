@@ -1,7 +1,7 @@
 import type { ConversationUpdateType } from "@/utils/types/services/queries"
 import axios from "axios"
 
-import { getAuthToken } from "../auth"
+import { getDataFromLocalStorage } from "../auth"
 
 const getConversations = async ({
   offset = 0,
@@ -10,7 +10,7 @@ const getConversations = async ({
   offset?: number
   isArchived?: boolean
 }) => {
-  const token = await getAuthToken()
+  const token = await getDataFromLocalStorage("cat")
   return await axios.get(
     `https://chatgpt.com/backend-api/conversations?offset=${offset}&limit=100&order=updated&s=true&is_archived=${isArchived ? true : false}`,
     {
@@ -87,7 +87,7 @@ const updateConversation = async ({
   archive,
   isVisible
 }: ConversationUpdateType) => {
-  const token = await getAuthToken()
+  const token = await getDataFromLocalStorage("cat")
   let data = {}
 
   if (archive === "archive") data["is_archived"] = true

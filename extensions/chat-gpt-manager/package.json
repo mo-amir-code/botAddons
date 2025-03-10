@@ -5,7 +5,7 @@
   "description": "ChatGPT Manager is a chrome extension that helps user to manage their AI conversations.",
   "author": "Mo Amir",
   "scripts": {
-    "dev": "plasmo dev -- --target=firefox,chrome",
+    "dev": "plasmo dev",
     "build": "plasmo build",
     "package": "plasmo package"
   },

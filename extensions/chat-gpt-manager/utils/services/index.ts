@@ -1,7 +1,4 @@
-import axios from "axios"
-
 import type { FilerChatsType, FormatTimestampType } from "../types/services"
-import { getAuthToken } from "./auth"
 
 const formatTimestamp = ({ timestamp, type }: FormatTimestampType) => {
   const date = new Date(timestamp)

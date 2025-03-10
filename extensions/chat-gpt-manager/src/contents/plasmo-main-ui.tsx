@@ -1,5 +1,7 @@
 import Provider from "@/components/provider"
 import Sidebar from "@/components/sidebar"
+import { SIDEBAR_ELEMENT_INJECT_ID } from "@/config/constants"
+import { SlashCommand } from "@/sections"
 import { setAuthToken } from "@/utils/services/auth"
 import cssText from "data-text:~style.css"
 import type {
@@ -8,9 +10,6 @@ import type {
   PlasmoGetShadowHostId
 } from "plasmo"
 import { useEffect } from "react"
-
-const INJECT_ELEMENT_ID =
-  "nav > div:nth-of-type(2) > div > div:nth-of-type(3)"
 
 export const getStyle = () => {
   const baseFontSize = 12
@@ -30,7 +29,7 @@ export const config: PlasmoCSConfig = {
 }
 
 export const getInlineAnchor: PlasmoGetInlineAnchor = async () => ({
-  element: document.querySelector(INJECT_ELEMENT_ID),
+  element: document.querySelector(SIDEBAR_ELEMENT_INJECT_ID),
   insertPosition: "afterbegin"
 })
 
@@ -46,6 +45,7 @@ function PlasmoMainUI() {
   return (
     <Provider>
       <Sidebar />
+      <SlashCommand />
     </Provider>
   )
 }

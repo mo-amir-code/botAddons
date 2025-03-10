@@ -121,9 +121,9 @@ const Folders = () => {
     setResults(folderAllFiles.items)
     setSelectedItemsId([])
   }, [folderAllFiles])
-
+  
   return (
-    <div className="relative">
+    <div className="relative">      
       <SearchField placeholder="Search Folder" func={handleQuery} />
       <SelectAll
         isChecked={

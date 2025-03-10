@@ -1,4 +1,8 @@
-import type { FolderFileType, FolderInfoType } from "../components/modal"
+import type {
+  FolderFileType,
+  FolderInfoType,
+  PromptTriggerType
+} from "../components/modal"
 import type {
   ConversationObjectType,
   FoldersWindow

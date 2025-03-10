@@ -24,6 +24,10 @@
     --destructive-foreground: 210 40% 98%;
     --ring: 215 20.2% 65.1%;
     --radius: 0.5rem;
+    --primary-bg: #2F2F2F;
+    --secondary-bg: #171717;
+    --primary-white: #E7E7E7;
+    --primary-off-white: #888888;
   }
 
   .dark {
@@ -175,4 +179,36 @@
 
 .modal {
   z-index: 9999; /* Ensure it appears above other elements */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* Hide scrollbar in IE/Edge */
+  scrollbar-width: none; /* Hide scrollbar in Firefox */
+}
+
+.primary-bg {
+  background-color: var(--primary-bg);
+}
+
+.secondary-bg {
+  background-color: var(--secondary-bg);
+}
+
+.secondary-white {
+  background-color: var(--secondary-white);
+}
+
+.secondary-off-white {
+  background-color: var(--secondary-off-white);
+}
+
+.prompt-item {
+  cursor: pointer;
+}
+
+.prompt-item:hover {
+  background-color: var(--secondary-bg); /* Use CSS variable for dynamic color */
 }
