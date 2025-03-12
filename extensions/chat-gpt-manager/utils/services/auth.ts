@@ -24,7 +24,7 @@ const setAuthToken = async () => {
   })
 }
 
-type LocalStorageKeyTypes = "cat" | "user" | "prompts" | "promptsTrigger"
+type LocalStorageKeyTypes = "cat" | "user" | "prompts" | "promptsTrigger" | "language"
 
 const setDataInLocalStorage = ({
   key,

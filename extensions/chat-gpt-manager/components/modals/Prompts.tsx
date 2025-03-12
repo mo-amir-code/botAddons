@@ -8,6 +8,7 @@ import { useEffect, useState } from "react"
 import Button from "../buttons/Button"
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
+import { useLanguage } from "@/contexts/languageContext"
 
 type SelectedItemType = {
   id: string
@@ -17,9 +18,9 @@ type SelectedItemType = {
 const Prompts = () => {
   const [selectedItemsId, setSelectedItemsId] = useState<SelectedItemType[]>([])
   const [results, setResults] = useState<FolderItemType[]>([])
-
   const { folderAllFiles, foldersWindow, dispatch, currentFolderInfo } =
     useExtension()
+  const { t } = useLanguage();
 
   const handleSelectItems = ({
     isAllSelect,
@@ -123,7 +124,7 @@ const Prompts = () => {
 
   return (
     <div>
-      <SearchField placeholder="Search Folder" func={handleQuery} />
+      <SearchField placeholder={t("searchFolder")} func={handleQuery} />
       <SelectAll
         isChecked={
           selectedItemsId.length === folderAllFiles.items.length &&
@@ -149,7 +150,12 @@ const Prompts = () => {
       </ul>
 
       <div className="pt-4 flex items-center justify-end">
-        <Button title="Delete" func={handleDelete} icon="delete" />
+        <Button
+          title={t("delete")}
+          func={handleDelete}
+          icon="delete"
+          isEnabled={selectedItemsId.length !== 0}
+        />
       </div>
     </div>
   )

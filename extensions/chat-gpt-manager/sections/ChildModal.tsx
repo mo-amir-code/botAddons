@@ -1,5 +1,12 @@
-import { AddChat, AddFolder, AddPrompt } from "@/components/modals/child"
+import {
+  AddChat,
+  AddFolder,
+  AddPrompt,
+  Settings
+} from "@/components/modals/child"
 import { useExtension } from "@/contexts/extensionContext"
+import { useLanguage } from "@/contexts/languageContext"
+import type { TranslationKeys } from "@/utils/data/language"
 import { useEffect, useRef, useState } from "react"
 import { IoCloseOutline } from "react-icons/io5"
 
@@ -21,6 +28,7 @@ const ChildModal = () => {
     },
     dispatch
   } = useExtension()
+  const { t } = useLanguage()
   const [childModalState, setChildModalState] = useState<ChildModalType | null>(
     null
   )
@@ -59,22 +67,24 @@ const ChildModal = () => {
           {/* Header */}
           <div className="flex items-center justify-between border-b border-white/60 mb-4 pb-2">
             <h3 className="text-2xl font-semibold text-primary-white">
-              {(() => {
-                switch (childModalState) {
-                  case "addFolder":
-                    return "Add Folder"
-                  case "addChat":
-                    return "Add Chats"
-                  case "addPrompt":
-                    return "Add Prompt"
-                  case "settings":
-                    return "Settings"
-                  case "folderEditing":
-                    return "Edit Folder"
-                  default:
-                    return
-                }
-              })()}
+              {t(childModalState as TranslationKeys)
+                ? t(childModalState as TranslationKeys)
+                : (() => {
+                    switch (childModalState) {
+                      case "addFolder":
+                        return "Add Folder"
+                      case "addChat":
+                        return "Add Chats"
+                      case "addPrompt":
+                        return "Add Prompt"
+                      case "settings":
+                        return "Settings"
+                      case "folderEditing":
+                        return "Edit Folder"
+                      default:
+                        return
+                    }
+                  })()}
             </h3>
           </div>
 
@@ -89,6 +99,8 @@ const ChildModal = () => {
                 return <AddChat />
               case "addPrompt":
                 return <AddPrompt />
+              case "settings":
+                return <Settings />
             }
           })()}
 

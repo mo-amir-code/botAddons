@@ -2,6 +2,7 @@ import Button from "@/components/buttons/Button"
 import { SearchField, SelectAll } from "@/components/common"
 import Item from "@/components/common/Item"
 import { useExtension } from "@/contexts/extensionContext"
+import { useLanguage } from "@/contexts/languageContext"
 import { httpAxios } from "@/utils/services/axios"
 import type { FolderItemType } from "@/utils/types/components/modal"
 import type { ConversationObjectType } from "@/utils/types/components/search"
@@ -14,6 +15,7 @@ const AddChat = () => {
   const [selectedItemsId, setSelectedItemsId] = useState<string[]>([])
   const { dispatch, allConversations, currentFolderInfo, folderAllFiles } =
     useExtension()
+  const { t } = useLanguage();
 
   const handleSelectItems = ({
     isAllSelect,
@@ -105,7 +107,7 @@ const AddChat = () => {
 
   return (
     <div className="w-[600px] relative">
-      <SearchField placeholder={"Search Chats"} func={handleSearchOnChange} />
+      <SearchField placeholder={t("searchChats")} func={handleSearchOnChange} />
       <SelectAll
         selectedConversations={selectedItemsId.length}
         func={handleSelectItems}
@@ -129,8 +131,8 @@ const AddChat = () => {
       </div>
 
       <div className="flex items-center justify-end gap-2 mt-2">
-        <Button title="Close" func={handleClose} />
-        <Button title="Add" func={handleAddChats} />
+        <Button title={t("close")} func={handleClose} />
+        <Button title={t("add")} func={handleAddChats} />
       </div>
     </div>
   )

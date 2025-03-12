@@ -24,7 +24,7 @@ const Button = ({ icon, title, func, isEnabled }: ButtonType) => {
       onClick={() => {
         if (func) func(icon)
       }}
-      className={`flex items-center justify-center gap-2 border rounded-full px-3 py-2 ${isEnabled ? "border-primary-red bg-white" : "border-primary-off-white"}`}>
+      className={`flex items-center justify-center gap-2 border rounded-full px-3 py-2 ${isEnabled ? "border-primary-red bg-white text-primary-red" : "border-primary-off-white"}`}>
       {!!icon && (
         <span>
           {(() => {

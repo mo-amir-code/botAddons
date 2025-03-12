@@ -1,6 +1,7 @@
 import Provider from "@/components/provider"
 import Sidebar from "@/components/sidebar"
 import { SIDEBAR_ELEMENT_INJECT_ID } from "@/config/constants"
+import { LanguageProvider } from "@/contexts/languageContext"
 import { SlashCommand } from "@/sections"
 import { setAuthToken } from "@/utils/services/auth"
 import cssText from "data-text:~style.css"
@@ -41,10 +42,12 @@ function PlasmoMainUI() {
   }, [])
 
   return (
-    <Provider>
-      <Sidebar />
-      <SlashCommand />
-    </Provider>
+    <LanguageProvider>
+      <Provider>
+        <Sidebar />
+        <SlashCommand />
+      </Provider>
+    </LanguageProvider>
   )
 }
 

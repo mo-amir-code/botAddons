@@ -1,6 +1,7 @@
 import Button from "@/components/buttons/Button"
 import { SearchField } from "@/components/common"
 import { useExtension } from "@/contexts/extensionContext"
+import { useLanguage } from "@/contexts/languageContext"
 import { httpAxios } from "@/utils/services/axios"
 import { useRef, useState } from "react"
 
@@ -8,6 +9,7 @@ const AddPrompt = () => {
   const [title, setTitle] = useState<string>("")
   const [content, setContent] = useState<string>("")
   const { dispatch, currentFolderInfo, folderAllFiles } = useExtension()
+  const { t } = useLanguage();
   const titleRef = useRef<HTMLInputElement>()
 
   const handleContent = (content: string) => {
@@ -50,14 +52,14 @@ const AddPrompt = () => {
   return (
     <div className="w-[400px]">
       <SearchField
-        placeholder={"Enter Prompt Title"}
+        placeholder={t("enterPromptTitle")}
         func={setTitle}
         inputRef={titleRef}
       />
       <div>
         <div className="mb-4 p-2 flex items-center rounded-md border border-white/60">
           <textarea
-            placeholder={"Start Writing Your Prompt..."}
+            placeholder={t("startWritingYourPrompt")+"..."}
             autoFocus
             rows={16}
             value={content}
@@ -69,8 +71,8 @@ const AddPrompt = () => {
       </div>
 
       <div className="flex items-center justify-center gap-4 mt-4">
-        <Button title="Close" func={handleClose} />
-        <Button title={"Add"} func={handleSubmit} />
+        <Button title={t("close")} func={handleClose} />
+        <Button title={t("add")} func={handleSubmit} />
       </div>
     </div>
   )

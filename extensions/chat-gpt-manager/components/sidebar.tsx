@@ -1,4 +1,5 @@
 import { useExtension } from "@/contexts/extensionContext"
+import { useLanguage } from "@/contexts/languageContext"
 import { dbAndStores } from "@/utils/constants"
 import { features } from "@/utils/data"
 import { filterChats, removeDuplicatesItemsById } from "@/utils/services"
@@ -25,6 +26,7 @@ import { ChildModal, Modal } from "../sections"
 const Sidebar = () => {
   const [openModal, setOpenModal] = useState<OpenModalType>(null)
   const { plan, dispatch, chatsLoaded } = useExtension()
+  const { t } = useLanguage()
 
   const getCssVariable = (name: string) => {
     const rootStyle = getComputedStyle(document.documentElement)
@@ -178,11 +180,11 @@ const Sidebar = () => {
       payload
     })
   }, [openModal])
-
+  
   return (
     <main className={`antialiased w-full`}>
       <h3 className="text-[12px] p-2 w-full cursor-pointer text-ellipsis font-semibold">
-        ChatGPT Manager - {plan.toUpperCase()}
+        {t("extensionName")} - {plan.toUpperCase()}
       </h3>
       <ol className="text-white w-full">
         {features.map(({ slug, title }, idx) => (
@@ -205,7 +207,25 @@ const Sidebar = () => {
               })()}
             </span>
             <div className="flex flex-col ">
-              <span className="text-start">{title}</span>
+              <span className="text-start">
+                {(() => {
+                  const translationKey = (() => {
+                    switch (title) {
+                      case "Search History":
+                        return "searchHistory"
+                      case "Manage Chats":
+                        return "manageChats"
+                      case "Manage Folders":
+                        return "manageFolders"
+                      case "Manage Prompts":
+                        return "managePrompts"
+                      default:
+                        return null
+                    }
+                  })()
+                  return translationKey ? t(translationKey) : title
+                })()}
+              </span>
               {!!(idx === 0) && (
                 <span className="text-sm w-full text-center text-white/60">
                   {chatsLoaded === 100

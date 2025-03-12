@@ -7,6 +7,7 @@ import { useEffect, useState } from "react"
 import Toggle from "../buttons/Toggle"
 import { SearchField } from "../common"
 import { BallLoader } from "../loaders"
+import { useLanguage } from "@/contexts/languageContext"
 
 const Search = () => {
   const { conversations } = useExtension()
@@ -16,6 +17,7 @@ const Search = () => {
   const {
     headerStates: { exactMatchStatus }
   } = useExtension()
+  const { t } = useLanguage();
   const [query, setQuery] = useState<string>("")
   const [to, setTO] = useState<any>(null)
   const [isConversationsLoading, setIsConversationsLoading] = useState(false)
@@ -113,10 +115,10 @@ const Search = () => {
       {/* Search Input Field */}
       <SearchField
         func={handleSearchOnChange}
-        placeholder="Search"
+        placeholder={t("search")}
         child={
           <div className="flex items-center gap-2">
-            <span>Found: </span>
+            <span>{t("found")}: </span>
             {searchResults.length}
           </div>
         }

@@ -1,6 +1,7 @@
 import Button from "@/components/buttons/Button"
 import { SearchField } from "@/components/common"
 import { useExtension } from "@/contexts/extensionContext"
+import { useLanguage } from "@/contexts/languageContext"
 import { httpAxios } from "@/utils/services/axios"
 import type { FolderFileType } from "@/utils/types/components/modal"
 import { useRef, useState } from "react"
@@ -14,6 +15,7 @@ const AddFolder = () => {
     currentFolderInfo,
     folderAllFiles
   } = useExtension()
+  const { t } = useLanguage()
   const inputRef = useRef<HTMLInputElement>()
 
   const handleEditFolder = async () => {
@@ -68,7 +70,7 @@ const AddFolder = () => {
     <div className="w-[400px]">
       <SearchField
         placeholder={
-          isFolderEditingOpen ? "Enter New Folder Name" : "Enter Folder Name"
+          isFolderEditingOpen ? t("enterNewFolderName") : t("enterFolderName")
         }
         defaultValue={isFolderEditingOpen ? currentFolderInfo?.title : ""}
         func={setNewFolderName}
@@ -76,9 +78,9 @@ const AddFolder = () => {
         inputRef={inputRef}
       />
       <div className="flex items-center justify-start gap-4">
-        <Button title="Close" func={handleClose} />
+        <Button title={t("close")} func={handleClose} />
         <Button
-          title={isFolderEditingOpen ? "Edit Folder" : "Add Folder"}
+          title={isFolderEditingOpen ? t("editFolder") : t("addFolder")}
           func={handleSubmit}
         />
       </div>

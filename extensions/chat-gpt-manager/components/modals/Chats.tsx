@@ -1,4 +1,5 @@
 import { useExtension } from "@/contexts/extensionContext"
+import { useLanguage } from "@/contexts/languageContext"
 import { updateConversation } from "@/utils/services/queries/conversations"
 import type { ChatTabType, DBActionType } from "@/utils/types/components/chat"
 import type { ConversationObjectType } from "@/utils/types/components/search"
@@ -13,6 +14,7 @@ const Chats = () => {
     ConversationObjectType<string, number>[]
   >([])
   const { allConversations, chatsLoaded, dispatch } = useExtension()
+  const { t } = useLanguage()
   const [currentTab, setCurrentTab] = useState<ChatTabType>("active")
   const [selectedConversationsId, setSelectedConversationsId] = useState<
     string[]
@@ -153,12 +155,12 @@ const Chats = () => {
           <button
             onClick={() => setCurrentTab("active")}
             className="text-xl font-semibold border border-white py-2 text-white w-full">
-            Active Chats
+            {t("activeChats")}
           </button>
           <button
             onClick={() => setCurrentTab("archived")}
             className="text-xl font-semibold border border-white py-2 text-white w-full">
-            Archived Chats
+            {t("archivedChats")}
           </button>
         </aside>
         <div className="flex-[6] space-y-3">
@@ -166,7 +168,7 @@ const Chats = () => {
           <div>
             <SearchField
               func={handleSearchOnChange}
-              placeholder="Search Chats"
+              placeholder={t("searchChats")}
             />
             <SelectAll
               isChecked={
@@ -206,7 +208,7 @@ const Chats = () => {
             <button
               onClick={() => handleDBUpdate("delete")}
               className={`text-xl font-semibold border ${selectedConversationsId.length ? "text-white border-white" : "text-white/60 border-white/60 bg-black/60"} smooth-transition py-3 w-full`}>
-              Delete
+              {t("delete")}
             </button>
             <button
               onClick={() =>
@@ -215,7 +217,7 @@ const Chats = () => {
                 )
               }
               className={`text-xl font-semibold border ${selectedConversationsId.length ? "text-white border-white" : "text-white/60 border-white/60 bg-black/60"} smooth-transition py-3 w-full`}>
-              {currentTab !== "active" ? "Un-Archive" : "Archive"}
+              {currentTab !== "active" ? t("unarchive") : t("archive")}
             </button>
           </div>
         </div>

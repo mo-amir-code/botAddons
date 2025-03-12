@@ -39,9 +39,17 @@
     "permissions": [
       "tabs",
       "storage",
-      "scripting",
-      "webRequest",
-      "webRequestBlocking"
+      "scripting"
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": [
+          "assets/**/*"
+        ],
+        "matches": [
+          "https://chatgpt.com/*"
+        ]
+      }
     ]
   }
 }

@@ -1,4 +1,5 @@
 import { useExtension } from "@/contexts/extensionContext"
+import { useLanguage } from "@/contexts/languageContext"
 import type { ModalType } from "@/utils/types/components/modal"
 import type { HeaderStatesName } from "@/utils/types/context"
 import { useEffect, useRef } from "react"
@@ -17,6 +18,7 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
     foldersWindow,
     currentFolderInfo
   } = useExtension()
+  const { t } = useLanguage()
 
   const handleClose = (e: any) => {
     if (!modalChildRef?.current?.contains(e.target)) {
@@ -67,16 +69,21 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
                 (openModal === "folders" || openModal === "prompts")
               )
                 ? (() => {
-                    switch (openModal) {
-                      case "search":
-                        return "Legendary Conversation History"
-                      case "chats":
-                        return "Manage Conversations"
-                      case "folders":
-                        return "Manage Folders"
-                      case "prompts":
-                        return "Manage Prompts"
-                    }
+                    const tKey = (() => {
+                      switch (openModal) {
+                        case "search":
+                          return "conversationHistory"
+                        case "chats":
+                          return "manageConversations"
+                        case "folders":
+                          return "manageFolders"
+                        case "prompts":
+                          return "managePrompts"
+                        default:
+                          return null
+                      }
+                    })()
+                    return tKey ? t(tKey) : ""
                   })()
                 : currentFolderInfo.title}
             </h2>
@@ -98,7 +105,7 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
             {/* Settings Button */}
             <Button
               icon="settings"
-              title="Settings"
+              title={t("settings")}
               func={handleHeaderButton}
             />
 
@@ -106,7 +113,7 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
             {!!(openModal === "folders" || openModal === "prompts") && (
               <Button
                 icon="folders"
-                title="Add Folder"
+                title={t("addFolder")}
                 func={handleHeaderButton}
               />
             )}
@@ -115,7 +122,7 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
             {!!(openModal === "folders" && foldersWindow.folders.length) && (
               <Button
                 icon="chats"
-                title="Add Chats"
+                title={t("addChats")}
                 func={handleHeaderButton}
               />
             )}
@@ -124,7 +131,7 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
             {!!(openModal === "prompts") && (
               <Button
                 icon="prompt"
-                title="Add Prompt"
+                title={t("addPrompt")}
                 func={handleHeaderButton}
               />
             )}
@@ -132,7 +139,7 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
             {/* Exact Match Button for Search Modal */}
             {!!(openModal === "search") && (
               <div className="flex items-center text-white/80 gap-2 text-xl font-medium">
-                <span>Exact Match</span>
+                <span>{t("exactMatch")}</span>
                 <Toggle
                   isOpen={exactMatchStatus}
                   setIsOpen={handleExactMatchStatus}

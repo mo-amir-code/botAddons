@@ -1,3 +1,5 @@
+import { useLanguage } from "@/contexts/languageContext"
+
 interface SelectAllType {
   selectedConversations: number
   func: Function
@@ -9,6 +11,8 @@ const SelectAll = ({
   func,
   isChecked
 }: SelectAllType) => {
+  const { t } = useLanguage()
+
   return (
     <div className="flex border-b border-white items-center justify-between py-3">
       <label className="flex gap-2 items-center">
@@ -17,10 +21,10 @@ const SelectAll = ({
           checked={isChecked}
           type="checkbox"
         />
-        <span>Select All Chats</span>
+        <span>{t("selectAllChats")}</span>
       </label>
       <div className="flex items-center gap-2">
-        <span>Selected Chats:</span>
+        <span>{t("selectedChats")}:</span>
         <span>{selectedConversations}</span>
       </div>
     </div>
