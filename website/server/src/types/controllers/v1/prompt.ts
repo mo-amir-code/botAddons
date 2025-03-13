@@ -6,4 +6,10 @@ type AddPromptBodyType = {
   folderId?: string;
 };
 
-export type { AddPromptBodyType };
+type UpdatePromptBodyType = {
+  id: string
+  title?: string
+  content?: string
+}
+
+export type { AddPromptBodyType, UpdatePromptBodyType };

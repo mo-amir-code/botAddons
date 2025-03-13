@@ -42,6 +42,8 @@ const PromptsList = () => {
           .includes(promptTrigger.promptQuery.toLowerCase())
       )
       setResults(filteredResults)
+    } else {
+      setResults([])
     }
   }, [promptTrigger])
 
@@ -103,15 +105,25 @@ const PromptsList = () => {
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!promptTrigger?.isPromptOpen || results.length === 0) return
+      if (results.length === 0) return
 
       const currentIndex = selectedPrompt
         ? results.findIndex((prompt) => prompt.id === selectedPrompt.id)
         : -1
 
-      if (e.key == "Tab") {
+      if (e.key === "Tab") {
         if (selectedPrompt) {
           element.innerHTML = `${selectedPrompt.content}`
+          element.focus()
+          const range = document.createRange()
+          const selection = window.getSelection()
+
+          range.selectNodeContents(element)
+          range.collapse(false)
+
+          selection.removeAllRanges()
+          selection.addRange(range)
+          e.preventDefault()
         }
       }
 
@@ -127,8 +139,11 @@ const PromptsList = () => {
       }
     }
 
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
+    window.addEventListener("keydown", handleKeyDown) // Use window instead of document
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+    }
   }, [results, selectedPrompt, promptTrigger?.isPromptOpen, element])
 
   useEffect(() => {
@@ -147,7 +162,7 @@ const PromptsList = () => {
   return (
     <div
       style={{ backgroundColor: colors["primary-bg"] }}
-      className="scrollbar-hide w-full max-h-[40vh] overflow-y-scroll z-50 float-end rounded-3xl">
+      className="scrollbar-hide w-full max-h-[30vh] overflow-y-scroll z-50 float-end rounded-3xl">
       <ul className="w-full h-full">
         {results.map((prompt) => (
           <li

@@ -37,6 +37,7 @@ const ChildModal = () => {
   const handleClose = (e: any) => {
     if (!modalChildRef?.current?.contains(e.target)) {
       dispatch({ type: "RESET_HEADER_STATES" })
+      dispatch({ type: "CURRENT_EDITING_FILE_INFO", payload: null });
       setChildModalState(null)
     }
   }

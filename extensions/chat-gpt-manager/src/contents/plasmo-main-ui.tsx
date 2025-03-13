@@ -1,7 +1,9 @@
 import Provider from "@/components/provider"
 import Sidebar from "@/components/sidebar"
+import ToastContainer from "@/components/toast/ToastContainer"
 import { SIDEBAR_ELEMENT_INJECT_ID } from "@/config/constants"
 import { LanguageProvider } from "@/contexts/languageContext"
+import { ToastProvider } from "@/contexts/toastContext"
 import { SlashCommand } from "@/sections"
 import { setAuthToken } from "@/utils/services/auth"
 import cssText from "data-text:~style.css"
@@ -44,8 +46,11 @@ function PlasmoMainUI() {
   return (
     <LanguageProvider>
       <Provider>
-        <Sidebar />
-        <SlashCommand />
+        <ToastProvider>
+          <Sidebar />
+          <SlashCommand />
+          <ToastContainer />
+        </ToastProvider>
       </Provider>
     </LanguageProvider>
   )

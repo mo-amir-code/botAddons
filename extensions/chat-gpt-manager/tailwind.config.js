@@ -53,6 +53,20 @@ module.exports = {
         lg: `var(--radius)`,
         md: `calc(var(--radius) - 2px)`,
         sm: "calc(var(--radius) - 4px)"
+      },
+      animation: {
+        "slide-in": "slideIn 0.5s ease-out forwards",
+        progress: "progress 0s linear forwards"
+      },
+      keyframes: {
+        slideIn: {
+          "0%": { transform: "translateX(100%)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" }
+        },
+        progress: {
+          "0%": { width: "100%" },
+          "100%": { width: "0%" }
+        }
       }
     }
   }

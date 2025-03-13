@@ -2,7 +2,7 @@ import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
 import type { ModalType } from "@/utils/types/components/modal"
 import type { HeaderStatesName } from "@/utils/types/context"
-import { useEffect, useRef } from "react"
+import { useRef } from "react"
 import { IoArrowBack, IoCloseOutline } from "react-icons/io5"
 import { MdEditSquare } from "react-icons/md"
 

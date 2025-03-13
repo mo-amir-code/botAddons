@@ -1,12 +1,17 @@
 import {
   createPrompt,
+  findPromptByIdAndUpdate,
   getPrompts,
 } from "../../db/services/prompt.db.service.js";
 import { apiHandler, ok } from "../../services/errorHandling/index.js";
-import { AddPromptBodyType } from "../../types/controllers/v1/prompt.js";
+import {
+  AddPromptBodyType,
+  UpdatePromptBodyType,
+} from "../../types/controllers/v1/prompt.js";
 import { PromptSchemaType } from "../../types/db/schema/index.js";
 import {
   PROMPT_ADDED_RES_MSG,
+  PROMPT_UPDATED_RES_MSG,
   PROMPTS_FETCHED_RES_MSG,
 } from "../../utils/constants/serverResponseMessages.js";
 
@@ -52,4 +57,13 @@ const addPromptHandler = apiHandler(async (req, res, next) => {
   });
 });
 
-export { addPromptHandler, getPromptHandler };
+const updatePromptHandler = apiHandler(async (req, res) => {
+  const data = req.body as UpdatePromptBodyType;
+  await findPromptByIdAndUpdate(data);
+  return ok({
+    res,
+    message: PROMPT_UPDATED_RES_MSG,
+  });
+});
+
+export { addPromptHandler, getPromptHandler, updatePromptHandler };

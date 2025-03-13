@@ -56,7 +56,7 @@ const Search = () => {
         const context = text.slice(start, end)
         // console.log("Context: ", context)
 
-        const replacementStr = `<span style="background-color: yellow; color: black">${match[0]}</span>`
+        const replacementStr = `<span style="background-color: white; color: black">${match[0]}</span>`
 
         return `${prefix}${
           exactMatchStatus

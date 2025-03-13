@@ -32,6 +32,7 @@ type TranslationKeys =
   | "editFolder"
   | "folderEditing"
   | "addChat"
+  | "editPrompt"
 
 type LanguageCode = "en" | "ae" | "au" | "cn" | "fr" | "jp" | "ru" | "br" | "de" | "id"
 
@@ -75,7 +76,8 @@ const translations: Translations = {
     enterNewFolderName: "Enter New Folder Name",
     editFolder: "Edit Folder",
     folderEditing: "Folder Editing",
-    addChat: "Add Chat"
+    addChat: "Add Chat",
+    editPrompt: "Edit Prompt"
   },
   ae: { // Arabic-style placeholder
     extensionName: "إدارة ChatGPT",
@@ -110,7 +112,8 @@ const translations: Translations = {
     enterNewFolderName: "أدخل اسم المجلد الجديد",
     editFolder: "تعديل المجلد",
     folderEditing: "تعديل المجلد",
-    addChat: "إضافة محادثة"
+    addChat: "إضافة محادثة",
+    editPrompt: "تعديل التوجيه"
   },
   au: { // Australian English variant
     extensionName: "ChatGPT Mate",
@@ -145,7 +148,8 @@ const translations: Translations = {
     enterNewFolderName: "Enter New Folder Name",
     editFolder: "Edit Folder",
     folderEditing: "Folder Editing",
-    addChat: "Add Chat"
+    addChat: "Add Chat",
+    editPrompt: "Edit Prompt"
   },
   cn: { // Chinese-style placeholder
     extensionName: "ChatGPT 管理器",
@@ -180,7 +184,8 @@ const translations: Translations = {
     enterNewFolderName: "输入新文件夹名称",
     editFolder: "编辑文件夹",
     folderEditing: "文件夹编辑",
-    addChat: "添加聊天"
+    addChat: "添加聊天",
+    editPrompt: "编辑提示"
   },
   fr: { // French
     extensionName: "Gestionnaire ChatGPT",
@@ -215,7 +220,8 @@ const translations: Translations = {
     enterNewFolderName: "Entrer le nom du nouveau dossier",
     editFolder: "Modifier le dossier",
     folderEditing: "Modification du dossier",
-    addChat: "Ajouter un chat"
+    addChat: "Ajouter un chat",
+    editPrompt: "Modifier l'invite"
   },
   jp: { // Japanese-style placeholder
     extensionName: "ChatGPT マネージャー",
@@ -250,7 +256,8 @@ const translations: Translations = {
     enterNewFolderName: "新しいフォルダ名を入力",
     editFolder: "フォルダを編集",
     folderEditing: "フォルダ編集中",
-    addChat: "チャットを追加"
+    addChat: "チャットを追加",
+    editPrompt: "プロンプトを編集"
   },
   ru: { // Russian-style placeholder
     extensionName: "Менеджер ChatGPT",
@@ -285,7 +292,8 @@ const translations: Translations = {
     enterNewFolderName: "Ввести имя новой папки",
     editFolder: "Редактировать папку",
     folderEditing: "Редактирование папки",
-    addChat: "Добавить чат"
+    addChat: "Добавить чат",
+    editPrompt: "Редактировать подсказку"
   },
   br: { // Brazilian Portuguese
     extensionName: "Gerenciador ChatGPT",
@@ -320,7 +328,8 @@ const translations: Translations = {
     enterNewFolderName: "Digite o Nome da Nova Pasta",
     editFolder: "Editar Pasta",
     folderEditing: "Editando Pasta",
-    addChat: "Adicionar Chat"
+    addChat: "Adicionar Chat",
+    editPrompt: "Editar Prompt"
   },
   de: { // German
     extensionName: "ChatGPT-Manager",
@@ -355,7 +364,8 @@ const translations: Translations = {
     enterNewFolderName: "Neuen Ordnernamen eingeben",
     editFolder: "Ordner bearbeiten",
     folderEditing: "Ordnerbearbeitung",
-    addChat: "Chat hinzufügen"
+    addChat: "Chat hinzufügen",
+    editPrompt: "Prompt bearbeiten"
   },
   id: { // Indonesian
     extensionName: "Pengelola ChatGPT",
@@ -390,11 +400,10 @@ const translations: Translations = {
     enterNewFolderName: "Masukkan Nama Folder Baru",
     editFolder: "Edit Folder",
     folderEditing: "Pengeditan Folder",
-    addChat: "Tambah Obrolan"
+    addChat: "Tambah Obrolan",
+    editPrompt: "Edit Prompt"
   }
 }
 
 export type { TranslationKeys, LanguageCode, Translations }
-export {
-    translations
-}
+export { translations }

@@ -135,7 +135,7 @@ const Prompts = () => {
       />
 
       <ul className="mt-2 overflow-height">
-        {results?.map(({ id, title, updatedAt, isFolder }) => (
+        {results?.map(({ id, title, updatedAt, isFolder, content }) => (
           <Item
             key={id}
             id={id}
@@ -143,8 +143,9 @@ const Prompts = () => {
             onChatSelectChange={handleSelectItems}
             title={title}
             update_time={updatedAt ? updatedAt : undefined}
-            itemType={isFolder ? "folder" : "chat"}
+            itemType={isFolder ? "folder" : "prompt"}
             modalType="prompts"
+            content={content}
           />
         ))}
       </ul>

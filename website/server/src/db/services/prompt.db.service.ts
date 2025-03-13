@@ -1,4 +1,7 @@
-import { AddPromptBodyType } from "../../types/controllers/v1/prompt.js";
+import {
+  AddPromptBodyType,
+  UpdatePromptBodyType,
+} from "../../types/controllers/v1/prompt.js";
 import { PromptSchemaType } from "../../types/db/schema/index.js";
 import { Prompt } from "../models/index.js";
 
@@ -16,4 +19,10 @@ const createPrompt = async (
   return await Prompt.create(data);
 };
 
-export { createPrompt, getPrompts };
+const findPromptByIdAndUpdate = async (
+  data: UpdatePromptBodyType
+): Promise<PromptSchemaType | null> => {
+  return await Prompt.findByIdAndUpdate(data.id, { ...data });
+};
+
+export { createPrompt, getPrompts, findPromptByIdAndUpdate };

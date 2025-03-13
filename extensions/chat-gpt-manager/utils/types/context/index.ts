@@ -1,6 +1,7 @@
 import type {
   FolderFileType,
   FolderInfoType,
+  PromptFileType,
   PromptTriggerType
 } from "../components/modal"
 import type {
@@ -37,6 +38,7 @@ type ReducerActionType =
   | { type: "RESET_HEADER_STATES" }
   | { type: "CURRENT_FOLDER_INFO"; payload: FolderInfoType | null }
   | { type: "FOLDER_ALL_FILES"; payload: FolderFileType }
+  | { type: "CURRENT_EDITING_FILE_INFO"; payload: PromptFileType | null }
 
 type ActionType =
   | "EXTENSION_LOADING"
@@ -49,6 +51,7 @@ type ActionType =
   | "TOGGLE_HEADER_STATE"
   | "CURRENT_FOLDER_INFO"
   | "FOLDER_ALL_FILES"
+  | "CURRENT_EDITING_FILE_INFO"
 
 interface HeaderStatesType {
   exactMatchStatus: boolean

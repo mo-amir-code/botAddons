@@ -1,7 +1,7 @@
 import type {
   FolderFileType,
   FolderInfoType,
-  PromptTriggerType
+  PromptFileType,
 } from "@/utils/types/components/modal"
 import type {
   ConversationObjectType,
@@ -32,6 +32,7 @@ interface ExtensionState {
   foldersWindow: FoldersWindow
   currentFolderInfo: FolderInfoType | null
   folderAllFiles: FolderFileType
+  currentEditingFileInfo: PromptFileType | null
 }
 
 const initialState: ExtensionState = {
@@ -58,7 +59,8 @@ const initialState: ExtensionState = {
   folderAllFiles: {
     isRoot: true,
     items: []
-  }
+  },
+  currentEditingFileInfo: null
 }
 
 interface ExtensionActions {
@@ -114,6 +116,8 @@ export function ExtensionProvider({ children }: ExtensionProviderProps) {
         return { ...state, currentFolderInfo: action.payload }
       case "FOLDER_ALL_FILES":
         return { ...state, folderAllFiles: action.payload }
+      case "CURRENT_EDITING_FILE_INFO":
+        return { ...state, currentEditingFileInfo: action.payload }
       default:
         return state
     }
