@@ -3,6 +3,7 @@ import { SearchField } from "@/components/common"
 import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
 import { httpAxios } from "@/utils/services/axios"
+import { handleDataInLocalStorage } from "@/utils/services/localstorage"
 import type { FolderFileType } from "@/utils/types/components/modal"
 import { useRef, useState } from "react"
 
@@ -28,6 +29,7 @@ const AddFolder = () => {
       type: "CURRENT_FOLDER_INFO",
       payload: { ...currentFolderInfo, title: newFolderName }
     })
+    await handleDataInLocalStorage({data: newFolderName, foldersWindow, operationType: "editFolder"})
 
     setNewFolderName("")
     if (inputRef?.current) inputRef.current.value = ""
@@ -47,6 +49,7 @@ const AddFolder = () => {
       const res = await httpAxios.post("/folder", body)
 
       const data = res.data
+      await handleDataInLocalStorage({data: [data.data], foldersWindow, operationType: "addItems"})
 
       let payloadData: FolderFileType = { ...folderAllFiles }
       payloadData.items = [...folderAllFiles.items, data.data]
@@ -65,6 +68,8 @@ const AddFolder = () => {
       type: "RESET_HEADER_STATES"
     })
   }
+
+  console.log(currentFolderInfo, isFolderEditingOpen)
 
   return (
     <div className="w-[400px]">

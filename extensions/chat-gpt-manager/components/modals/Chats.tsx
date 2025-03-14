@@ -102,9 +102,9 @@ const Chats = () => {
     id?: string
   }) => {
     let updatedConversationsId = []
-    if (isAllSelect && isAllSelect?.target?.checked) {
+    if (isAllSelect) {
       updatedConversationsId = results.map((c) => c.id)
-    } else if (isAllSelect && !isAllSelect?.target?.checked) {
+    } else if (!isAllSelect && !id) {
       updatedConversationsId = []
     } else {
       const isExist = selectedConversationsId.find((cId) => cId === id)
@@ -132,6 +132,7 @@ const Chats = () => {
       else return c.is_archived && c.title.toLowerCase().includes(query)
     })
     setResults(filteredConversations)
+    setSelectedConversationsId([]);
   }
 
   useEffect(() => {

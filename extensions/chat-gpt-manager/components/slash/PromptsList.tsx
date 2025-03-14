@@ -47,6 +47,14 @@ const PromptsList = () => {
     }
   }, [promptTrigger])
 
+  const fetchData = async () => {
+    const promptsData = ((await chrome.storage.local.get("prompts")) as any)?.[
+      "prompts"
+    ]
+    
+    if (promptsData) setPrompts(promptsData)
+  }
+
   // Fetch initial data from chrome storage
   useEffect(() => {
     const execute = async () => {
@@ -54,13 +62,28 @@ const PromptsList = () => {
         (await chrome.storage.local.get("promptsList")) as any
       )?.["promptsList"]
       if (promptsTrigger) setPromptTrigger(promptsTrigger)
-
-      const promptsData = (
-        (await chrome.storage.local.get("prompts")) as any
-      )?.["prompts"]
-      if (promptsData) setPrompts(promptsData)
     }
     execute()
+
+    fetchData()
+
+    const handleStorageChange = (
+      changes: { [key: string]: chrome.storage.StorageChange },
+      areaName: string
+    ) => {
+      if (
+        areaName === "local" &&
+        (changes["prompts"])
+      ) {
+        fetchData()
+      }
+    }
+
+    chrome.storage.onChanged.addListener(handleStorageChange)
+
+    return () => {
+      chrome.storage.onChanged.removeListener(handleStorageChange)
+    }
   }, [])
 
   // Observe changes to the input element
@@ -162,7 +185,7 @@ const PromptsList = () => {
   return (
     <div
       style={{ backgroundColor: colors["primary-bg"] }}
-      className="scrollbar-hide w-full max-h-[30vh] overflow-y-scroll z-50 float-end rounded-3xl">
+      className="scrollbar-hide w-full max-h-[300px] overflow-y-scroll z-50 float-end rounded-3xl">
       <ul className="w-full h-full">
         {results.map((prompt) => (
           <li

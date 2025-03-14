@@ -24,26 +24,37 @@ const setAuthToken = async () => {
   })
 }
 
-type LocalStorageKeyTypes = "cat" | "user" | "prompts" | "promptsTrigger" | "language"
+export type LocalStorageKeyTypes =
+  | "cat"
+  | "user"
+  | "prompts"
+  | "promptsTrigger"
+  | "language"
+  | "folders"
 
 const setDataInLocalStorage = ({
   key,
-  data
+  data,
+  id
 }: {
   key: LocalStorageKeyTypes
   data: any
+  id?: string
 }) => {
+  const finalKey = ((key === "folders" || key === "prompts") && id) ? `${key}-${id}` : key;
   chrome.storage.local.set({
-    [key]: data
+    [finalKey]: data
   })
 }
 
-const getDataFromLocalStorage = async (key: LocalStorageKeyTypes) => {
-  return ((await chrome.storage.local.get(key)) as any)?.[key]
+const getDataFromLocalStorage = async (key: LocalStorageKeyTypes, id?:string) => {
+  const finalKey = ((key === "folders" || key === "prompts") && id) ? `${key}-${id}` : key;
+  return ((await chrome.storage.local.get(finalKey)) as any)?.[finalKey]
 }
 
-export {
-  setAuthToken,
-  setDataInLocalStorage,
-  getDataFromLocalStorage
+const deleteDataFromLocalStorage = async (key: LocalStorageKeyTypes, id?:string) => {
+  const finalKey = ((key === "folders" || key === "prompts") && id) ? `${key}-${id}` : key;
+  return ((await chrome.storage.local.remove(finalKey)));
 }
+
+export { setAuthToken, setDataInLocalStorage, getDataFromLocalStorage, deleteDataFromLocalStorage }

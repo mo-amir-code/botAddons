@@ -4,6 +4,7 @@ import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
 import { useToast } from "@/contexts/toastContext"
 import { httpAxios } from "@/utils/services/axios"
+import { handleDataInLocalStorage, handleDataOfPromptCommand } from "@/utils/services/localstorage"
 import { useEffect, useRef, useState } from "react"
 
 const AddPrompt = () => {
@@ -13,7 +14,8 @@ const AddPrompt = () => {
     dispatch,
     currentFolderInfo,
     folderAllFiles,
-    currentEditingFileInfo
+    currentEditingFileInfo,
+    foldersWindow
   } = useExtension()
   const { t } = useLanguage()
   const { addToast } = useToast()
@@ -58,6 +60,10 @@ const AddPrompt = () => {
           } as any
         })
 
+        const updatedItem = updatedFolderAllFiles.items.find((it) => it.id == currentEditingFileInfo.id);
+        await handleDataInLocalStorage({data: updatedItem, foldersWindow, operationType: "editFolder"});
+        await handleDataOfPromptCommand({data: updatedItem, operationType: "editItem"});
+
         dispatch({ type: "FOLDER_ALL_FILES", payload: updatedFolderAllFiles })
         return
       }
@@ -68,14 +74,19 @@ const AddPrompt = () => {
         folderId: currentFolderInfo?.id
       })
 
-      updatedFolderAllFiles.items.push({
+      const newPrompt = {
         id: res.data.data.promptId,
         title,
         isFolder: false,
         content,
         createdAt: res.data.data.updatedAt,
         updatedAt: res.data.data.updatedAt
-      })
+      }
+
+      updatedFolderAllFiles.items.push(newPrompt)
+
+      await handleDataInLocalStorage({data: [newPrompt], foldersWindow, operationType: "addItems"});
+      await handleDataOfPromptCommand({data: [newPrompt], operationType: "addItems"});
 
       dispatch({ type: "FOLDER_ALL_FILES", payload: updatedFolderAllFiles })
       setTitle("")
@@ -103,13 +114,12 @@ const AddPrompt = () => {
         placeholder={t("enterPromptTitle")}
         func={setTitle}
         inputRef={titleRef}
-        defaultValue={currentEditingFileInfo.title}
+        defaultValue={currentEditingFileInfo?.title}
       />
       <div>
         <div className="mb-4 p-2 flex items-center rounded-md border border-white/60">
           <textarea
             placeholder={t("startWritingYourPrompt") + "..."}
-            autoFocus
             rows={16}
             value={content}
             className="w-full bg-transparent outline-none text-white/80"

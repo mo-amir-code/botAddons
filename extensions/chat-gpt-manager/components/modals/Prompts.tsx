@@ -1,5 +1,15 @@
 import { useExtension } from "@/contexts/extensionContext"
+import { useLanguage } from "@/contexts/languageContext"
+import {
+  getDataFromLocalStorage,
+  setDataInLocalStorage,
+  type LocalStorageKeyTypes
+} from "@/utils/services/auth"
 import { httpAxios } from "@/utils/services/axios"
+import {
+  handleDataInLocalStorage,
+  handleDataOfPromptCommand
+} from "@/utils/services/localstorage"
 import { fetchFolders } from "@/utils/services/queries/folder"
 import type { FolderItemType } from "@/utils/types/components/modal"
 import type { FetchFoldersQueryType } from "@/utils/types/services/queries"
@@ -8,7 +18,6 @@ import { useEffect, useState } from "react"
 import Button from "../buttons/Button"
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
-import { useLanguage } from "@/contexts/languageContext"
 
 type SelectedItemType = {
   id: string
@@ -20,7 +29,7 @@ const Prompts = () => {
   const [results, setResults] = useState<FolderItemType[]>([])
   const { folderAllFiles, foldersWindow, dispatch, currentFolderInfo } =
     useExtension()
-  const { t } = useLanguage();
+  const { t } = useLanguage()
 
   const handleSelectItems = ({
     isAllSelect,
@@ -70,6 +79,7 @@ const Prompts = () => {
         item.title.toLowerCase().includes(query.toLowerCase())
       )
     )
+    setSelectedItemsId([])
   }
 
   const handleDelete = async () => {
@@ -91,6 +101,17 @@ const Prompts = () => {
             (it) => it.id == item.conversationId || item.id == it.id
           )
       )
+
+      await handleDataInLocalStorage({
+        data: selectedItemsId.map((it) => it.id),
+        foldersWindow,
+        operationType: "deleteItems"
+      })
+      await handleDataOfPromptCommand({
+        data: selectedItemsId.map((it) => it.id),
+        operationType: "deleteItems"
+      })
+
       dispatch({ type: "FOLDER_ALL_FILES", payload: newFolderAllFiles })
       setSelectedItemsId([])
     } catch (error) {
@@ -101,12 +122,51 @@ const Prompts = () => {
   useEffect(() => {
     const fetchNow = async () => {
       try {
+        const nestedFolderLength = foldersWindow.folders.length
+        let persistedFolderDataKey = `root`
+        if (nestedFolderLength !== 0) {
+          persistedFolderDataKey =
+            foldersWindow.folders[nestedFolderLength - 1].id
+        }
+
+        const foldersData = await getDataFromLocalStorage(
+          "prompts",
+          persistedFolderDataKey
+        )
+
+        const currentPromptsList = foldersData?.items?.filter((it) => !it?.isFolder) || [];
+        const commandPromptsList = await getDataFromLocalStorage("prompts") || [];
+
+        if(currentPromptsList?.length > commandPromptsList.length){
+          setDataInLocalStorage({data: currentPromptsList, key: "prompts"});
+        }
+
+        if (foldersData) {
+          dispatch({ type: "FOLDER_ALL_FILES", payload: foldersData })
+          dispatch({ type: "CURRENT_FOLDER_INFO", payload: foldersData?.info })
+          return
+        }
+
         let obj: FetchFoldersQueryType = { type: "prompts" }
         if (foldersWindow.folders.length) {
           obj["id"] = foldersWindow.folders[foldersWindow.folders.length - 1].id
         }
         const res = await fetchFolders(obj)
         let data = res.data.data
+
+        let persistData = {
+          data,
+          key: "prompts" as LocalStorageKeyTypes
+        }
+
+        if (data.isRoot) {
+          persistData["id"] = "root"
+        } else {
+          persistData["id"] = data.info.id
+        }
+
+        setDataInLocalStorage(persistData)
+
         dispatch({ type: "FOLDER_ALL_FILES", payload: data })
         dispatch({ type: "CURRENT_FOLDER_INFO", payload: data?.info })
       } catch (error) {

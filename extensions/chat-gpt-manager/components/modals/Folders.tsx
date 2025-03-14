@@ -1,4 +1,10 @@
 import { useExtension } from "@/contexts/extensionContext"
+import { useLanguage } from "@/contexts/languageContext"
+import {
+  getDataFromLocalStorage,
+  setDataInLocalStorage,
+  type LocalStorageKeyTypes
+} from "@/utils/services/auth"
 import { httpAxios } from "@/utils/services/axios"
 import { fetchFolders } from "@/utils/services/queries/folder"
 import type { FolderItemType } from "@/utils/types/components/modal"
@@ -8,7 +14,7 @@ import { useEffect, useState } from "react"
 import Button from "../buttons/Button"
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
-import { useLanguage } from "@/contexts/languageContext"
+import { handleDataInLocalStorage } from "@/utils/services/localstorage"
 
 const Folders = () => {
   const [selectedItemsId, setSelectedItemsId] = useState<string[]>([])
@@ -76,6 +82,7 @@ const Folders = () => {
         (item) =>
           !selectedItemsId.includes(item.conversationId || (item.id as string))
       )
+      await handleDataInLocalStorage({data: selectedItemsId, foldersWindow, operationType: "deleteItems"})
       dispatch({ type: "FOLDER_ALL_FILES", payload: newFolderAllFiles })
       setSelectedItemsId([])
     } catch (error) {
@@ -89,11 +96,29 @@ const Folders = () => {
         item.title.toLowerCase().includes(query.toLowerCase())
       )
     )
+    setSelectedItemsId([])
   }
 
   useEffect(() => {
     const fetchNow = async () => {
       try {
+        const nestedFolderLength = foldersWindow.folders.length
+        let persistedFolderDataKey = `root`
+        if (nestedFolderLength !== 0) {
+          persistedFolderDataKey = foldersWindow.folders[nestedFolderLength-1].id
+        }
+
+        const foldersData = await getDataFromLocalStorage(
+          "folders",
+          persistedFolderDataKey
+        )
+
+        if (foldersData) {
+          dispatch({ type: "FOLDER_ALL_FILES", payload: foldersData })
+          dispatch({ type: "CURRENT_FOLDER_INFO", payload: foldersData?.info })
+          return
+        }
+
         let obj: FetchFoldersQueryType = { type: "chats" }
         if (foldersWindow.folders.length) {
           obj["id"] = foldersWindow.folders[foldersWindow.folders.length - 1].id
@@ -111,6 +136,20 @@ const Folders = () => {
             updatedAt: conv?.update_time
           }
         })
+
+        let persistData = {
+          data,
+          key: "folders" as LocalStorageKeyTypes
+        }
+
+        if (data.isRoot) {
+          persistData["id"] = "root"
+        } else {
+          persistData["id"] = data.info.id
+        }
+
+        setDataInLocalStorage(persistData)
+
         dispatch({ type: "FOLDER_ALL_FILES", payload: data })
         dispatch({ type: "CURRENT_FOLDER_INFO", payload: data?.info })
       } catch (error) {

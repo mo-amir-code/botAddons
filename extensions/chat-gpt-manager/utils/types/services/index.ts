@@ -1,4 +1,5 @@
-import type { ConversationObjectType } from "../components/search"
+import type { FolderItemType } from "../components/modal"
+import type { ConversationObjectType, FoldersWindow } from "../components/search"
 
 
 interface FormatTimestampType {
@@ -17,9 +18,19 @@ interface FilerChatsType {
 type SortType = "asc" | "desc"
 type FilterType = "removeEmptyConversations"
 
+interface HandleLocalStorageDataType {
+    data: FolderItemType | FolderItemType[] | string | string[]
+    foldersWindow: FoldersWindow
+    operationType: LocalStorageOperationType
+}
+
+type LocalStorageOperationType = "editFolder" | "newFolder" | "addItems" | "deleteItems" | "editPrompt"
+
 export type {
     FormatTimestampType,
     FormatTimestampTypeType,
     FilerChatsType,
-    SortType
+    SortType,
+    HandleLocalStorageDataType,
+    LocalStorageOperationType
 }

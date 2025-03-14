@@ -4,6 +4,7 @@ import Item from "@/components/common/Item"
 import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
 import { httpAxios } from "@/utils/services/axios"
+import { handleDataInLocalStorage } from "@/utils/services/localstorage"
 import type { FolderItemType } from "@/utils/types/components/modal"
 import type { ConversationObjectType } from "@/utils/types/components/search"
 import { useEffect, useState } from "react"
@@ -13,7 +14,7 @@ const AddChat = () => {
     ConversationObjectType<string, number>[]
   >([])
   const [selectedItemsId, setSelectedItemsId] = useState<string[]>([])
-  const { dispatch, allConversations, currentFolderInfo, folderAllFiles } =
+  const { dispatch, allConversations, currentFolderInfo, folderAllFiles, foldersWindow } =
     useExtension()
   const { t } = useLanguage();
 
@@ -73,6 +74,7 @@ const AddChat = () => {
       })
       const updatedFolderAllFiles = { ...folderAllFiles }
       updatedFolderAllFiles.items.push(...newItems)
+      await handleDataInLocalStorage({data: newItems, foldersWindow, operationType:"addItems" });
       dispatch({ type: "FOLDER_ALL_FILES", payload: updatedFolderAllFiles })
     } catch (error) {
       console.error(error)

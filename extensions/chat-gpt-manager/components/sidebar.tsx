@@ -46,6 +46,10 @@ const Sidebar = () => {
       }))
     ]
 
+    conversations = conversations.filter((obj, index, self) =>
+      index === self.findIndex((o) => o.id === obj.id)
+    );
+
     dispatch({ type: "ALL_CONVERSATIONS", payload: conversations })
   }
 
@@ -180,7 +184,7 @@ const Sidebar = () => {
       payload
     })
   }, [openModal])
-  
+
   return (
     <main className={`antialiased w-full`}>
       <h3 className="text-[12px] p-2 w-full cursor-pointer text-ellipsis font-semibold">
