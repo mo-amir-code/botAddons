@@ -1,8 +1,8 @@
+import type { AuthSessionUserType } from "@/utils/services/auth"
 import type {
   FolderFileType,
   FolderInfoType,
-  PromptFileType,
-  PromptTriggerType
+  PromptFileType
 } from "../components/modal"
 import type {
   ConversationObjectType,
@@ -16,11 +16,6 @@ interface UserInfoType {
   fullName: string
   email: string
 }
-
-// interface ReducerActionType {
-//   type: ActionType
-//   payload: any
-// }
 
 type ReducerActionType =
   | { type: "EXTENSION_LOADING"; payload: boolean }
@@ -39,6 +34,7 @@ type ReducerActionType =
   | { type: "CURRENT_FOLDER_INFO"; payload: FolderInfoType | null }
   | { type: "FOLDER_ALL_FILES"; payload: FolderFileType }
   | { type: "CURRENT_EDITING_FILE_INFO"; payload: PromptFileType | null }
+  | { type: "CHATGPT_USER_INFO"; payload: AuthSessionUserType | null }
 
 type ActionType =
   | "EXTENSION_LOADING"
@@ -52,6 +48,7 @@ type ActionType =
   | "CURRENT_FOLDER_INFO"
   | "FOLDER_ALL_FILES"
   | "CURRENT_EDITING_FILE_INFO"
+  | "CHATGPT_USER_INFO"
 
 interface HeaderStatesType {
   exactMatchStatus: boolean

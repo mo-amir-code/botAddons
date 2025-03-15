@@ -15,3 +15,28 @@ export {
   PROMPT_INPUT_ELEMENT_INJECT_ID,
   PROMPT_LIST_ELEMENT_INJECT_ID
 }
+
+// TOAST
+const TOAST_TIME_IN_MS = 3000;
+
+export {
+  TOAST_TIME_IN_MS
+}
+
+
+// TOAST Messages
+const CHAT_TOAST_MSG = "Chat {msg} successfully"
+const ITEMS_DELETE_MSG = "Items has been deleted"
+const CHATS_ADDED_MSG = "Chats added"
+const FOLDER_EDIT_MSG = "Folder edited"
+const FOLDER_ADD_MSG = "Folder created"
+const LANGUAGE_SELECTED_MSG = "{name} is applied"
+
+export {
+  CHAT_TOAST_MSG,
+  ITEMS_DELETE_MSG,
+  CHATS_ADDED_MSG,
+  FOLDER_EDIT_MSG,
+  FOLDER_ADD_MSG,
+  LANGUAGE_SELECTED_MSG
+}

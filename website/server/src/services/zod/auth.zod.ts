@@ -73,6 +73,10 @@ const autoAuthZodSchema = z.object({
         required_error: ZOD_REQUIRED_ERR.replace("{field}", "Email"),
       })
       .email("Not a valid email"),
+    name: z
+      .string({
+        required_error: ZOD_REQUIRED_ERR.replace("{field}", "Name"),
+      })
   }),
 });
 

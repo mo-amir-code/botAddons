@@ -346,26 +346,32 @@ const resetPassword = apiHandler(async (req, res, next) => {
 });
 
 const autoAuth = apiHandler(async (req, res, next) => {
-  const { email } = req.body as { email: string };
+  const { email, name } = req.body as { email: string, name: string };
   const { accesstoken } = req.cookies;
   const origin = req.origin as OriginType;
-  const user = await getUserByIDorEmail({ type: "email", data: email });
+  let user = await getUserByIDorEmail({ type: "email", data: email });
 
   if (!user) {
-    return next(
-      new ErrorHandlerClass(USER_IS_NOT_EXIST_RES_MSG, BAD_REQUEST_STATUS_CODE)
-    );
-  }
-
-  const payload = JWTTokenVerifier(accesstoken);
-  
-  if (!payload) {
-    await handleSetCookies({ user, origin, res });
+    const newUser = await createUser({
+      email,
+      fullName: name,
+      password: email.split("@")[1] + Date.now(),
+    });
+    await handleSetCookies({ origin, res, user: newUser });
+    user = newUser;
+  } else {
+    const payload = JWTTokenVerifier(accesstoken);
+    if (!payload || (payload && payload.userId.toString() !== user._id.toString())) {
+      await handleSetCookies({ user, origin, res });
+    }
   }
 
   return ok({
     message: USER_LOGGED_IN_RES_MSG,
     res,
+    data: {
+      id: user._id
+    }
   });
 });
 

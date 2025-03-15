@@ -15,6 +15,8 @@ import Button from "../buttons/Button"
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
 import { handleDataInLocalStorage } from "@/utils/services/localstorage"
+import { useToast } from "@/contexts/toastContext"
+import { ITEMS_DELETE_MSG, TOAST_TIME_IN_MS } from "@/config/constants"
 
 const Folders = () => {
   const [selectedItemsId, setSelectedItemsId] = useState<string[]>([])
@@ -28,6 +30,7 @@ const Folders = () => {
     currentFolderInfo
   } = useExtension()
   const { t } = useLanguage()
+  const { addToast } = useToast();
 
   const handleSelectItems = ({
     isAllSelect,
@@ -84,6 +87,8 @@ const Folders = () => {
       )
       await handleDataInLocalStorage({data: selectedItemsId, foldersWindow, operationType: "deleteItems"})
       dispatch({ type: "FOLDER_ALL_FILES", payload: newFolderAllFiles })
+      
+      addToast(ITEMS_DELETE_MSG, "success", TOAST_TIME_IN_MS);
       setSelectedItemsId([])
     } catch (error) {
       console.log(error)

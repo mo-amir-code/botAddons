@@ -1,7 +1,6 @@
 import { Folder, Prompt } from "../../db/models/index.js";
 import {
   createFolder,
-  deleteFolderById,
   findFolderByIdAndUpdate,
   getFolderById,
 } from "../../db/services/folder.db.service.js";
@@ -20,8 +19,12 @@ import {
   FindFolderByIdAndUpdate,
   GetFoldersType,
 } from "../../types/db/services/folder.types.js";
-import { BAD_REQUEST_STATUS_CODE } from "../../utils/constants/common.js";
 import {
+  BAD_REQUEST_STATUS_CODE,
+  CONFLICT_REQUEST_STATUS_CODE,
+} from "../../utils/constants/common.js";
+import {
+  DUPLICATE_FOLDER_RES_MSG,
   FOLDER_CREATED_RES_MSG,
   FOLDER_DELETED_RES_MSG,
   FOLDER_FETCHED_RES_MSG,
@@ -30,16 +33,26 @@ import {
   SOMETHING_WENT_WRONG,
 } from "../../utils/constants/serverResponseMessages.js";
 
-const createFolderHandler = apiHandler(async (req, res) => {
+const createFolderHandler = apiHandler(async (req, res, next) => {
   const data = req.body as CreateFolderBodyType;
   let origin = req.origin as any;
   origin = origin === "website" ? "all" : origin;
 
-  const newFolderData: CreateFolderType = {
+  let newFolderData: CreateFolderType = {
     ...data,
     platform: origin,
     userId: req.user.id,
   };
+
+  const folder = await Folder.findOne(data);
+  if (folder) {
+    return next(
+      new ErrorHandlerClass(
+        DUPLICATE_FOLDER_RES_MSG,
+        CONFLICT_REQUEST_STATUS_CODE
+      )
+    );
+  }
 
   const newFolder = await createFolder(newFolderData);
 

@@ -35,7 +35,7 @@ const languages = [
   },
   {
     key: "ae",
-    name: "العربية", // Arabic: "Arabic"
+    name: "العربية - (Arabic)" , // Arabic: "Arabic"
     icon: ae
   },
   {
@@ -45,37 +45,37 @@ const languages = [
   },
   {
     key: "cn",
-    name: "中文", // Chinese: "Chinese"
+    name: "中文 - (Chinese)", // Chinese: "Chinese"
     icon: cn
   },
   {
     key: "fr",
-    name: "Français", // French: "French"
+    name: "Français - (French)", // French: "French"
     icon: fr
   },
   {
     key: "jp",
-    name: "日本語", // Japanese: "Japanese"
+    name: "日本語 - (Japanese)", // Japanese: "Japanese"
     icon: jp
   },
   {
     key: "ru",
-    name: "Русский", // Russian: "Russian"
+    name: "Русский - (Russian)", // Russian: "Russian"
     icon: ru
   },
   {
     key: "br",
-    name: "Português Brasileiro", // Brazilian Portuguese: "Brazilian Portuguese"
+    name: "Português Brasileiro - (Brazilian)", // Brazilian Portuguese: "Brazilian Portuguese"
     icon: br
   },
   {
     key: "de",
-    name: "Deutsch", // German: "German"
+    name: "Deutsch - (German)", // German: "German"
     icon: de
   },
   {
     key: "id",
-    name: "Bahasa Indonesia", // Indonesian: "Indonesian Language"
+    name: "Bahasa Indonesia - (Indonesian)", // Indonesian: "Indonesian Language"
     icon: id
   }
 ]

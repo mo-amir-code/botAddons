@@ -8,6 +8,8 @@ import { useEffect, useState } from "react"
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
 import { BallLoader } from "../loaders"
+import { useToast } from "@/contexts/toastContext"
+import { CHAT_TOAST_MSG, TOAST_TIME_IN_MS } from "@/config/constants"
 
 const Chats = () => {
   const [results, setResults] = useState<
@@ -20,6 +22,7 @@ const Chats = () => {
     string[]
   >([])
   const [isChatUpdating, setIsChatUpdating] = useState<boolean>(false)
+  const { addToast } = useToast();
 
   const handleUpdateAllConversations = ({
     action
@@ -63,6 +66,7 @@ const Chats = () => {
     let promises = []
 
     setIsChatUpdating(true)
+    let msg = CHAT_TOAST_MSG;
 
     // Performing actions
     switch (action) {
@@ -72,6 +76,7 @@ const Chats = () => {
             updateConversation({ conversationId: id, archive: "archive" })
           )
         })
+        msg.replace("{msg}", "archived")
         break
       case "unarchive":
         selectedConversationsId.forEach(async (id) => {
@@ -79,6 +84,7 @@ const Chats = () => {
             updateConversation({ conversationId: id, archive: "unarchive" })
           )
         })
+        msg.replace("{msg}", "unArchived")
         break
       case "delete":
         selectedConversationsId.forEach(async (id) => {
@@ -86,10 +92,12 @@ const Chats = () => {
             updateConversation({ conversationId: id, isVisible: true })
           )
         })
+        msg.replace("{msg}", "deleted")
         break
     }
 
     await Promise.all(promises)
+    addToast(msg, "success", TOAST_TIME_IN_MS);
     handleUpdateAllConversations({ action })
     setIsChatUpdating(false)
   }

@@ -1,12 +1,14 @@
+import { TOAST_TIME_IN_MS } from "@/config/constants"
 import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
+import { useToast } from "@/contexts/toastContext"
 import { dbAndStores } from "@/utils/constants"
 import { features } from "@/utils/data"
 import { filterChats, removeDuplicatesItemsById } from "@/utils/services"
 import {
   getDataFromLocalStorage,
-  setDataInLocalStorage,
-  type AuthSessionUserType
+  setAuthToken,
+  setDataInLocalStorage
 } from "@/utils/services/auth"
 import { httpAxios } from "@/utils/services/axios"
 import { getAllConversations } from "@/utils/services/queries/conversations"
@@ -16,6 +18,7 @@ import type {
   FoldersWindow
 } from "@/utils/types/components/search"
 import type { OpenModalType } from "@/utils/types/components/sidebar"
+import type { UserInfoType } from "@/utils/types/context"
 import React, { useEffect, useState } from "react"
 import { BsJournalCode } from "react-icons/bs"
 import { FaFolderTree } from "react-icons/fa6"
@@ -25,8 +28,9 @@ import { ChildModal, Modal } from "../sections"
 
 const Sidebar = () => {
   const [openModal, setOpenModal] = useState<OpenModalType>(null)
-  const { plan, dispatch, chatsLoaded } = useExtension()
+  const { plan, dispatch, chatsLoaded, chatgptUserInfo } = useExtension()
   const { t } = useLanguage()
+  const { addToast } = useToast()
 
   const getCssVariable = (name: string) => {
     const rootStyle = getComputedStyle(document.documentElement)
@@ -46,24 +50,39 @@ const Sidebar = () => {
       }))
     ]
 
-    conversations = conversations.filter((obj, index, self) =>
-      index === self.findIndex((o) => o.id === obj.id)
-    );
+    conversations = conversations.filter(
+      (obj, index, self) => index === self.findIndex((o) => o.id === obj.id)
+    )
 
     dispatch({ type: "ALL_CONVERSATIONS", payload: conversations })
   }
 
   const handleAutoAuth = async () => {
-    const userInfo = (await getDataFromLocalStorage(
-      "user"
-    )) as AuthSessionUserType
-    const res = await httpAxios.post("/auth/auto", {
-      email: userInfo.email
-    })
-    if (res.status === 200) {
-      dispatch({ type: "AUTH", payload: true })
-      const res = await httpAxios.get("/prompt")
-      setDataInLocalStorage({ key: "prompts", data: res?.data?.data })
+    try {
+      const userInfo = await getDataFromLocalStorage("user")
+
+      const res2 = await httpAxios.post("/auth/auto", {
+        email: userInfo.email,
+        name: userInfo.name
+      })
+
+      if (res2.status === 200) {
+        dispatch({ type: "AUTH", payload: true })
+
+        const user: UserInfoType = {
+          id: res2.data.data.id,
+          email: userInfo.email,
+          fullName: userInfo.name
+        }
+
+        dispatch({ type: "USER_INFO", payload: user })
+
+        const res = await httpAxios.get("/prompt")
+        setDataInLocalStorage({ key: "prompts", data: res?.data?.data })
+      }
+    } catch (error) {
+      console.error(error)
+      addToast(error?.message, "failed", TOAST_TIME_IN_MS)
     }
   }
 
@@ -163,10 +182,17 @@ const Sidebar = () => {
         })
       })
     }
+
     fetchNow()
-    getConv()
-    handleAutoAuth()
+    setAuthToken(dispatch)
   }, [])
+
+  useEffect(() => {
+    if (chatgptUserInfo) {
+      handleAutoAuth()
+      getConv()
+    }
+  }, [chatgptUserInfo])
 
   useEffect(() => {
     const payload: FoldersWindow = {

@@ -1,16 +1,19 @@
+import { Prompt } from "../../db/models/index.js";
 import {
   createPrompt,
   findPromptByIdAndUpdate,
   getPrompts,
 } from "../../db/services/prompt.db.service.js";
-import { apiHandler, ok } from "../../services/errorHandling/index.js";
+import { apiHandler, ErrorHandlerClass, ok } from "../../services/errorHandling/index.js";
 import {
   AddPromptBodyType,
   UpdatePromptBodyType,
 } from "../../types/controllers/v1/prompt.js";
 import { PromptSchemaType } from "../../types/db/schema/index.js";
+import { CONFLICT_REQUEST_STATUS_CODE } from "../../utils/constants/common.js";
 import {
   PROMPT_ADDED_RES_MSG,
+  PROMPT_DUPLICATE_RES_MSG,
   PROMPT_UPDATED_RES_MSG,
   PROMPTS_FETCHED_RES_MSG,
 } from "../../utils/constants/serverResponseMessages.js";
@@ -44,6 +47,19 @@ const addPromptHandler = apiHandler(async (req, res, next) => {
     folderId,
     userId,
   };
+
+  let dbQuery:any = { title };
+  if (folderId) dbQuery["folderId"] = folderId;
+  const prompt = await Prompt.findOne(dbQuery);
+
+  if(prompt){
+    return next(
+      new ErrorHandlerClass(
+        PROMPT_DUPLICATE_RES_MSG,
+        CONFLICT_REQUEST_STATUS_CODE
+      )
+    );
+  }
 
   const newPrompt = await createPrompt(data);
 

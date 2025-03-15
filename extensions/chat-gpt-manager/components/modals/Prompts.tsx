@@ -18,6 +18,8 @@ import { useEffect, useState } from "react"
 import Button from "../buttons/Button"
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
+import { ITEMS_DELETE_MSG, TOAST_TIME_IN_MS } from "@/config/constants"
+import { useToast } from "@/contexts/toastContext"
 
 type SelectedItemType = {
   id: string
@@ -30,6 +32,7 @@ const Prompts = () => {
   const { folderAllFiles, foldersWindow, dispatch, currentFolderInfo } =
     useExtension()
   const { t } = useLanguage()
+  const { addToast } = useToast();
 
   const handleSelectItems = ({
     isAllSelect,
@@ -113,6 +116,7 @@ const Prompts = () => {
       })
 
       dispatch({ type: "FOLDER_ALL_FILES", payload: newFolderAllFiles })
+      addToast(ITEMS_DELETE_MSG, "success", TOAST_TIME_IN_MS);
       setSelectedItemsId([])
     } catch (error) {
       console.log(error)

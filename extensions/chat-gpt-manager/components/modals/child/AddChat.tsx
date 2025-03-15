@@ -1,8 +1,10 @@
 import Button from "@/components/buttons/Button"
 import { SearchField, SelectAll } from "@/components/common"
 import Item from "@/components/common/Item"
+import { CHATS_ADDED_MSG, TOAST_TIME_IN_MS } from "@/config/constants"
 import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
+import { useToast } from "@/contexts/toastContext"
 import { httpAxios } from "@/utils/services/axios"
 import { handleDataInLocalStorage } from "@/utils/services/localstorage"
 import type { FolderItemType } from "@/utils/types/components/modal"
@@ -17,6 +19,7 @@ const AddChat = () => {
   const { dispatch, allConversations, currentFolderInfo, folderAllFiles, foldersWindow } =
     useExtension()
   const { t } = useLanguage();
+  const { addToast } = useToast();
 
   const handleSelectItems = ({
     isAllSelect,
@@ -75,6 +78,7 @@ const AddChat = () => {
       const updatedFolderAllFiles = { ...folderAllFiles }
       updatedFolderAllFiles.items.push(...newItems)
       await handleDataInLocalStorage({data: newItems, foldersWindow, operationType:"addItems" });
+      addToast(CHATS_ADDED_MSG, "success", TOAST_TIME_IN_MS);
       dispatch({ type: "FOLDER_ALL_FILES", payload: updatedFolderAllFiles })
     } catch (error) {
       console.error(error)
@@ -105,7 +109,7 @@ const AddChat = () => {
     if (filteredResults.length < results.length) {
       setResults(filteredResults)
     }
-  }, [results])
+  }, [results, folderAllFiles])
 
   return (
     <div className="w-[600px] relative">

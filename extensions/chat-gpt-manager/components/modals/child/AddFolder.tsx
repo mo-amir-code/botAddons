@@ -1,7 +1,9 @@
 import Button from "@/components/buttons/Button"
 import { SearchField } from "@/components/common"
+import { FOLDER_ADD_MSG, FOLDER_EDIT_MSG, TOAST_TIME_IN_MS } from "@/config/constants"
 import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
+import { useToast } from "@/contexts/toastContext"
 import { httpAxios } from "@/utils/services/axios"
 import { handleDataInLocalStorage } from "@/utils/services/localstorage"
 import type { FolderFileType } from "@/utils/types/components/modal"
@@ -17,6 +19,7 @@ const AddFolder = () => {
     folderAllFiles
   } = useExtension()
   const { t } = useLanguage()
+  const { addToast } = useToast();
   const inputRef = useRef<HTMLInputElement>()
 
   const handleEditFolder = async () => {
@@ -32,6 +35,7 @@ const AddFolder = () => {
     await handleDataInLocalStorage({data: newFolderName, foldersWindow, operationType: "editFolder"})
 
     setNewFolderName("")
+    addToast(FOLDER_EDIT_MSG, "success", TOAST_TIME_IN_MS);
     if (inputRef?.current) inputRef.current.value = ""
   }
 
@@ -56,10 +60,14 @@ const AddFolder = () => {
 
       dispatch({ type: "FOLDER_ALL_FILES", payload: payloadData })
 
+      addToast(FOLDER_ADD_MSG, "success", TOAST_TIME_IN_MS);
       setNewFolderName("")
       if (inputRef?.current) inputRef.current.value = ""
     } catch (error) {
       console.error(error)
+      if(error.response){
+        addToast(error?.response?.data?.message, "failed", TOAST_TIME_IN_MS)
+      }
     }
   }
 
@@ -68,8 +76,6 @@ const AddFolder = () => {
       type: "RESET_HEADER_STATES"
     })
   }
-
-  console.log(currentFolderInfo, isFolderEditingOpen)
 
   return (
     <div className="w-[400px]">

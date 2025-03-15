@@ -1,5 +1,6 @@
 import Button from "@/components/buttons/Button"
 import { SearchField } from "@/components/common"
+import { TOAST_TIME_IN_MS } from "@/config/constants"
 import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
 import { useToast } from "@/contexts/toastContext"
@@ -48,7 +49,7 @@ const AddPrompt = () => {
 
         // Calling Update API
         const res = await httpAxios.patch("/prompt", payloadData)
-        addToast(res.data.message, "success", 3000)
+        addToast(res.data.message, "success", TOAST_TIME_IN_MS)
 
         // Updating Current Documents
         updatedFolderAllFiles.items = updatedFolderAllFiles.items.map((it) => {
@@ -88,12 +89,17 @@ const AddPrompt = () => {
       await handleDataInLocalStorage({data: [newPrompt], foldersWindow, operationType: "addItems"});
       await handleDataOfPromptCommand({data: [newPrompt], operationType: "addItems"});
 
+      addToast(res.data.message, "success", TOAST_TIME_IN_MS);
+
       dispatch({ type: "FOLDER_ALL_FILES", payload: updatedFolderAllFiles })
       setTitle("")
       setContent("")
       if (titleRef?.current) titleRef.current.value = ""
     } catch (error) {
       console.log(error)
+      if(error.response){
+        addToast(error?.response?.data?.message, "failed", TOAST_TIME_IN_MS)
+      }
     }
   }
 

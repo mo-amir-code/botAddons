@@ -37,6 +37,7 @@ export {
 
 // Folder
 const FOLDER_CREATED_RES_MSG = "Folder created";
+const DUPLICATE_FOLDER_RES_MSG = "Folder name already exists";
 const FOLDER_DELETED_RES_MSG = "Folder/Files deleted";
 const FOLDER_UPDATE_RES_MSG = "Folder updated";
 const FOLDER_FETCHED_RES_MSG = "Folder fetched";
@@ -48,6 +49,7 @@ export {
   FOLDER_UPDATE_RES_MSG,
   FOLDER_FETCHED_RES_MSG,
   FOLDER_FILES_FETCHED_RES_MSG,
+  DUPLICATE_FOLDER_RES_MSG
 };
 
 // Chats
@@ -59,9 +61,11 @@ export { CHATS_ADDED_RES_MSG };
 const PROMPT_ADDED_RES_MSG = "Prompt added";
 const PROMPTS_FETCHED_RES_MSG = "Prompts fetched";
 const PROMPT_UPDATED_RES_MSG = "Prompt updated";
+const PROMPT_DUPLICATE_RES_MSG = "Prompt already exists"
 
 export {
   PROMPT_ADDED_RES_MSG,
   PROMPTS_FETCHED_RES_MSG,
   PROMPT_UPDATED_RES_MSG,
+  PROMPT_DUPLICATE_RES_MSG
 };

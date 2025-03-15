@@ -7,7 +7,7 @@ const userSchema: Schema<UserSchemaType> = new Schema<UserSchemaType>({
     email: { type: String, required: [true, "Email is required"], unique: true },
     isVerified: { type: Boolean, default: false },
     role: { type: String, enum: ["user", "admin"], default: "user" },
-    password: { type: String, required: [true, "Password is required"] },
+    password: { type: String },
     sessions: [
         {
             platform: { type: String, enum: ["chatgpt", "claude", "website"] },

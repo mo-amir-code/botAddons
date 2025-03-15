@@ -5,7 +5,6 @@ import { SIDEBAR_ELEMENT_INJECT_ID } from "@/config/constants"
 import { LanguageProvider } from "@/contexts/languageContext"
 import { ToastProvider } from "@/contexts/toastContext"
 import { SlashCommand } from "@/sections"
-import { setAuthToken } from "@/utils/services/auth"
 import cssText from "data-text:~style.css"
 import type {
   PlasmoCSConfig,
@@ -39,9 +38,6 @@ export const getInlineAnchor: PlasmoGetInlineAnchor = async () => ({
 export const getShadowHostId: PlasmoGetShadowHostId = () => "botaddons-inline"
 
 function PlasmoMainUI() {
-  useEffect(() => {
-    setAuthToken()
-  }, [])
 
   return (
     <LanguageProvider>

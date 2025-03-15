@@ -1,3 +1,4 @@
+import type { AuthSessionUserType } from "@/utils/services/auth"
 import type {
   FolderFileType,
   FolderInfoType,
@@ -28,6 +29,7 @@ interface ExtensionState {
   isUserLoggedIn: boolean
   plan: PlansNameType
   userInfo: UserInfoType | null
+  chatgptUserInfo: AuthSessionUserType | null,
   headerStates: HeaderStatesType
   foldersWindow: FoldersWindow
   currentFolderInfo: FolderInfoType | null
@@ -43,6 +45,7 @@ const initialState: ExtensionState = {
   isUserLoggedIn: false,
   plan: "basic",
   userInfo: null,
+  chatgptUserInfo: null,
   headerStates: {
     exactMatchStatus: false,
     isAddChatsOpen: false,
@@ -118,6 +121,8 @@ export function ExtensionProvider({ children }: ExtensionProviderProps) {
         return { ...state, folderAllFiles: action.payload }
       case "CURRENT_EDITING_FILE_INFO":
         return { ...state, currentEditingFileInfo: action.payload }
+      case "CHATGPT_USER_INFO":
+        return { ...state, chatgptUserInfo: action.payload }
       default:
         return state
     }

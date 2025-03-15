@@ -11,6 +11,9 @@ const getConversations = async ({
   isArchived?: boolean
 }) => {
   const token = await getDataFromLocalStorage("cat")
+  if(!token){
+    window.location.reload()
+  }
   return await axios.get(
     `https://chatgpt.com/backend-api/conversations?offset=${offset}&limit=100&order=updated&s=true&is_archived=${isArchived ? true : false}`,
     {

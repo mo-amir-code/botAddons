@@ -1,5 +1,6 @@
 import { PROMPT_INPUT_ELEMENT_INJECT_ID } from "@/config/constants"
 import { colors } from "@/config/theme"
+import type { AuthSessionUserType } from "@/utils/services/auth"
 import type {
   PromptFileType,
   PromptTriggerType
@@ -18,6 +19,7 @@ const PromptsList = () => {
     null
   )
   const selectedItemRef = useRef<HTMLLIElement>()
+  const [userInfo, setUserInfo] = useState<AuthSessionUserType | null>(null)
 
   // Handle selection by ID
   const handleSelect = (id: string) => {
@@ -47,35 +49,51 @@ const PromptsList = () => {
     }
   }, [promptTrigger])
 
-  const fetchData = async () => {
-    const promptsData = ((await chrome.storage.local.get("prompts")) as any)?.[
-      "prompts"
+  const fetchData = async ({ userId }: { userId: string }) => {
+    let finalKey = "prompts" + "-" + userId
+    const promptsData = ((await chrome.storage.local.get(finalKey)) as any)?.[
+      finalKey
     ]
-    
+
     if (promptsData) setPrompts(promptsData)
   }
 
   // Fetch initial data from chrome storage
   useEffect(() => {
-    const execute = async () => {
-      const promptsTrigger = (
-        (await chrome.storage.local.get("promptsList")) as any
-      )?.["promptsList"]
-      if (promptsTrigger) setPromptTrigger(promptsTrigger)
-    }
-    execute()
-
-    fetchData()
 
     const handleStorageChange = (
       changes: { [key: string]: chrome.storage.StorageChange },
       areaName: string
     ) => {
-      if (
-        areaName === "local" &&
-        (changes["prompts"])
-      ) {
-        fetchData()
+      if (areaName === "local" && changes["prompts"+"-"+userInfo.id]) {
+        fetchData({userId: userInfo.id})
+      }
+    }
+
+    if(userInfo){
+      fetchData({userId: userInfo.id})
+      chrome.storage.onChanged.addListener(handleStorageChange)
+    }
+
+    return () => {
+      chrome.storage.onChanged.removeListener(handleStorageChange)
+    }
+  }, [userInfo])
+
+  const handleSetUser = async () => {
+    const user = ((await chrome.storage.local.get("user")) as any)?.["user"]
+    setUserInfo(user)
+  }
+
+  useEffect(() => {
+    handleSetUser()
+
+    const handleStorageChange = (
+      changes: { [key: string]: chrome.storage.StorageChange },
+      areaName: string
+    ) => {
+      if (areaName === "local" && changes["user"]) {
+        handleSetUser()
       }
     }
 
