@@ -4,7 +4,6 @@ import { formatTimestamp } from "@/utils/services"
 import type { ConversationObjectType } from "@/utils/types/components/search"
 import { useEffect, useState } from "react"
 
-import Toggle from "../buttons/Toggle"
 import { SearchField } from "../common"
 import { BallLoader } from "../loaders"
 import { useLanguage } from "@/contexts/languageContext"
@@ -67,7 +66,7 @@ const Search = () => {
     }
 
     const isMatched = (text: string) => {
-      const lowerText = (text || "").toLowerCase()
+      const lowerText = (text || "")?.toLowerCase()
       if (exactMatchStatus) {
         const trimmedQuery = query.trim()
         const regex = new RegExp(`\\b${trimmedQuery}\\b`, "i") // Match whole phrase, case insensitive

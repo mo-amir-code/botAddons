@@ -35,6 +35,7 @@ type ReducerActionType =
   | { type: "FOLDER_ALL_FILES"; payload: FolderFileType }
   | { type: "CURRENT_EDITING_FILE_INFO"; payload: PromptFileType | null }
   | { type: "CHATGPT_USER_INFO"; payload: AuthSessionUserType | null }
+  | { type: "IS_CONVERSATIONS_LOADED"; payload: boolean }
 
 type ActionType =
   | "EXTENSION_LOADING"
@@ -49,6 +50,7 @@ type ActionType =
   | "FOLDER_ALL_FILES"
   | "CURRENT_EDITING_FILE_INFO"
   | "CHATGPT_USER_INFO"
+  | "IS_CONVERSATIONS_LOADED"
 
 interface HeaderStatesType {
   exactMatchStatus: boolean

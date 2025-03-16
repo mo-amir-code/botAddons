@@ -1,6 +1,6 @@
 import Provider from "@/components/provider"
 import Sidebar from "@/components/sidebar"
-import ToastContainer from "@/components/toast/ToastContainer"
+import ToastContainer from "@/components/hooks/toast/ToastContainer"
 import { SIDEBAR_ELEMENT_INJECT_ID } from "@/config/constants"
 import { LanguageProvider } from "@/contexts/languageContext"
 import { ToastProvider } from "@/contexts/toastContext"
@@ -11,7 +11,6 @@ import type {
   PlasmoGetInlineAnchor,
   PlasmoGetShadowHostId
 } from "plasmo"
-import { useEffect } from "react"
 
 export const getStyle = () => {
   const baseFontSize = 12
@@ -38,7 +37,7 @@ export const getInlineAnchor: PlasmoGetInlineAnchor = async () => ({
 export const getShadowHostId: PlasmoGetShadowHostId = () => "botaddons-inline"
 
 function PlasmoMainUI() {
-
+  
   return (
     <LanguageProvider>
       <Provider>

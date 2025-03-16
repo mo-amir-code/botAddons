@@ -25,12 +25,14 @@ import { FaFolderTree } from "react-icons/fa6"
 import { IoIosChatbubbles, IoIosSearch } from "react-icons/io"
 
 import { ChildModal, Modal } from "../sections"
+import { useConversations } from "./hooks/conversations"
 
 const Sidebar = () => {
   const [openModal, setOpenModal] = useState<OpenModalType>(null)
-  const { plan, dispatch, chatsLoaded, chatgptUserInfo } = useExtension()
+  const { dispatch, plan, chatsLoaded, chatgptUserInfo, isConversationsLoaded } = useExtension()
   const { t } = useLanguage()
   const { addToast } = useToast()
+  useConversations()
 
   const getCssVariable = (name: string) => {
     const rootStyle = getComputedStyle(document.documentElement)
@@ -88,7 +90,6 @@ const Sidebar = () => {
 
   useEffect(() => {
     const fetchNow = async () => {
-      // To get a conversations
       function getConversations(dbName: string, storeName: string) {
         return new Promise((resolve) => {
           // Open the database
@@ -181,11 +182,14 @@ const Sidebar = () => {
           filter: "removeEmptyConversations"
         })
       })
+      dispatch({ type: "IS_CONVERSATIONS_LOADED", payload: true })
     }
 
-    fetchNow()
-    setAuthToken(dispatch)
-  }, [])
+    if(!isConversationsLoaded){
+      fetchNow()
+      setAuthToken(dispatch)
+    }
+  }, [isConversationsLoaded])
 
   useEffect(() => {
     if (chatgptUserInfo) {

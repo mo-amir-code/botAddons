@@ -62,6 +62,15 @@ const isUserAuthenticated = apiHandler(async (req, res, next) => {
     );
   }
 
+  if (!user.isVerified && origin !== "chatgpt") {
+    return next(
+      new ErrorHandlerClass(
+        UNAUTHORIZED_REQUEST_RES_MSG,
+        UNAUTHORIZED_REQUEST_STATUS_CODE
+      )
+    );
+  }
+
   const session = user.sessions?.find((s) => s.platform === origin);
 
   if (!session) {

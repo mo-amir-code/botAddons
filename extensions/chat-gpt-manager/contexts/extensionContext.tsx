@@ -24,6 +24,7 @@ import React, {
 interface ExtensionState {
   chatsLoaded: number
   conversations: ConversationObjectType<string, number>[]
+  isConversationsLoaded: boolean
   allConversations: ConversationObjectType<string, number>[]
   extensionLoading: boolean
   isUserLoggedIn: boolean
@@ -40,6 +41,7 @@ interface ExtensionState {
 const initialState: ExtensionState = {
   chatsLoaded: 0,
   conversations: [],
+  isConversationsLoaded: false,
   allConversations: [],
   extensionLoading: false,
   isUserLoggedIn: false,
@@ -101,6 +103,8 @@ export function ExtensionProvider({ children }: ExtensionProviderProps) {
         return { ...state, plan: action.payload }
       case "CONVERSATIONS":
         return { ...state, conversations: action.payload }
+      case "IS_CONVERSATIONS_LOADED":
+        return { ...state, isConversationsLoaded: action.payload }
       case "ALL_CONVERSATIONS":
         return { ...state, allConversations: action.payload }
       case "CHAT_LOADED":
