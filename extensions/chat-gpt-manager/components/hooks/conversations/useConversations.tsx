@@ -21,9 +21,9 @@ const useConversations = () => {
   const transformResponse = useCallback((apiResponse: any) => {
     // Validate the API response structure
     if (!apiResponse || !apiResponse.conversation_id || !apiResponse.mapping) {
-      throw new Error("Invalid API response structure");
+      throw new Error("Invalid API response structure")
     }
-  
+
     // Initialize the result object with conversation metadata
     let result = {
       id: apiResponse.conversation_id,
@@ -32,20 +32,21 @@ const useConversations = () => {
       is_archived: apiResponse.is_archived || false,
       title: apiResponse.title || "Untitled Conversation",
       messages: []
-    };
-  
+    }
+
     // Traverse the conversation tree from current_node to root
-    let currentId = apiResponse.current_node;
-    let messages = [];
-  
+    let currentId = apiResponse.current_node
+    let messages = []
+
     while (currentId) {
-      const node = apiResponse.mapping[currentId];
-      if (!node) break; // Exit if node is missing
-  
-      const message = node.message;
+      const node = apiResponse.mapping[currentId]
+      if (!node) break // Exit if node is missing
+
+      const message = node.message
       if (
         message &&
-        (message.author.role === "user" || message.author.role === "assistant") &&
+        (message.author.role === "user" ||
+          message.author.role === "assistant") &&
         message.content?.content_type === "text" &&
         !message.metadata?.is_visually_hidden_from_conversation
       ) {
@@ -53,17 +54,17 @@ const useConversations = () => {
           id: currentId,
           role: message.author.role,
           content: message.content.parts[0] || ""
-        });
+        })
       }
-  
-      currentId = node.parent; // Move to the parent node
+
+      currentId = node.parent // Move to the parent node
     }
-  
+
     // Reverse the messages to get chronological order (earliest first)
-    result.messages = messages.reverse();
-  
-    return result;
-  }, []);
+    result.messages = messages.reverse()
+
+    return result
+  }, [])
 
   // Configure axios with retry and timeout settings for reliability
   const configureAxios = useCallback(async () => {
@@ -245,10 +246,14 @@ const useConversations = () => {
   ])
 
   useEffect(() => {
-    if (transformedData.length) {
-      storeResponses(transformedData).then(() => {
-        dispatch({ type: "IS_CONVERSATIONS_LOADED", payload: false })
-      })
+    try {
+      if (transformedData.length) {
+        storeResponses(transformedData).then(() => {
+          dispatch({ type: "IS_CONVERSATIONS_LOADED", payload: false })
+        })
+      }
+    } catch (error) {
+      console.error(error);
     }
   }, [transformedData])
 

@@ -29,7 +29,13 @@ import { useConversations } from "./hooks/conversations"
 
 const Sidebar = () => {
   const [openModal, setOpenModal] = useState<OpenModalType>(null)
-  const { dispatch, plan, chatsLoaded, chatgptUserInfo, isConversationsLoaded } = useExtension()
+  const {
+    dispatch,
+    plan,
+    chatsLoaded,
+    chatgptUserInfo,
+    isConversationsLoaded
+  } = useExtension()
   const { t } = useLanguage()
   const { addToast } = useToast()
   useConversations()
@@ -89,105 +95,109 @@ const Sidebar = () => {
   }
 
   useEffect(() => {
-    const fetchNow = async () => {
-      function getConversations(dbName: string, storeName: string) {
-        return new Promise((resolve) => {
-          // Open the database
-          const request = indexedDB.open(dbName)
+    try {
+      const fetchNow = async () => {
+        function getConversations(dbName: string, storeName: string) {
+          return new Promise((resolve) => {
+            // Open the database
+            const request = indexedDB.open(dbName)
 
-          request.onupgradeneeded = function (event) {
-            // Handle if the database structure needs to be upgraded
-            const db = (event.target as any).result
-            if (!db.objectStoreNames.contains(storeName)) {
-              // If the store does not exist during upgrade, resolve with an empty array
+            request.onupgradeneeded = function (event) {
+              // Handle if the database structure needs to be upgraded
+              const db = (event.target as any).result
+              if (!db.objectStoreNames.contains(storeName)) {
+                // If the store does not exist during upgrade, resolve with an empty array
+                resolve([])
+              }
+            }
+
+            request.onsuccess = function (event) {
+              const db = (event.target as any).result
+
+              // Check if the object store exists
+              if (!db.objectStoreNames.contains(storeName)) {
+                // Resolve with an empty array if the store does not exist
+                resolve([])
+                return
+              }
+
+              // Start a transaction and access the object store
+              const transaction = db.transaction(storeName, "readonly")
+              const objectStore = transaction.objectStore(storeName)
+
+              // Get all data from the store
+              const getAllRequest = objectStore.getAll()
+
+              getAllRequest.onsuccess = function () {
+                resolve(getAllRequest.result) // Resolve with the retrieved items
+              }
+
+              getAllRequest.onerror = function () {
+                resolve([]) // If fetching fails, resolve with an empty array
+              }
+            }
+
+            request.onerror = function () {
+              // Handle database opening errors by resolving with an empty array
               resolve([])
             }
-          }
+          })
+        }
 
-          request.onsuccess = function (event) {
-            const db = (event.target as any).result
+        let conversations =
+          (await Promise.all(
+            dbAndStores.map(
+              async ({ dbName, storeName }) =>
+                await getConversations(dbName, storeName)
+            )
+          )) || []
 
-            // Check if the object store exists
-            if (!db.objectStoreNames.contains(storeName)) {
-              // Resolve with an empty array if the store does not exist
-              resolve([])
-              return
-            }
+        conversations = conversations.flat()
 
-            // Start a transaction and access the object store
-            const transaction = db.transaction(storeName, "readonly")
-            const objectStore = transaction.objectStore(storeName)
-
-            // Get all data from the store
-            const getAllRequest = objectStore.getAll()
-
-            getAllRequest.onsuccess = function () {
-              resolve(getAllRequest.result) // Resolve with the retrieved items
-            }
-
-            getAllRequest.onerror = function () {
-              resolve([]) // If fetching fails, resolve with an empty array
-            }
-          }
-
-          request.onerror = function () {
-            // Handle database opening errors by resolving with an empty array
-            resolve([])
-          }
-        })
-      }
-
-      let conversations =
-        (await Promise.all(
-          dbAndStores.map(
-            async ({ dbName, storeName }) =>
-              await getConversations(dbName, storeName)
-          )
-        )) || []
-
-      conversations = conversations.flat()
-
-      conversations = conversations.map(
-        ({
-          id,
-          title,
-          messages,
-          update_time,
-          updateTime,
-          is_archived,
-          isArchived
-        }: ConversationObjectType<DefaultMessageType, string>) => {
-          const ts: number | string = update_time || updateTime
-          return {
+        conversations = conversations.map(
+          ({
             id,
             title,
-            messages: messages.map(
-              (msg: DefaultMessageType) => msg.content || msg?.text
-            ),
-            update_time:
-              typeof ts === "string" ? new Date(ts).getTime() : ts * 1000,
-            is_archived: is_archived || isArchived
+            messages,
+            update_time,
+            updateTime,
+            is_archived,
+            isArchived
+          }: ConversationObjectType<DefaultMessageType, string>) => {
+            const ts: number | string = update_time || updateTime
+            return {
+              id,
+              title,
+              messages: messages.map(
+                (msg: DefaultMessageType) => msg.content || msg?.text
+              ),
+              update_time:
+                typeof ts === "string" ? new Date(ts).getTime() : ts * 1000,
+              is_archived: is_archived || isArchived
+            }
           }
-        }
-      ) as ConversationObjectType<string, number>[]
-      conversations = removeDuplicatesItemsById(conversations as any)
-      dispatch({
-        type: "CONVERSATIONS",
-        payload: filterChats({
-          conversations: conversations as ConversationObjectType<
-            string,
-            number
-          >[],
-          sort: "desc",
-          filter: "removeEmptyConversations"
+        ) as ConversationObjectType<string, number>[]
+        conversations = removeDuplicatesItemsById(conversations as any)
+        dispatch({
+          type: "CONVERSATIONS",
+          payload: filterChats({
+            conversations: conversations as ConversationObjectType<
+              string,
+              number
+            >[],
+            sort: "desc",
+            filter: "removeEmptyConversations"
+          })
         })
-      })
-      dispatch({ type: "IS_CONVERSATIONS_LOADED", payload: true })
-    }
+        dispatch({ type: "IS_CONVERSATIONS_LOADED", payload: true })
+      }
 
-    if(!isConversationsLoaded){
-      fetchNow()
-      setAuthToken(dispatch)
+      if (!isConversationsLoaded) {
+        fetchNow()
+        setAuthToken(dispatch)
+      }
+    } catch (error) {
+      console.error(error)
     }
   }, [isConversationsLoaded])
 

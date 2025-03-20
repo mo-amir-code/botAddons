@@ -16,7 +16,8 @@ const AddPrompt = () => {
     currentFolderInfo,
     folderAllFiles,
     currentEditingFileInfo,
-    foldersWindow
+    foldersWindow,
+    isUserLoggedIn
   } = useExtension()
   const { t } = useLanguage()
   const { addToast } = useToast()
@@ -28,6 +29,8 @@ const AddPrompt = () => {
   }
 
   const handleSubmit = async () => {
+    if(!isUserLoggedIn) return
+
     try {
       let updatedFolderAllFiles = { ...folderAllFiles }
 
@@ -62,7 +65,7 @@ const AddPrompt = () => {
         })
 
         const updatedItem = updatedFolderAllFiles.items.find((it) => it.id == currentEditingFileInfo.id);
-        await handleDataInLocalStorage({data: updatedItem, foldersWindow, operationType: "editFolder"});
+        await handleDataInLocalStorage({data: updatedItem, foldersWindow, operationType: "editPrompt"});
         await handleDataOfPromptCommand({data: updatedItem, operationType: "editItem"});
 
         dispatch({ type: "FOLDER_ALL_FILES", payload: updatedFolderAllFiles })

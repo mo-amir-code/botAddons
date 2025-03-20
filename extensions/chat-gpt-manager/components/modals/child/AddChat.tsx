@@ -1,6 +1,8 @@
 import Button from "@/components/buttons/Button"
 import { SearchField, SelectAll } from "@/components/common"
 import Item from "@/components/common/Item"
+import useDebounce from "@/components/hooks/debounce/useDebouce"
+import { BallLoader } from "@/components/loaders"
 import { CHATS_ADDED_MSG, TOAST_TIME_IN_MS } from "@/config/constants"
 import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
@@ -16,10 +18,19 @@ const AddChat = () => {
     ConversationObjectType<string, number>[]
   >([])
   const [selectedItemsId, setSelectedItemsId] = useState<string[]>([])
-  const { dispatch, allConversations, currentFolderInfo, folderAllFiles, foldersWindow } =
-    useExtension()
-  const { t } = useLanguage();
-  const { addToast } = useToast();
+  const [isChatUpdating, setIsChatUpdating] = useState<boolean>(false)
+  const {
+    dispatch,
+    allConversations,
+    currentFolderInfo,
+    folderAllFiles,
+    foldersWindow,
+    isUserLoggedIn
+  } = useExtension()
+  const { t } = useLanguage()
+  const { addToast } = useToast()
+  const [query, setQuery] = useState<string>("")
+  const debounceQuery = useDebounce<string>(query, 200)
 
   const handleSelectItems = ({
     isAllSelect,
@@ -58,6 +69,8 @@ const AddChat = () => {
   }
 
   const handleAddChats = async () => {
+    if (!isUserLoggedIn) return
+
     try {
       await httpAxios.post("/chat", {
         ids: selectedItemsId,
@@ -77,8 +90,12 @@ const AddChat = () => {
       })
       const updatedFolderAllFiles = { ...folderAllFiles }
       updatedFolderAllFiles.items.push(...newItems)
-      await handleDataInLocalStorage({data: newItems, foldersWindow, operationType:"addItems" });
-      addToast(CHATS_ADDED_MSG, "success", TOAST_TIME_IN_MS);
+      await handleDataInLocalStorage({
+        data: newItems,
+        foldersWindow,
+        operationType: "addItems"
+      })
+      addToast(CHATS_ADDED_MSG, "success", TOAST_TIME_IN_MS)
       dispatch({ type: "FOLDER_ALL_FILES", payload: updatedFolderAllFiles })
     } catch (error) {
       console.error(error)
@@ -90,15 +107,14 @@ const AddChat = () => {
   }
 
   const handleSearchOnChange = (query: string) => {
-    const filteredConversations = allConversations.filter((c) => {
-      return !c.is_archived && c.title.toLowerCase().includes(query)
-    })
-    setResults(filteredConversations)
+    setQuery(query)
   }
 
   useEffect(() => {
+    setIsChatUpdating(true)
     if (allConversations.length) {
       setResults(allConversations.filter((c) => !c.is_archived))
+      setIsChatUpdating(false)
     }
   }, [allConversations])
 
@@ -110,6 +126,17 @@ const AddChat = () => {
       setResults(filteredResults)
     }
   }, [results, folderAllFiles])
+
+  useEffect(() => {
+    const filteredConversations = allConversations.filter((c) => {
+      return (
+        !c.is_archived &&
+        (c.title.toLowerCase().includes(debounceQuery) ||
+          selectedItemsId.includes(c.id))
+      )
+    })
+    setResults(filteredConversations)
+  }, [debounceQuery, selectedItemsId])
 
   return (
     <div className="w-[600px] relative">
@@ -140,6 +167,12 @@ const AddChat = () => {
         <Button title={t("close")} func={handleClose} />
         <Button title={t("add")} func={handleAddChats} />
       </div>
+
+      {!!isChatUpdating && (
+        <div className="w-full h-full bg-black/5 backdrop-blur-md fixed top-0 left-0">
+          <BallLoader />
+        </div>
+      )}
     </div>
   )
 }

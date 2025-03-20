@@ -1,5 +1,7 @@
+import { ITEMS_DELETE_MSG, TOAST_TIME_IN_MS } from "@/config/constants"
 import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
+import { useToast } from "@/contexts/toastContext"
 import {
   getDataFromLocalStorage,
   setDataInLocalStorage,
@@ -18,8 +20,7 @@ import { useEffect, useState } from "react"
 import Button from "../buttons/Button"
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
-import { ITEMS_DELETE_MSG, TOAST_TIME_IN_MS } from "@/config/constants"
-import { useToast } from "@/contexts/toastContext"
+import { BallLoader } from "../loaders"
 
 type SelectedItemType = {
   id: string
@@ -29,10 +30,16 @@ type SelectedItemType = {
 const Prompts = () => {
   const [selectedItemsId, setSelectedItemsId] = useState<SelectedItemType[]>([])
   const [results, setResults] = useState<FolderItemType[]>([])
-  const { folderAllFiles, foldersWindow, dispatch, currentFolderInfo } =
-    useExtension()
+  const [isChatUpdating, setIsChatUpdating] = useState<boolean>(false)
+  const {
+    folderAllFiles,
+    foldersWindow,
+    dispatch,
+    currentFolderInfo,
+    isUserLoggedIn
+  } = useExtension()
   const { t } = useLanguage()
-  const { addToast } = useToast();
+  const { addToast } = useToast()
 
   const handleSelectItems = ({
     isAllSelect,
@@ -77,15 +84,20 @@ const Prompts = () => {
   }
 
   const handleQuery = (query: string) => {
+    setIsChatUpdating(true)
     setResults(
-      folderAllFiles.items.filter((item) =>
-        item.title.toLowerCase().includes(query.toLowerCase())
+      folderAllFiles.items.filter(
+        (item) =>
+          item.title.toLowerCase().includes(query.toLowerCase()) ||
+          selectedItemsId.some((it) => it.id == item.id)
       )
     )
-    setSelectedItemsId([])
+    setIsChatUpdating(false)
   }
 
   const handleDelete = async () => {
+    if (!isUserLoggedIn) return
+
     try {
       await httpAxios.delete("/folder", {
         data: {
@@ -116,7 +128,7 @@ const Prompts = () => {
       })
 
       dispatch({ type: "FOLDER_ALL_FILES", payload: newFolderAllFiles })
-      addToast(ITEMS_DELETE_MSG, "success", TOAST_TIME_IN_MS);
+      addToast(ITEMS_DELETE_MSG, "success", TOAST_TIME_IN_MS)
       setSelectedItemsId([])
     } catch (error) {
       console.log(error)
@@ -126,6 +138,7 @@ const Prompts = () => {
   useEffect(() => {
     const fetchNow = async () => {
       try {
+        setIsChatUpdating(true)
         const nestedFolderLength = foldersWindow.folders.length
         let persistedFolderDataKey = `root`
         if (nestedFolderLength !== 0) {
@@ -138,11 +151,13 @@ const Prompts = () => {
           persistedFolderDataKey
         )
 
-        const currentPromptsList = foldersData?.items?.filter((it) => !it?.isFolder) || [];
-        const commandPromptsList = await getDataFromLocalStorage("prompts") || [];
+        const currentPromptsList =
+          foldersData?.items?.filter((it) => !it?.isFolder) || []
+        const commandPromptsList =
+          (await getDataFromLocalStorage("prompts")) || []
 
-        if(currentPromptsList?.length > commandPromptsList.length){
-          setDataInLocalStorage({data: currentPromptsList, key: "prompts"});
+        if (currentPromptsList?.length > commandPromptsList.length) {
+          setDataInLocalStorage({ data: currentPromptsList, key: "prompts" })
         }
 
         if (foldersData) {
@@ -150,6 +165,8 @@ const Prompts = () => {
           dispatch({ type: "CURRENT_FOLDER_INFO", payload: foldersData?.info })
           return
         }
+
+        if (!isUserLoggedIn) return
 
         let obj: FetchFoldersQueryType = { type: "prompts" }
         if (foldersWindow.folders.length) {
@@ -175,11 +192,13 @@ const Prompts = () => {
         dispatch({ type: "CURRENT_FOLDER_INFO", payload: data?.info })
       } catch (error) {
         console.error(error)
+      } finally {
+        setIsChatUpdating(false)
       }
     }
 
     fetchNow()
-  }, [foldersWindow])
+  }, [foldersWindow, isUserLoggedIn])
 
   useEffect(() => {
     setResults(folderAllFiles.items)
@@ -199,19 +218,23 @@ const Prompts = () => {
       />
 
       <ul className="mt-2 overflow-height">
-        {results?.map(({ id, title, updatedAt, isFolder, content }) => (
-          <Item
-            key={id}
-            id={id}
-            isSelected={isSelected}
-            onChatSelectChange={handleSelectItems}
-            title={title}
-            update_time={updatedAt ? updatedAt : undefined}
-            itemType={isFolder ? "folder" : "prompt"}
-            modalType="prompts"
-            content={content}
-          />
-        ))}
+        {results
+          ?.sort((a, b) =>
+            a.isFolder === b.isFolder ? 0 : a.isFolder ? -1 : 1
+          )
+          ?.map(({ id, title, updatedAt, isFolder, content }) => (
+            <Item
+              key={id}
+              id={id}
+              isSelected={isSelected}
+              onChatSelectChange={handleSelectItems}
+              title={title}
+              update_time={updatedAt ? updatedAt : undefined}
+              itemType={isFolder ? "folder" : "prompt"}
+              modalType="prompts"
+              content={content}
+            />
+          ))}
       </ul>
 
       <div className="pt-4 flex items-center justify-end">
@@ -222,6 +245,12 @@ const Prompts = () => {
           isEnabled={selectedItemsId.length !== 0}
         />
       </div>
+
+      {!!isChatUpdating && (
+        <div className="w-full h-full bg-black/5 backdrop-blur-md fixed top-0 left-0">
+          <BallLoader />
+        </div>
+      )}
     </div>
   )
 }

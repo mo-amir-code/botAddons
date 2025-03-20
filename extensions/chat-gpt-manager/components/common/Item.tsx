@@ -28,9 +28,13 @@ const Item = ({
   modalType,
   content
 }: ItemType) => {
-  const { dispatch, foldersWindow } = useExtension()
+  const { dispatch, foldersWindow, headerStates } = useExtension()
 
-  const handleDoubleClick = (e: any) => {
+  const handleClick = (e: any) => {
+    if(headerStates.isAddChatsOpen || modalType === "chats") {
+      onChatSelectChange({ id });
+      return;
+    }
     if (itemType === "chat") handleRedirectToChat(e)
     if (itemType === "prompt") handleEditPrompt()
     if (itemType !== "folder") return
@@ -64,15 +68,18 @@ const Item = ({
 
   return (
     <li
-      onDoubleClick={(e) => handleDoubleClick(e)}
-      className={`py-2 select-none ${itemType === "chat" ? "border-b" : ""} border-white/60 cursor-pointer`}>
-      <label className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      className={`py-2 select-none ${itemType === "chat" ? "border-b" : ""} border-white/60 cursor-pointer hover:bg-secondary-bg px-4 rounded-xl transition-all duration-200 ease-in-out`}>
+      <div className="flex items-center w-full gap-4">
+        <div className="flex items-center">
           <input
             onChange={() => onChatSelectChange({ id })}
             checked={isSelected(id)}
             type="checkbox"
           />
+        </div>
+        <div
+          onClick={(e) => handleClick(e)}
+          className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
             <div>
               {(() => {
@@ -90,28 +97,28 @@ const Item = ({
             </div>
             <span>{title}</span>
           </div>
+          <div className="flex items-center justify-center gap-2">
+            {itemType === "chat" ? (
+              <button
+                onClick={(e: any) => handleRedirectToChat(e)}
+                className="cursor-pointer">
+                <MdOpenInNew className="w-6 h-6" />
+              </button>
+            ) : (
+              ""
+            )}
+            {!!update_time && (
+              <span
+                className={`${itemType !== "folder" ? "underline decoration-2 underline-offset-4 decoration-primary-white" : ""} text-primary-white`}>
+                {formatTimestamp({
+                  timestamp: update_time,
+                  type: "date"
+                })}
+              </span>
+            )}
+          </div>
         </div>
-        <div className="flex items-center justify-center gap-2">
-          {itemType === "chat" ? (
-            <button
-              onClick={(e: any) => handleRedirectToChat(e)}
-              className="cursor-pointer">
-              <MdOpenInNew className="w-6 h-6" />
-            </button>
-          ) : (
-            ""
-          )}
-          {!!update_time && (
-            <span
-              className={`${itemType !== "folder" ? "underline decoration-2 underline-offset-4 decoration-primary-white" : ""} text-primary-white`}>
-              {formatTimestamp({
-                timestamp: update_time,
-                type: "date"
-              })}
-            </span>
-          )}
-        </div>
-      </label>
+      </div>
     </li>
   )
 }

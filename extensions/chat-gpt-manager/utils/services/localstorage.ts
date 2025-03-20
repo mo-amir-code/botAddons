@@ -33,13 +33,14 @@ const handleDataInLocalStorage = async ({data, foldersWindow, operationType}:Han
       await Promise.all(filteredItems.map((it) => deleteItemsRecoversively({folderId: it.id as string, folderType: foldersDataKey as FoldersType })));
 
       persistedData.items = persistedData.items.filter((it) => !(data as string[]).includes(it.id as string || it.conversationId));
-    }else if(operationType === "editPrompt"){
+    }
+    else if(operationType === "editPrompt"){
       persistedData.items = persistedData.items.map((it) => {
         let obj = {...it};
         if(it.id === (data as FolderItemType).id){
-          obj["title"] = data as string;
-          obj["content"] = data as string;
-          obj["updatedAt"] = Date.now();
+          obj["title"] = (data as FolderItemType).title;
+          obj["content"] = (data as FolderItemType).title;
+          obj["updatedAt"] = (data as FolderItemType).updatedAt;
         }
         return obj; 
       })

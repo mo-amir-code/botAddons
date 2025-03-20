@@ -36,7 +36,7 @@ export const getInlineAnchor: PlasmoGetInlineAnchor = async () => ({
 
 export const getShadowHostId: PlasmoGetShadowHostId = () => "botaddons-inline"
 
-function PlasmoMainUI() {
+function BotAddons() {
   
   return (
     <LanguageProvider>
@@ -51,4 +51,4 @@ function PlasmoMainUI() {
   )
 }
 
-export default PlasmoMainUI
+export default BotAddons

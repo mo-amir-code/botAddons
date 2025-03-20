@@ -6,7 +6,7 @@ import apiRoutes from "./routes/index.js";
 import { connectToMongo } from "./config/dbConnection.js";
 import { commonMiddleware } from "./middlewares/commonMiddleware.js";
 import morgan from "morgan";
-import { CLIENT_ORIGINS } from "./config/constants.js";
+import { CLIENT_ORIGINS, EXTENSION_ORIGIN } from "./config/constants.js";
 
 const app: Express = express();
 
@@ -14,7 +14,7 @@ connectToMongo();
 app.use(
   cors({
     origin: [
-      "chrome-extension://licdkaipheffgkjnidhbmnlceldnhgpi",
+      EXTENSION_ORIGIN,
       ...CLIENT_ORIGINS,
     ],
     methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],

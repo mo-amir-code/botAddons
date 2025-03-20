@@ -16,7 +16,8 @@ const AddFolder = () => {
     headerStates: { isFolderEditingOpen },
     foldersWindow,
     currentFolderInfo,
-    folderAllFiles
+    folderAllFiles,
+    isUserLoggedIn
   } = useExtension()
   const { t } = useLanguage()
   const { addToast } = useToast();
@@ -40,6 +41,8 @@ const AddFolder = () => {
   }
 
   const handleSubmit = async () => {
+    if(!isUserLoggedIn) return
+    
     try {
       if (isFolderEditingOpen) return await handleEditFolder()
 

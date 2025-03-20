@@ -1,5 +1,7 @@
+import { CHAT_TOAST_MSG, TOAST_TIME_IN_MS } from "@/config/constants"
 import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
+import { useToast } from "@/contexts/toastContext"
 import { updateConversation } from "@/utils/services/queries/conversations"
 import type { ChatTabType, DBActionType } from "@/utils/types/components/chat"
 import type { ConversationObjectType } from "@/utils/types/components/search"
@@ -7,9 +9,8 @@ import { useEffect, useState } from "react"
 
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
+import useDebounce from "../hooks/debounce/useDebouce"
 import { BallLoader } from "../loaders"
-import { useToast } from "@/contexts/toastContext"
-import { CHAT_TOAST_MSG, TOAST_TIME_IN_MS } from "@/config/constants"
 
 const Chats = () => {
   const [results, setResults] = useState<
@@ -22,7 +23,9 @@ const Chats = () => {
     string[]
   >([])
   const [isChatUpdating, setIsChatUpdating] = useState<boolean>(false)
-  const { addToast } = useToast();
+  const [query, setQuery] = useState<string>("")
+  const debounceQuery = useDebounce<string>(query, 200)
+  const { addToast } = useToast()
 
   const handleUpdateAllConversations = ({
     action
@@ -66,7 +69,7 @@ const Chats = () => {
     let promises = []
 
     setIsChatUpdating(true)
-    let msg = CHAT_TOAST_MSG;
+    let msg = CHAT_TOAST_MSG
 
     // Performing actions
     switch (action) {
@@ -97,7 +100,7 @@ const Chats = () => {
     }
 
     await Promise.all(promises)
-    addToast(msg, "success", TOAST_TIME_IN_MS);
+    addToast(msg, "success", TOAST_TIME_IN_MS)
     handleUpdateAllConversations({ action })
     setIsChatUpdating(false)
   }
@@ -134,13 +137,7 @@ const Chats = () => {
   }
 
   const handleSearchOnChange = (query: string) => {
-    const filteredConversations = allConversations.filter((c) => {
-      if (currentTab === "active")
-        return !c.is_archived && c.title.toLowerCase().includes(query)
-      else return c.is_archived && c.title.toLowerCase().includes(query)
-    })
-    setResults(filteredConversations)
-    setSelectedConversationsId([]);
+    setQuery(query)
   }
 
   useEffect(() => {
@@ -155,6 +152,23 @@ const Chats = () => {
     if (chatsLoaded === 100) setIsChatUpdating(false)
     else setIsChatUpdating(true)
   }, [chatsLoaded])
+
+  useEffect(() => {
+    const filteredConversations = allConversations.filter((c) => {
+      if (currentTab === "active")
+        return (
+          !c.is_archived &&
+          (c.title.toLowerCase().includes(debounceQuery) ||
+            selectedConversationsId.includes(c.id))
+        )
+      return (
+        c.is_archived &&
+        (c.title.toLowerCase().includes(debounceQuery) ||
+          selectedConversationsId.includes(c.id))
+      )
+    })
+    setResults(filteredConversations)
+  }, [debounceQuery, selectedConversationsId])
 
   return (
     <div className="space-y-4">

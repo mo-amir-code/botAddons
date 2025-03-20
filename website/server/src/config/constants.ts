@@ -40,6 +40,9 @@ const SUBSCRIPTION_COLLECTION_NAME = "Subscription";
 const USER_COLLECTION_NAME = "User";
 
 //Client Origins
+const EXTENSION_ORIGIN =
+  process.env.EXTENSION_ORIGIN ||
+  "chrome-extension://licdkaipheffgkjnidhbmnlceldnhgpi";
 const CLIENT_ORIGINS = ["https://chatgpt.com"];
 
 export {
@@ -51,5 +54,6 @@ export {
   PROMPT_COLLECTION_NAME,
   SUBSCRIPTION_COLLECTION_NAME,
   USER_COLLECTION_NAME,
-  CLIENT_ORIGINS
+  CLIENT_ORIGINS,
+  EXTENSION_ORIGIN
 };
