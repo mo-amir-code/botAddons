@@ -20,6 +20,7 @@ import {
 } from "../utils/controllers/v1/auth.utils.js";
 import jwt from "jsonwebtoken";
 import { getDomainRoot } from "../utils/middleware/index.js";
+import { ENVIRONMENT } from "../config/constants.js";
 
 const isUserAuthenticated = apiHandler(async (req, res, next) => {
   const { accesstoken } = req.cookies;
@@ -96,7 +97,7 @@ const isUserAuthenticated = apiHandler(async (req, res, next) => {
 
     res.cookie(ACCESS_TOKEN_NAME, accessToken, {
       ...accessCookieOptions,
-      domain: domainRoot,
+      domain: ENVIRONMENT === "production" ? "." : "" + domainRoot,
     });
 
     req.user.id = user._id;

@@ -20,6 +20,7 @@ const commonCookieTokenOptions: CookieOptions = {
   secure: true,
   httpOnly: true,
   sameSite: "none",
+  path: "/",
 };
 
 const accessCookieOptions: CookieOptions = {

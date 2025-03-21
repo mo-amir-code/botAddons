@@ -1,5 +1,6 @@
 const ENVIRONMENT = process.env.PLASMO_PUBLIC_ENVIRONMENT
-const SERVER_ORIGIN = process.env.PLASMO_PUBLIC_SERVER_ORIGIN
+// const SERVER_ORIGIN = process.env.PLASMO_PUBLIC_SERVER_ORIGIN
+const SERVER_ORIGIN = "https://api.botaddons.com"
 
 export { ENVIRONMENT, SERVER_ORIGIN }
 
