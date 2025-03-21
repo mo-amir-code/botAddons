@@ -31,9 +31,13 @@ const Item = ({
   const { dispatch, foldersWindow, headerStates } = useExtension()
 
   const handleClick = (e: any) => {
-    if(headerStates.isAddChatsOpen || modalType === "chats") {
-      onChatSelectChange({ id });
-      return;
+    if (
+      headerStates.isAddChatsOpen ||
+      modalType === "chats" ||
+      (modalType === "folders" && itemType === "chat")
+    ) {
+      onChatSelectChange({ id })
+      return
     }
     if (itemType === "chat") handleRedirectToChat(e)
     if (itemType === "prompt") handleEditPrompt()

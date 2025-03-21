@@ -16,7 +16,8 @@ const Chats = () => {
   const [results, setResults] = useState<
     ConversationObjectType<string, number>[]
   >([])
-  const { allConversations, chatsLoaded, dispatch } = useExtension()
+  const { allConversations, chatsLoaded, dispatch, conversations } =
+    useExtension()
   const { t } = useLanguage()
   const [currentTab, setCurrentTab] = useState<ChatTabType>("active")
   const [selectedConversationsId, setSelectedConversationsId] = useState<
@@ -67,6 +68,12 @@ const Chats = () => {
         break
     }
 
+    if (action === "delete") {
+      const filteredConversations = conversations.filter(
+        (it) => !selectedConversationsId.includes(it.id)
+      )
+      dispatch({ type: "CONVERSATIONS", payload: filteredConversations })
+    }
     dispatch({ type: "ALL_CONVERSATIONS", payload: updatedAllConversations })
     setSelectedConversationsId([])
   }
@@ -75,43 +82,47 @@ const Chats = () => {
     if (!selectedConversationsId.length) return
     handleResetRef()
 
-    let promises = []
+    try {
+      let promises = []
 
-    setIsChatUpdating(true)
-    let msg = CHAT_TOAST_MSG
+      setIsChatUpdating(true)
+      let msg = CHAT_TOAST_MSG
 
-    // Performing actions
-    switch (action) {
-      case "archive":
-        selectedConversationsId.forEach(async (id) => {
-          promises.push(
-            updateConversation({ conversationId: id, archive: "archive" })
-          )
-        })
-        msg = msg.replace("{msg}", "archived")
-        break
-      case "unarchive":
-        selectedConversationsId.forEach(async (id) => {
-          promises.push(
-            updateConversation({ conversationId: id, archive: "unarchive" })
-          )
-        })
-        msg = msg.replace("{msg}", "unArchived")
-        break
-      case "delete":
-        selectedConversationsId.forEach(async (id) => {
-          promises.push(
-            updateConversation({ conversationId: id, isVisible: true })
-          )
-        })
-        msg = msg.replace("{msg}", "deleted")
-        break
+      // Performing actions
+      switch (action) {
+        case "archive":
+          selectedConversationsId.forEach(async (id) => {
+            promises.push(
+              updateConversation({ conversationId: id, archive: "archive" })
+            )
+          })
+          msg = msg.replace("{msg}", "archived")
+          break
+        case "unarchive":
+          selectedConversationsId.forEach(async (id) => {
+            promises.push(
+              updateConversation({ conversationId: id, archive: "unarchive" })
+            )
+          })
+          msg = msg.replace("{msg}", "unArchived")
+          break
+        case "delete":
+          selectedConversationsId.forEach(async (id) => {
+            promises.push(
+              updateConversation({ conversationId: id, isVisible: true })
+            )
+          })
+          msg = msg.replace("{msg}", "deleted")
+          break
+      }
+
+      await Promise.all(promises)
+      addToast(msg, "success", TOAST_TIME_IN_MS)
+      handleUpdateAllConversations({ action })
+      setIsChatUpdating(false)
+    } catch (error) {
+      console.error(error)
     }
-
-    await Promise.all(promises)
-    addToast(msg, "success", TOAST_TIME_IN_MS)
-    handleUpdateAllConversations({ action })
-    setIsChatUpdating(false)
   }
 
   const handleOnChatSelectChange = ({

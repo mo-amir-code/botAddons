@@ -3,7 +3,7 @@ import { getDataFromLocalStorage } from "@/utils/services/auth"
 import axios from "axios"
 import { useCallback, useEffect, useState } from "react"
 
-import { storeResponses } from "./helper"
+import { deleteConversations, storeResponses } from "./helper"
 
 const API_ENDPOINT = "https://chatgpt.com/backend-api/conversation"
 const MAX_CONCURRENT_REQUESTS = 100
@@ -14,8 +14,13 @@ const useConversations = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [progress, setProgress] = useState<number>(0)
   const [error, setError] = useState<string | null>(null)
-  const { dispatch, allConversations, conversations, isConversationsLoaded } =
-    useExtension()
+  const {
+    dispatch,
+    allConversations,
+    conversations,
+    isConversationsLoaded,
+    chatsLoaded
+  } = useExtension()
 
   // Transform a single API response to target format
   const transformResponse = useCallback((apiResponse: any) => {
@@ -179,13 +184,16 @@ const useConversations = () => {
               (completedCount / conversationIds.length) * 100
             )
             setProgress(newProgress)
+            dispatch({ type: "CHAT_LOADED", payload: newProgress })
           }
         }
 
         return results
       }
 
+      dispatch({ type: "CHAT_LOADED", payload: 0 })
       const processedResults = await processInBatches()
+      dispatch({ type: "CHAT_LOADED", payload: 100 })
 
       //   console.log(`Successfully processed ${processedResults.length} out of ${conversationIds.length} conversations`)
       setTransformedData(processedResults)
@@ -226,6 +234,9 @@ const useConversations = () => {
       )
       if (isConversationsLoaded) {
         setConversationIds(allConversationIds)
+        if (allConversationIds.length === 0) {
+          setProgress(100)
+        }
       }
     }
   }, [allConversations, conversations, isConversationsLoaded])
@@ -253,9 +264,27 @@ const useConversations = () => {
         })
       }
     } catch (error) {
-      console.error(error);
+      console.error(error)
     }
   }, [transformedData])
+
+  const handleRemoveDeletedConversationsFromDB = useCallback(
+    async (conversationIds: string[]) => {
+      await deleteConversations(conversationIds)
+    },
+    []
+  )
+
+  useEffect(() => {
+    if (chatsLoaded === 100 && !isLoading && progress === 100) {
+      const deletedConversationsIds = conversations
+        .filter((it) => !allConversations.some((conv) => conv.id == it.id))
+        .map((it) => it.id)
+        
+      deletedConversationsIds.length &&
+        handleRemoveDeletedConversationsFromDB(deletedConversationsIds)
+    }
+  }, [conversations, allConversations, chatsLoaded, isLoading, progress])
 
   return {
     transformedData,

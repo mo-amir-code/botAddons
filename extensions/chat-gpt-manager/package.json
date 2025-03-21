@@ -1,8 +1,8 @@
 {
   "name": "chatgpt-manager",
-  "displayName": "ChatGPT manager",
+  "displayName": "ChatGPT Manager",
   "version": "0.0.1",
-  "description": "ChatGPT Manager is a chrome extension that helps user to manage their AI conversations.",
+  "description": "ChatGPT Manager is a chrome web extension that helps user to manage their AI conversations.",
   "author": "Mo Amir",
   "scripts": {
     "dev": "plasmo dev",
@@ -59,6 +59,7 @@
     "chatgpt tool box",
     "chatgpt manager extension",
     "chatgpt manager chrome extension",
-    "chatgpt management"
+    "chatgpt management",
+    "botaddons"
   ]
 }

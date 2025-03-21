@@ -92,18 +92,25 @@ async function getStoredConversations(): Promise<StoredResponse[]> {
  * @param id The ID of the conversation to delete
  * @returns Promise resolving to success message
  */
-async function deleteConversation(id: number): Promise<string> {
+async function deleteConversations(ids: string[]): Promise<string> {
   const db: IDBDatabase = await openDB()
   const transaction: IDBTransaction = db.transaction(STORE_NAME, "readwrite")
   const store: IDBObjectStore = transaction.objectStore(STORE_NAME)
 
-  store.delete(id)
+  const deletePromises = ids.map((id) => {
+    return new Promise<void>((resolve, reject) => {
+      const request = store.delete(id)
+      request.onsuccess = () => resolve()
+      request.onerror = () => reject(new Error(`Failed to delete ID ${id}`))
+    })
+  })
+
+  await Promise.all(deletePromises)
 
   return new Promise<string>((resolve, reject) => {
     transaction.oncomplete = () =>
-      resolve(`Conversation with ID ${id} deleted successfully`)
-    transaction.onerror = () =>
-      reject(`Failed to delete conversation with ID ${id}`)
+      resolve(`Conversation with IDs deleted successfully`)
+    transaction.onerror = () => reject(`Failed to delete conversation with IDs`)
   })
 }
 
@@ -129,7 +136,7 @@ export {
   openDB,
   storeResponses,
   getStoredConversations,
-  deleteConversation,
+  deleteConversations,
   clearAllConversations,
   type StoredResponse
 }
