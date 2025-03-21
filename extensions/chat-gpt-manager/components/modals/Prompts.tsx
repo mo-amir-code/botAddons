@@ -1,4 +1,4 @@
-import { ITEMS_DELETE_MSG, TOAST_TIME_IN_MS } from "@/config/constants"
+import { ITEMS_DELETE_MSG, SELECT_ERR_MSG, TOAST_TIME_IN_MS } from "@/config/constants"
 import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
 import { useToast } from "@/contexts/toastContext"
@@ -96,7 +96,10 @@ const Prompts = () => {
   }
 
   const handleDelete = async () => {
-    if (!isUserLoggedIn) return
+    if (!isUserLoggedIn || selectedItemsId.length === 0) {
+      addToast(SELECT_ERR_MSG, "failed", TOAST_TIME_IN_MS);
+      return;
+    }
 
     try {
       await httpAxios.delete("/folder", {

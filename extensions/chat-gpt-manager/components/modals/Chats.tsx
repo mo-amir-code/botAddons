@@ -5,7 +5,7 @@ import { useToast } from "@/contexts/toastContext"
 import { updateConversation } from "@/utils/services/queries/conversations"
 import type { ChatTabType, DBActionType } from "@/utils/types/components/chat"
 import type { ConversationObjectType } from "@/utils/types/components/search"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
@@ -26,6 +26,14 @@ const Chats = () => {
   const [query, setQuery] = useState<string>("")
   const debounceQuery = useDebounce<string>(query, 200)
   const { addToast } = useToast()
+  const searchFieldRef = useRef<HTMLInputElement>(null)
+
+  const handleResetRef = () => {
+    if (searchFieldRef.current) {
+      setQuery("")
+      searchFieldRef.current.value = ""
+    }
+  }
 
   const handleUpdateAllConversations = ({
     action
@@ -65,6 +73,7 @@ const Chats = () => {
 
   const handleDBUpdate = async (action: DBActionType) => {
     if (!selectedConversationsId.length) return
+    handleResetRef()
 
     let promises = []
 
@@ -79,7 +88,7 @@ const Chats = () => {
             updateConversation({ conversationId: id, archive: "archive" })
           )
         })
-        msg.replace("{msg}", "archived")
+        msg = msg.replace("{msg}", "archived")
         break
       case "unarchive":
         selectedConversationsId.forEach(async (id) => {
@@ -87,7 +96,7 @@ const Chats = () => {
             updateConversation({ conversationId: id, archive: "unarchive" })
           )
         })
-        msg.replace("{msg}", "unArchived")
+        msg = msg.replace("{msg}", "unArchived")
         break
       case "delete":
         selectedConversationsId.forEach(async (id) => {
@@ -95,7 +104,7 @@ const Chats = () => {
             updateConversation({ conversationId: id, isVisible: true })
           )
         })
-        msg.replace("{msg}", "deleted")
+        msg = msg.replace("{msg}", "deleted")
         break
     }
 
@@ -140,12 +149,24 @@ const Chats = () => {
     setQuery(query)
   }
 
-  useEffect(() => {
+  const handleFilterChats = async (tab: ChatTabType) => {
+    setIsChatUpdating(true)
     let filteredConversations = []
-    if (currentTab === "active")
-      filteredConversations = allConversations.filter((c) => !c.is_archived)
-    else filteredConversations = allConversations.filter((c) => c.is_archived)
+    if (tab === "active")
+      filteredConversations = await new Promise((resolved) =>
+        resolved(allConversations.filter((c) => !c.is_archived))
+      )
+    else
+      filteredConversations = await new Promise((resolved) =>
+        resolved(allConversations.filter((c) => c.is_archived))
+      )
     setResults(filteredConversations)
+    setIsChatUpdating(false)
+    handleResetRef()
+  }
+
+  useEffect(() => {
+    handleFilterChats(currentTab)
   }, [currentTab, allConversations])
 
   useEffect(() => {
@@ -192,6 +213,7 @@ const Chats = () => {
             <SearchField
               func={handleSearchOnChange}
               placeholder={t("searchChats")}
+              inputRef={searchFieldRef}
             />
             <SelectAll
               isChecked={

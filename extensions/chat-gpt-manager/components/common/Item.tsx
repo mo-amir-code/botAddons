@@ -68,7 +68,7 @@ const Item = ({
 
   return (
     <li
-      className={`py-2 select-none ${itemType === "chat" ? "border-b" : ""} border-white/60 cursor-pointer hover:bg-secondary-bg px-4 rounded-xl transition-all duration-200 ease-in-out`}>
+      className={`select-none ${itemType === "chat" ? "border-b" : ""} border-white/60 cursor-pointer hover:bg-secondary-bg px-4 rounded-xl transition-all duration-200 ease-in-out`}>
       <div className="flex items-center w-full gap-4">
         <div className="flex items-center">
           <input
@@ -79,7 +79,7 @@ const Item = ({
         </div>
         <div
           onClick={(e) => handleClick(e)}
-          className="flex items-center justify-between w-full">
+          className="flex items-center justify-between w-full py-2 ">
           <div className="flex items-center gap-2">
             <div>
               {(() => {
