@@ -26,8 +26,9 @@ export {
 // DOMAIN's
 const CHAT_GPT_DOMAIN = "https://chatgpt.com";
 const CLAUDE_DOMAIN = "https://claude.ai";
+const BOTADDONS_DOMAIN_ROOT = "botaddons.com";
 
-export { CHAT_GPT_DOMAIN, CLAUDE_DOMAIN };
+export { CHAT_GPT_DOMAIN, CLAUDE_DOMAIN, BOTADDONS_DOMAIN_ROOT };
 
 // DB Schema's Name
 const CHAT_COLLECTION_NAME = "Chat";

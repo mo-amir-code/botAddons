@@ -30,7 +30,6 @@ import {
   PASS_CHANGED_RES_MSG,
   SOMETHING_WENT_WRONG,
   USER_ALREADY_REGISTERED_RES_MSG,
-  USER_IS_NOT_EXIST_RES_MSG,
   USER_IS_NOT_REGISTERED_RES_MSG,
   USER_IS_NOT_VERIFIED_RES_MSG,
   USER_LOGGED_IN_RES_MSG,
@@ -57,7 +56,7 @@ import { SendMailType } from "../../types/nodemailer/index.js";
 import { createEmailTemplate } from "../../services/nodemailer/templates.js";
 import { UserSchemaType } from "../../types/db/schema/index.js";
 import { sendMail } from "../../services/nodemailer/sendMail.js";
-import { getDomainRoot } from "../../utils/middleware/index.js";
+import { getCookieDomain, getDomainRoot } from "../../utils/middleware/index.js";
 import { Response } from "express";
 import { ENVIRONMENT } from "../../config/constants.js";
 
@@ -149,7 +148,7 @@ const sendOTP = apiHandler(async (req, res, next) => {
   user.otpToken = otpToken;
   await user.save();
 
-  const domainRoot = getDomainRoot({ origin: domainURL, forCookie: true });
+  const domainRoot = getCookieDomain();
 
   res.cookie(OTP_TOKEN_NAME, otpToken, {
     ...otpTokenCookieOptions,
@@ -414,14 +413,11 @@ const handleSetCookies = async ({
   user.sessions = userSessions;
 
   await user.save();
-  const domainRoot = getDomainRoot({
-    origin: ENVIRONMENT === "development" ? undefined : getDomainURL(origin),
-    forCookie: true,
-  });
+  const domainRoot = getCookieDomain();
 
   res.cookie(ACCESS_TOKEN_NAME, accessToken, {
     ...accessCookieOptions,
-    domain: ".chatgpt.com",
+    domain: domainRoot,
   });
 };
 

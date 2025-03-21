@@ -15,11 +15,10 @@ import {
   UNAUTHORIZED_REQUEST_RES_MSG,
 } from "../utils/constants/serverResponseMessages.js";
 import {
-  getDomainURL,
   JWTTokenVerifier,
 } from "../utils/controllers/v1/auth.utils.js";
 import jwt from "jsonwebtoken";
-import { getDomainRoot } from "../utils/middleware/index.js";
+import { getCookieDomain, getDomainRoot } from "../utils/middleware/index.js";
 
 const isUserAuthenticated = apiHandler(async (req, res, next) => {
   const { accesstoken } = req.cookies;
@@ -89,10 +88,7 @@ const isUserAuthenticated = apiHandler(async (req, res, next) => {
       userId: user._id,
     });
 
-    const domainRoot = getDomainRoot({
-      origin: getDomainURL(origin),
-      forCookie: true,
-    });
+    const domainRoot = getCookieDomain();
 
     res.cookie(ACCESS_TOKEN_NAME, accessToken, {
       ...accessCookieOptions,
