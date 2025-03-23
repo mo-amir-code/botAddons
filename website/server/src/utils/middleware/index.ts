@@ -16,6 +16,6 @@ const getDomainRoot = ({ origin, forCookie = false }: GetDomainRootType) => {
   }
 };
 
-const getCookieDomain = () => "." + BOTADDONS_DOMAIN_ROOT;
+const getCookieDomain = () => ENVIRONMENT === "production" ?  "." + BOTADDONS_DOMAIN_ROOT : "localhost";
 
 export { getDomainRoot, getCookieDomain };

@@ -37,14 +37,14 @@ const createFolderHandler = apiHandler(async (req, res, next) => {
   const data = req.body as CreateFolderBodyType;
   let origin = req.origin as any;
   origin = origin === "website" ? "all" : origin;
-
+  
   let newFolderData: CreateFolderType = {
     ...data,
     platform: origin,
     userId: req.user.id,
   };
 
-  const folder = await Folder.findOne(data);
+  const folder = await Folder.findOne(newFolderData);
   if (folder) {
     return next(
       new ErrorHandlerClass(

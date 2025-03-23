@@ -206,7 +206,7 @@ const Folders = () => {
           ?.sort((a, b) =>
             a.isFolder === b.isFolder ? 0 : a.isFolder ? -1 : 1
           )
-          .map(({ id, title, updatedAt, isFolder, conversationId }) => (
+          .map(({ id, title, updatedAt, isFolder, conversationId, totalItems }) => (
             <Item
               key={id}
               id={isFolder ? id : conversationId}
@@ -216,6 +216,7 @@ const Folders = () => {
               update_time={updatedAt ? updatedAt : undefined}
               itemType={isFolder ? "folder" : "chat"}
               modalType="folders"
+              totalItems={totalItems}
             />
           ))}
       </ul>

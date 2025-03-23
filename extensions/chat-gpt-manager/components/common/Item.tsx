@@ -16,6 +16,7 @@ interface ItemType {
   onChatSelectChange: Function
   modalType: OpenModalType
   content?: string
+  totalItems?: number
 }
 
 const Item = ({
@@ -26,7 +27,8 @@ const Item = ({
   isSelected,
   onChatSelectChange,
   modalType,
-  content
+  content,
+  totalItems
 }: ItemType) => {
   const { dispatch, foldersWindow, headerStates } = useExtension()
 

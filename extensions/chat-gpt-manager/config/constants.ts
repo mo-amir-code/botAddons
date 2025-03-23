@@ -1,4 +1,4 @@
-const SERVER_ORIGIN = "https://api.botaddons.com"
+const SERVER_ORIGIN = "http://localhost:8080"
 
 export { SERVER_ORIGIN }
 

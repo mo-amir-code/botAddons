@@ -48,7 +48,7 @@ const addPromptHandler = apiHandler(async (req, res, next) => {
     userId,
   };
 
-  let dbQuery:any = { title };
+  let dbQuery:any = { title, userId };
   if (folderId) dbQuery["folderId"] = folderId;
   const prompt = await Prompt.findOne(dbQuery);
 

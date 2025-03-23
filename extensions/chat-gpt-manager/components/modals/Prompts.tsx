@@ -225,7 +225,7 @@ const Prompts = () => {
           ?.sort((a, b) =>
             a.isFolder === b.isFolder ? 0 : a.isFolder ? -1 : 1
           )
-          ?.map(({ id, title, updatedAt, isFolder, content }) => (
+          ?.map(({ id, title, updatedAt, isFolder, content, totalItems }) => (
             <Item
               key={id}
               id={id}
@@ -236,6 +236,7 @@ const Prompts = () => {
               itemType={isFolder ? "folder" : "prompt"}
               modalType="prompts"
               content={content}
+              totalItems={totalItems}
             />
           ))}
       </ul>
