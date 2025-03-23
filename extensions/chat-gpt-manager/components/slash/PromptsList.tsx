@@ -54,7 +54,7 @@ const PromptsList = () => {
     const promptsData = ((await chrome.storage.local.get(finalKey)) as any)?.[
       finalKey
     ]
-
+    
     if (promptsData) setPrompts(promptsData)
   }
 
@@ -65,7 +65,8 @@ const PromptsList = () => {
       changes: { [key: string]: chrome.storage.StorageChange },
       areaName: string
     ) => {
-      if (areaName === "local" && changes["prompts"+"-"+userInfo.id]) {
+      const promptsKey = "prompts"+"-"+userInfo.id;
+      if (areaName === "local" && changes[promptsKey]) {
         fetchData({userId: userInfo.id})
       }
     }

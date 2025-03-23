@@ -120,13 +120,13 @@ const Prompts = () => {
           )
       )
 
-      await handleDataInLocalStorage({
+      let deletedPromptsIds = await handleDataInLocalStorage({
         data: selectedItemsId.map((it) => it.id),
         foldersWindow,
         operationType: "deleteItems"
-      })
+      }) || []
       await handleDataOfPromptCommand({
-        data: selectedItemsId.map((it) => it.id),
+        data: deletedPromptsIds,
         operationType: "deleteItems"
       })
 

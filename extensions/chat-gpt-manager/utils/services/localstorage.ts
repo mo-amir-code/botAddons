@@ -9,6 +9,8 @@ const handleDataInLocalStorage = async ({data, foldersWindow, operationType}:Han
     const nestedFoldersLength = foldersWindow.folders.length;
     let currentFolderId = nestedFoldersLength === 0 ? "root" : foldersWindow.folders[nestedFoldersLength-1].id;
 
+    let deletedPromptsIds = [];
+
     let persistedData = (await getDataFromLocalStorage(foldersDataKey, currentFolderId)) as FolderFileType;
 
     if(operationType === "addItems"){
@@ -30,7 +32,13 @@ const handleDataInLocalStorage = async ({data, foldersWindow, operationType}:Han
     }else if(operationType === "deleteItems"){
       let filteredItems = persistedData.items.filter((it) => (data as string[]).includes(it.id as string || it.conversationId));
       filteredItems = filteredItems.filter((it) => it.isFolder);
-      await Promise.all(filteredItems.map((it) => deleteItemsRecoversively({folderId: it.id as string, folderType: foldersDataKey as FoldersType })));
+
+      const promptsIds = await Promise.all(filteredItems.map((it) => deleteItemsRecoversively({folderId: it.id as string, folderType: foldersDataKey as FoldersType }))) || [];
+
+      if(foldersDataKey === "prompts"){
+        deletedPromptsIds.push(filteredItems.filter((it) => !it.isFolder).map((it) => it.id as string));
+        deletedPromptsIds.push(promptsIds);
+      }
 
       persistedData.items = persistedData.items.filter((it) => !(data as string[]).includes(it.id as string || it.conversationId));
     }
@@ -47,6 +55,11 @@ const handleDataInLocalStorage = async ({data, foldersWindow, operationType}:Han
     }
 
     setDataInLocalStorage({key: foldersDataKey, data:persistedData, id: currentFolderId})
+
+    if(foldersDataKey === "prompts" && operationType === "deleteItems"){
+      deletedPromptsIds = deletedPromptsIds.flat(2);
+      return deletedPromptsIds || []
+    }
   }
 
   const deleteItemsRecoversively = async ({ folderId, folderType }:{folderType: FoldersType, folderId: string}) => {
@@ -54,6 +67,10 @@ const handleDataInLocalStorage = async ({data, foldersWindow, operationType}:Han
     let filteredItems = persistedData?.items?.filter((it) => it.isFolder) || [];
     await Promise.all(filteredItems.map((it) => deleteItemsRecoversively({folderId: it.id as string, folderType: folderType })));
     await deleteDataFromLocalStorage(folderType, folderId);
+    
+    if(folderType === "prompts"){
+      return persistedData.items.filter((it) => !it.isFolder).map((it) => it.id as string) || [];
+    }
   }
 
   type HandlePromptCommandType = {
@@ -63,10 +80,11 @@ const handleDataInLocalStorage = async ({data, foldersWindow, operationType}:Han
 
   const handleDataOfPromptCommand = async ({ data, operationType }:HandlePromptCommandType) => {
     let persistedData = ((await getDataFromLocalStorage("prompts")) || []) as FolderItemType[];
+
     if(operationType === "addItems"){
       persistedData.push(...(data as FolderItemType[]));
     }else if(operationType === "deleteItems"){
-      persistedData = persistedData.filter((it) => !(data as string[]).includes(it.id as string));
+      persistedData = persistedData.filter((it) => !(data as string[]).includes(it.id.toString()));
     }else if(operationType === "editItem"){
       persistedData = persistedData.map((it) => {
         if((data as FolderItemType).id == it.id){
