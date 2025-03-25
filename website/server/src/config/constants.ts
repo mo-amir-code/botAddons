@@ -10,6 +10,8 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const DB_URI = process.env.DB_URI!;
 const COMPANY_NAME = process.env.COMPANY_NAME;
 const ENVIRONMENT = process.env.ENVIRONMENT;
+const REDIS_URL = process.env.REDIS_URL;
+const REDIS_TOKEN = process.env.REDIS_TOKEN;
 
 export {
   APP_PORT,
@@ -21,6 +23,8 @@ export {
   DB_URI,
   COMPANY_NAME,
   ENVIRONMENT,
+  REDIS_TOKEN,
+  REDIS_URL
 };
 
 // DOMAIN's

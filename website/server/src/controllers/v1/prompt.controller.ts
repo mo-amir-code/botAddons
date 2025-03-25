@@ -5,6 +5,8 @@ import {
   getPrompts,
 } from "../../db/services/prompt.db.service.js";
 import { apiHandler, ErrorHandlerClass, ok } from "../../services/errorHandling/index.js";
+import { redisClient } from "../../services/redis/connect.js";
+import { getFolderRedisKey } from "../../services/redis/helper.js";
 import {
   AddPromptBodyType,
   UpdatePromptBodyType,
@@ -63,6 +65,22 @@ const addPromptHandler = apiHandler(async (req, res, next) => {
 
   const newPrompt = await createPrompt(data);
 
+  const key = getFolderRedisKey({userId, type: "prompts", root: folderId});
+  const cachedData = await redisClient?.get(key);
+
+  if(cachedData){
+    const nPrompt = {
+      id: newPrompt._id,
+      title: newPrompt.title,
+      content: newPrompt.content,
+      isFolder: false,
+      createdAt: newPrompt.createdAt,
+      updatedAt: newPrompt.updatedAt
+    }
+    cachedData.items.push(nPrompt);
+    await redisClient?.set(key, cachedData);
+  }
+
   return ok({
     res,
     message: PROMPT_ADDED_RES_MSG,
@@ -75,7 +93,23 @@ const addPromptHandler = apiHandler(async (req, res, next) => {
 
 const updatePromptHandler = apiHandler(async (req, res) => {
   const data = req.body as UpdatePromptBodyType;
-  await findPromptByIdAndUpdate(data);
+  const prompt = await findPromptByIdAndUpdate(data) as PromptSchemaType;
+
+  const key = getFolderRedisKey({userId: req.user.id, type: "prompts", root: prompt.folderId?.toString()});
+  const cachedData = await redisClient?.get(key);
+
+  if(cachedData){
+    cachedData.items = cachedData.items.map((it:any) => {
+      let obj = {...it};
+      if(obj.id == prompt._id){
+        obj["title"] = prompt.title
+        obj["content"] = prompt.content
+      }
+      return obj;
+    })
+    await redisClient?.set(key, cachedData);
+  }
+
   return ok({
     res,
     message: PROMPT_UPDATED_RES_MSG,

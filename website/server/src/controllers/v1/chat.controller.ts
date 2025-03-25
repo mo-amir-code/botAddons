@@ -4,6 +4,8 @@ import {
   ErrorHandlerClass,
   ok,
 } from "../../services/errorHandling/index.js";
+import { redisClient } from "../../services/redis/connect.js";
+import { getFolderRedisKey } from "../../services/redis/helper.js";
 import { AddChatsBodyType } from "../../types/controllers/v1/chat.js";
 import { BAD_REQUEST_STATUS_CODE } from "../../utils/constants/common.js";
 import {
@@ -23,6 +25,22 @@ const addChatsHandler = apiHandler(async (req, res, next) => {
 
   folder.chats.push(...ids);
   await folder.save();
+
+  const key = getFolderRedisKey({userId: req.user.id, type: "chats", root: folderId});
+
+  const cachedData = await redisClient?.get(key);
+
+  if(cachedData){
+    const items = ids.map((it, idx) => {
+      return {
+        id: idx,
+        conversationId: it,
+        isFolder: false
+      }
+    })
+    cachedData.items.push(...items);
+    await redisClient?.set(key, cachedData);
+  }
 
   return ok({
     res,

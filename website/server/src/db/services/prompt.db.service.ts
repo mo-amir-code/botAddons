@@ -22,7 +22,7 @@ const createPrompt = async (
 const findPromptByIdAndUpdate = async (
   data: UpdatePromptBodyType
 ): Promise<PromptSchemaType | null> => {
-  return await Prompt.findByIdAndUpdate(data.id, { ...data });
+  return await Prompt.findByIdAndUpdate(data.id, { ...data }, {new: true});
 };
 
 export { createPrompt, getPrompts, findPromptByIdAndUpdate };

@@ -20,7 +20,10 @@ const errorHandler: ErrorRequestHandler = async (err: ErrorHandlerClass, req: Re
 }
 
 const apiHandler = (func: APIHandlerType) => (req: Request, res: Response, next: NextFunction) => {
-    return Promise.resolve(func(req, res, next)).catch(next);
+    return Promise.resolve(func(req, res, next)).catch((err) => {
+        console.error(err);
+        next()
+    });
 }
 
 const ok = ({ res, statusCode = 200, message, data }: APISuccessType) => {

@@ -9,12 +9,19 @@ import {
   ErrorHandlerClass,
   ok,
 } from "../../services/errorHandling/index.js";
+import { redisClient } from "../../services/redis/connect.js";
+import { getFolderRedisKey } from "../../services/redis/helper.js";
+import { FOLDERS_KEY } from "../../services/redis/keys.js";
 import {
   CreateFolderBodyType,
   CreateFolderType,
   DeleteFoldersBodyType,
 } from "../../types/controllers/v1/folder.js";
-import { FolderType, PromptSchemaType } from "../../types/db/schema/index.js";
+import {
+  FolderSchemaType,
+  FolderType,
+  PromptSchemaType,
+} from "../../types/db/schema/index.js";
 import {
   FindFolderByIdAndUpdate,
   GetFoldersType,
@@ -37,7 +44,7 @@ const createFolderHandler = apiHandler(async (req, res, next) => {
   const data = req.body as CreateFolderBodyType;
   let origin = req.origin as any;
   origin = origin === "website" ? "all" : origin;
-  
+
   let newFolderData: CreateFolderType = {
     ...data,
     platform: origin,
@@ -65,6 +72,19 @@ const createFolderHandler = apiHandler(async (req, res, next) => {
     updatedAt: newFolder.updatedAt,
   };
 
+  const key = getFolderRedisKey({
+    userId: req.user.id,
+    type: newFolder.type,
+    root: newFolder.parent as string | undefined,
+  });
+
+  const cachedData = await redisClient?.get(key);
+
+  if (cachedData) {
+    cachedData.items.unshift(resData);
+    await redisClient?.set(key, cachedData);
+  }
+
   return ok({
     res,
     message: FOLDER_CREATED_RES_MSG,
@@ -74,18 +94,35 @@ const createFolderHandler = apiHandler(async (req, res, next) => {
 
 const deleteFolderByIdHandler = apiHandler(async (req, res, next) => {
   const { ids, folderId, type, promptIds } = req.body as DeleteFoldersBodyType;
+  const userId = req.user.id;
+
+  const key = getFolderRedisKey({ userId: req.user.id, type, root: folderId });
+  let cachedData = await redisClient?.get(key);
+
+  let deletedPromptIds = [];
 
   if (type === "prompts") {
-    await Promise.all(
-      ids.map((folderId) => deleteFolderRecursively(folderId.toString(), type))
+    deletedPromptIds = await Promise.all(
+      ids.map((folderId) =>
+        deleteFolderRecursively({ folderId: folderId.toString(), type, userId })
+      )
     );
 
+    deletedPromptIds = deletedPromptIds.flat(2);
+
     await Prompt.deleteMany({ _id: { $in: promptIds } });
+
+    if (cachedData) {
+      let items = cachedData.items.filter(
+        (item: any) => !promptIds?.includes(item.id) && !ids.includes(item.id)
+      );
+      cachedData = { ...cachedData, items };
+    }
   } else {
     const folderIds = ids.filter((id) => !id.includes("-"));
 
     for (const childFolderId of folderIds) {
-      deleteFolderRecursively(childFolderId, type);
+      deleteFolderRecursively({ folderId: childFolderId, type, userId });
     }
 
     const chatIds = ids.filter((id) => id.includes("-"));
@@ -102,17 +139,67 @@ const deleteFolderByIdHandler = apiHandler(async (req, res, next) => {
       folder.chats = folder.chats.filter((cId) => !chatIds.includes(cId));
       await folder.save();
     }
+
+    if (cachedData) {
+      let items = cachedData.items.filter(
+        (item: any) =>
+          !chatIds.includes(item.id || item?.conversationId) &&
+          !folderIds.includes(item.id || item?.conversationId)
+      );
+      cachedData = { ...cachedData, items };
+    }
+  }
+
+  if (cachedData) {
+    await redisClient?.set(key, cachedData);
   }
 
   return ok({
     res,
     message: FOLDER_DELETED_RES_MSG,
+    data: {
+      deletedPromptIds,
+    },
   });
 });
 
 const updateFolderHandler = apiHandler(async (req, res) => {
   const data = req.body as FindFolderByIdAndUpdate;
-  await findFolderByIdAndUpdate(data);
+
+  const folder = (await findFolderByIdAndUpdate(data)) as FolderSchemaType;
+
+  // Updating Parent Folder Item Name
+  const parentKey = getFolderRedisKey({
+    userId: req.user.id,
+    type: folder.type as string,
+    root: folder.parent as string | undefined,
+  });
+  const parentCachedData = await redisClient?.get(parentKey);
+
+  if (parentCachedData) {
+    parentCachedData.items = parentCachedData.items.map((it: any) => {
+      let obj = { ...it };
+      if (obj.id == folder._id) {
+        obj["title"] = folder.title;
+      }
+      return obj;
+    });
+    await redisClient?.set(parentKey, parentCachedData);
+  }
+
+  // Updating Current Folder Name
+  const key = getFolderRedisKey({
+    userId: req.user.id,
+    type: folder.type as string,
+    root: folder._id.toString(),
+  });
+  const cachedData = await redisClient?.get(key);
+
+  if (cachedData) {
+    cachedData.info.title = folder.title;
+    await redisClient?.set(key, cachedData);
+  }
+
   return ok({
     res,
     message: FOLDER_UPDATE_RES_MSG,
@@ -124,6 +211,19 @@ const getFoldersHandler = apiHandler(async (req, res) => {
   const { id: userId } = req.user;
 
   let files;
+
+  let key = FOLDERS_KEY.replace("{userId}", userId).replace("{type}", type);
+  if (id) key = key.replace("{root}", id);
+
+  const cachedData = await redisClient?.get(key);
+
+  if (cachedData) {
+    return ok({
+      res,
+      message: FOLDER_FETCHED_RES_MSG,
+      data: cachedData,
+    });
+  }
 
   if (!id) {
     files = await Folder.find({ userId, type, parent: undefined }).select(
@@ -228,6 +328,8 @@ const getFoldersHandler = apiHandler(async (req, res) => {
     };
   }
 
+  await redisClient?.set(key, JSON.stringify(files));
+
   return ok({
     res,
     message: FOLDER_FETCHED_RES_MSG,
@@ -235,6 +337,7 @@ const getFoldersHandler = apiHandler(async (req, res) => {
   });
 });
 
+// Not Used
 const getFolderFilesHandler = apiHandler(async (req, res) => {
   const { id } = req.query as { id: string };
   let files = await Folder.findById(id);
@@ -253,21 +356,58 @@ const getFolderFilesHandler = apiHandler(async (req, res) => {
   });
 });
 
-const deleteFolderRecursively = async (folderId: string, type?: FolderType) => {
+const deleteFolderRecursively = async ({
+  folderId,
+  userId,
+  type,
+}: {
+  folderId: string;
+  userId: string;
+  type?: FolderType;
+}) => {
   try {
     // Find all child folders
     const childFolders = await Folder.find({ parent: folderId });
 
-    await Promise.all(
-      childFolders.map((child) =>
-        deleteFolderRecursively(child._id.toString(), type)
-      )
-    );
+    let deletedPromptIds: any = [];
+
+    if (childFolders.length > 0) {
+      const childResults =
+        (await Promise.all(
+          childFolders.map((child) =>
+            deleteFolderRecursively({
+              folderId: child._id.toString(),
+              userId,
+              type,
+            })
+          )
+        ));
+
+      deletedPromptIds = childResults.flat() || [];
+    }
+
+    const key = getFolderRedisKey({
+      userId,
+      type: type == "chats" ? "chats" : "prompts",
+      root: folderId,
+    });
+
+    const cachedData = await redisClient?.get(key);
+    if (cachedData) await redisClient?.del(key);
 
     await Folder.findByIdAndDelete(folderId);
-    if (type == "prompts") await Prompt.deleteMany({ folderId: folderId });
+
+    if (type == "prompts") {
+      let promptsIds = await Prompt.find({ folderId: folderId }).select("_id");
+      promptsIds = promptsIds.map((item) => item._id);
+      await Prompt.deleteMany({ folderId: folderId });
+      deletedPromptIds = [...deletedPromptIds, ...promptsIds];
+    }
+
+    return deletedPromptIds;
   } catch (error) {
     console.error("Error deleting folder:", error);
+    return []
   }
 };
 

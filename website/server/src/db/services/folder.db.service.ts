@@ -13,7 +13,7 @@ const deleteFolderById = async (folderId: string): Promise<FolderSchemaType | nu
 }
 
 const findFolderByIdAndUpdate = async (data: FindFolderByIdAndUpdate): Promise<FolderSchemaType | null> => {
-    return await Folder.findByIdAndUpdate(data.id, { ...data });
+    return await Folder.findByIdAndUpdate(data.id, { ...data }, {new: true});
 }
 
 const getFolderById = async (id: string): Promise<FolderSchemaType | null> => {
