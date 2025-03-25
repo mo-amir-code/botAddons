@@ -6,17 +6,20 @@ import apiRoutes from "./routes/index.js";
 import { connectToMongo } from "./config/dbConnection.js";
 import { commonMiddleware } from "./middlewares/commonMiddleware.js";
 import morgan from "morgan";
-import { CLIENT_ORIGINS, EXTENSION_ORIGIN } from "./config/constants.js";
+import { WHITELISTED_ORIGINS } from "./config/constants.js";
 
 const app: Express = express();
 
 connectToMongo();
 app.use(
   cors({
-    origin: [
-      EXTENSION_ORIGIN,
-      ...CLIENT_ORIGINS,
-    ],
+    origin: function (origin: any, callback: any) {
+      if (WHITELISTED_ORIGINS.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("You are very chalak bro....."));
+      }
+    },
     methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
