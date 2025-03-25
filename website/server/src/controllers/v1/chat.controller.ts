@@ -28,7 +28,7 @@ const addChatsHandler = apiHandler(async (req, res, next) => {
 
   const key = getFolderRedisKey({userId: req.user.id, type: "chats", root: folderId});
 
-  const cachedData = await redisClient?.get(key);
+  let cachedData = await redisClient?.get(key);
 
   if(cachedData){
     const items = ids.map((it, idx) => {
@@ -38,8 +38,9 @@ const addChatsHandler = apiHandler(async (req, res, next) => {
         isFolder: false
       }
     })
+    cachedData = JSON.parse(cachedData)
     cachedData.items.push(...items);
-    await redisClient?.set(key, cachedData);
+    await redisClient?.set(key, JSON.stringify(cachedData));
   }
 
   return ok({

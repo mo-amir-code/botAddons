@@ -78,11 +78,12 @@ const createFolderHandler = apiHandler(async (req, res, next) => {
     root: newFolder.parent as string | undefined,
   });
 
-  const cachedData = await redisClient?.get(key);
+  let cachedData = await redisClient?.get(key);
 
   if (cachedData) {
+    cachedData = JSON.parse(cachedData);
     cachedData.items.unshift(resData);
-    await redisClient?.set(key, cachedData);
+    await redisClient?.set(key, JSON.stringify(cachedData));
   }
 
   return ok({
@@ -113,6 +114,7 @@ const deleteFolderByIdHandler = apiHandler(async (req, res, next) => {
     await Prompt.deleteMany({ _id: { $in: promptIds } });
 
     if (cachedData) {
+      cachedData = JSON.parse(cachedData);
       let items = cachedData.items.filter(
         (item: any) => !promptIds?.includes(item.id) && !ids.includes(item.id)
       );
@@ -141,6 +143,7 @@ const deleteFolderByIdHandler = apiHandler(async (req, res, next) => {
     }
 
     if (cachedData) {
+      cachedData = JSON.parse(cachedData);
       let items = cachedData.items.filter(
         (item: any) =>
           !chatIds.includes(item.id || item?.conversationId) &&
@@ -151,7 +154,7 @@ const deleteFolderByIdHandler = apiHandler(async (req, res, next) => {
   }
 
   if (cachedData) {
-    await redisClient?.set(key, cachedData);
+    await redisClient?.set(key, JSON?.stringify(cachedData));
   }
 
   return ok({
@@ -174,9 +177,10 @@ const updateFolderHandler = apiHandler(async (req, res) => {
     type: folder.type as string,
     root: folder.parent as string | undefined,
   });
-  const parentCachedData = await redisClient?.get(parentKey);
+  let parentCachedData = await redisClient?.get(parentKey);
 
   if (parentCachedData) {
+    parentCachedData = JSON.parse(parentCachedData);
     parentCachedData.items = parentCachedData.items.map((it: any) => {
       let obj = { ...it };
       if (obj.id == folder._id) {
@@ -184,7 +188,7 @@ const updateFolderHandler = apiHandler(async (req, res) => {
       }
       return obj;
     });
-    await redisClient?.set(parentKey, parentCachedData);
+    await redisClient?.set(parentKey, JSON.stringify(parentCachedData));
   }
 
   // Updating Current Folder Name
@@ -193,11 +197,12 @@ const updateFolderHandler = apiHandler(async (req, res) => {
     type: folder.type as string,
     root: folder._id.toString(),
   });
-  const cachedData = await redisClient?.get(key);
+  let cachedData = await redisClient?.get(key);
 
   if (cachedData) {
+    cachedData = JSON.parse(cachedData)
     cachedData.info.title = folder.title;
-    await redisClient?.set(key, cachedData);
+    await redisClient?.set(key, JSON.stringify(cachedData));
   }
 
   return ok({
@@ -221,7 +226,7 @@ const getFoldersHandler = apiHandler(async (req, res) => {
     return ok({
       res,
       message: FOLDER_FETCHED_RES_MSG,
-      data: cachedData,
+      data: JSON.parse(cachedData),
     });
   }
 
@@ -391,9 +396,8 @@ const deleteFolderRecursively = async ({
       type: type == "chats" ? "chats" : "prompts",
       root: folderId,
     });
-
-    const cachedData = await redisClient?.get(key);
-    if (cachedData) await redisClient?.del(key);
+    
+    await redisClient?.del(key);
 
     await Folder.findByIdAndDelete(folderId);
 

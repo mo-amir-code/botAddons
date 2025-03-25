@@ -1,4 +1,4 @@
-import { FOLDERS_KEY } from "./keys.js";
+import { FOLDERS_KEY, PROMPTS_KEY } from "./keys.js";
 import { GetFolderRedisKeyType } from "./types.js";
 
 
@@ -8,6 +8,12 @@ const getFolderRedisKey = ({userId, type, root}:GetFolderRedisKeyType) => {
     return key
 }
 
+const getPromptRedisKey = ({userId }:{userId:string}) => {
+    let key = PROMPTS_KEY.replace("{userId}", userId)
+    return key
+}
+
 export {
-    getFolderRedisKey
+    getFolderRedisKey,
+    getPromptRedisKey
 }
