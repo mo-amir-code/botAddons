@@ -26,11 +26,11 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/ioredis": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.10.0",
     "@types/nodemailer": "^6.4.17",
-    "redis": "link:@types/@upstash/redis",
     "typescript": "^5.7.2"
   },
   "dependencies": {

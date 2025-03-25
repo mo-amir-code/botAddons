@@ -51,6 +51,9 @@ importers:
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.0
+      '@types/ioredis':
+        specifier: ^5.0.0
+        version: 5.0.0
       '@types/jsonwebtoken':
         specifier: ^9.0.7
         version: 9.0.7
@@ -63,9 +66,6 @@ importers:
       '@types/nodemailer':
         specifier: ^6.4.17
         version: 6.4.17
-      redis:
-        specifier: link:@types/@upstash/redis
-        version: link:@types/@upstash/redis
       typescript:
         specifier: ^5.7.2
         version: 5.7.2
@@ -107,6 +107,10 @@ packages:
 
   '@types/http-errors@2.0.4':
     resolution: {integrity: sha512-D0CFMMtydbJAegzOyHjtiKPLlvnm3iTZyZRSZoLq2mRhDdmLfIWOCYPfQJ4cu2erKghU++QvjcUjp/5h7hESpA==}
+
+  '@types/ioredis@5.0.0':
+    resolution: {integrity: sha512-zJbJ3FVE17CNl5KXzdeSPtdltc4tMT3TzC6fxQS0sQngkbFZ6h+0uTafsRqu+eSLIugf6Yb0Ea0SUuRr42Nk9g==}
+    deprecated: This is a stub types definition. ioredis provides its own type definitions, so you do not need this installed.
 
   '@types/jsonwebtoken@9.0.7':
     resolution: {integrity: sha512-ugo316mmTYBl2g81zDFnZ7cfxlut3o+/EQdaP7J8QN2kY6lJ22hmQYCK5EHcJHbrW+dkCGSCPgbG8JtYj6qSrg==}
@@ -846,6 +850,12 @@ snapshots:
       '@types/serve-static': 1.15.7
 
   '@types/http-errors@2.0.4': {}
+
+  '@types/ioredis@5.0.0':
+    dependencies:
+      ioredis: 5.6.0
+    transitivePeerDependencies:
+      - supports-color
 
   '@types/jsonwebtoken@9.0.7':
     dependencies:
