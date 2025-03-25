@@ -1,13 +1,12 @@
-import { Redis } from "@upstash/redis";
-import { REDIS_TOKEN, REDIS_URL } from "../../config/constants.js";
+import { Redis } from "ioredis";
+import { REDIS_URI } from "../../config/constants.js";
 
-let redisClient:any;
+let redisClient: any;
 
-if (REDIS_URL && REDIS_TOKEN) {
+if (REDIS_URI) {
   try {
-    redisClient = new Redis({
-      url: REDIS_URL,
-      token: REDIS_TOKEN,
+    redisClient = new Redis(REDIS_URI, {
+      connectTimeout: 10000,
     });
   } catch (error) {
     console.log(error);
