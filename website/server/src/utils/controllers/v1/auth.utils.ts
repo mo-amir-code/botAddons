@@ -1,4 +1,4 @@
-import * as bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import {
   BCRYPT_SALT_ROUND,
   ENVIRONMENT,

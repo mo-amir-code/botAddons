@@ -56,9 +56,8 @@ import { SendMailType } from "../../types/nodemailer/index.js";
 import { createEmailTemplate } from "../../services/nodemailer/templates.js";
 import { UserSchemaType } from "../../types/db/schema/index.js";
 import { sendMail } from "../../services/nodemailer/sendMail.js";
-import { getCookieDomain, getDomainRoot } from "../../utils/middleware/index.js";
+import { getCookieDomain } from "../../utils/middleware/index.js";
 import { Response } from "express";
-import { ENVIRONMENT } from "../../config/constants.js";
 
 const registerUser = apiHandler(async (req, res, next) => {
   const data = req.body as RegisterUserType;
@@ -75,6 +74,8 @@ const registerUser = apiHandler(async (req, res, next) => {
       )
     );
   } else if (isUserExist) {
+    isUserExist.password = await convertToHash(data.password);
+    await isUserExist.save();
     req.user.id = isUserExist._id;
     return next();
   } else {
