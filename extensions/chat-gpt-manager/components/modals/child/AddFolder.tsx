@@ -5,7 +5,7 @@ import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
 import { useToast } from "@/contexts/toastContext"
 import { httpAxios } from "@/utils/services/axios"
-import { handleDataInLocalStorage } from "@/utils/services/localstorage"
+// import { handleDataInLocalStorage } from "@/utils/services/localstorage"
 import type { FolderFileType } from "@/utils/types/components/modal"
 import { useRef, useState } from "react"
 
@@ -33,15 +33,18 @@ const AddFolder = () => {
       type: "CURRENT_FOLDER_INFO",
       payload: { ...currentFolderInfo, title: newFolderName }
     })
-    await handleDataInLocalStorage({data: newFolderName, foldersWindow, operationType: "editFolder"})
+
+    // await handleDataInLocalStorage({data: newFolderName, foldersWindow, operationType: "editFolder"})
 
     setNewFolderName("")
     addToast(FOLDER_EDIT_MSG, "success", TOAST_TIME_IN_MS);
     if (inputRef?.current) inputRef.current.value = ""
+    dispatch({type: "IS_FETCHING", payload: false})
   }
 
   const handleSubmit = async () => {
     if(!isUserLoggedIn) return
+    dispatch({type: "IS_FETCHING", payload: true})
     
     try {
       if (isFolderEditingOpen) return await handleEditFolder()
@@ -56,7 +59,7 @@ const AddFolder = () => {
       const res = await httpAxios.post("/folder", body)
 
       const data = res.data
-      await handleDataInLocalStorage({data: [data.data], foldersWindow, operationType: "addItems"})
+      // await handleDataInLocalStorage({data: [data.data], foldersWindow, operationType: "addItems"})
 
       let payloadData: FolderFileType = { ...folderAllFiles }
       payloadData.items = [...folderAllFiles.items, data.data]
@@ -71,6 +74,8 @@ const AddFolder = () => {
       if(error.response){
         addToast(error?.response?.data?.message, "failed", TOAST_TIME_IN_MS)
       }
+    }finally{
+      dispatch({type: "IS_FETCHING", payload: false})
     }
   }
 

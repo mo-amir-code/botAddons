@@ -5,7 +5,7 @@ import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
 import { useToast } from "@/contexts/toastContext"
 import { httpAxios } from "@/utils/services/axios"
-import { handleDataInLocalStorage, handleDataOfPromptCommand } from "@/utils/services/localstorage"
+import { handleDataOfPromptCommand } from "@/utils/services/localstorage"
 import { useEffect, useRef, useState } from "react"
 
 const AddPrompt = () => {
@@ -16,7 +16,7 @@ const AddPrompt = () => {
     currentFolderInfo,
     folderAllFiles,
     currentEditingFileInfo,
-    foldersWindow,
+    // foldersWindow,
     isUserLoggedIn
   } = useExtension()
   const { t } = useLanguage()
@@ -29,7 +29,8 @@ const AddPrompt = () => {
   }
 
   const handleSubmit = async () => {
-    if(!isUserLoggedIn) return
+    if (!isUserLoggedIn) return
+    dispatch({ type: "IS_FETCHING", payload: true })
 
     try {
       let updatedFolderAllFiles = { ...folderAllFiles }
@@ -64,11 +65,17 @@ const AddPrompt = () => {
           } as any
         })
 
-        const updatedItem = updatedFolderAllFiles.items.find((it) => it.id == currentEditingFileInfo.id);
-        await handleDataInLocalStorage({data: updatedItem, foldersWindow, operationType: "editPrompt"});
-        await handleDataOfPromptCommand({data: updatedItem, operationType: "editItem"});
+        const updatedItem = updatedFolderAllFiles.items.find(
+          (it) => it.id == currentEditingFileInfo.id
+        )
+        // await handleDataInLocalStorage({data: updatedItem, foldersWindow, operationType: "editPrompt"});
+        await handleDataOfPromptCommand({
+          data: updatedItem,
+          operationType: "editItem"
+        })
 
         dispatch({ type: "FOLDER_ALL_FILES", payload: updatedFolderAllFiles })
+        dispatch({ type: "IS_FETCHING", payload: false })
         return
       }
 
@@ -89,10 +96,13 @@ const AddPrompt = () => {
 
       updatedFolderAllFiles.items.push(newPrompt)
 
-      await handleDataInLocalStorage({data: [newPrompt], foldersWindow, operationType: "addItems"});
-      await handleDataOfPromptCommand({data: [newPrompt], operationType: "addItems"});
+      // await handleDataInLocalStorage({data: [newPrompt], foldersWindow, operationType: "addItems"});
+      await handleDataOfPromptCommand({
+        data: [newPrompt],
+        operationType: "addItems"
+      })
 
-      addToast(res.data.message, "success", TOAST_TIME_IN_MS);
+      addToast(res.data.message, "success", TOAST_TIME_IN_MS)
 
       dispatch({ type: "FOLDER_ALL_FILES", payload: updatedFolderAllFiles })
       setTitle("")
@@ -100,9 +110,11 @@ const AddPrompt = () => {
       if (titleRef?.current) titleRef.current.value = ""
     } catch (error) {
       console.log(error)
-      if(error.response){
+      if (error.response) {
         addToast(error?.response?.data?.message, "failed", TOAST_TIME_IN_MS)
       }
+    } finally {
+      dispatch({ type: "IS_FETCHING", payload: false })
     }
   }
 

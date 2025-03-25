@@ -1,14 +1,18 @@
-import { ITEMS_DELETE_MSG, SELECT_ERR_MSG, TOAST_TIME_IN_MS } from "@/config/constants"
+import {
+  ITEMS_DELETE_MSG,
+  SELECT_ERR_MSG,
+  TOAST_TIME_IN_MS
+} from "@/config/constants"
 import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
 import { useToast } from "@/contexts/toastContext"
-import {
-  getDataFromLocalStorage,
-  setDataInLocalStorage,
-  type LocalStorageKeyTypes
-} from "@/utils/services/auth"
+// import {
+//   getDataFromLocalStorage,
+//   setDataInLocalStorage,
+//   type LocalStorageKeyTypes
+// } from "@/utils/services/auth"
 import { httpAxios } from "@/utils/services/axios"
-import { handleDataInLocalStorage } from "@/utils/services/localstorage"
+// import { handleDataInLocalStorage } from "@/utils/services/localstorage"
 import { fetchFolders } from "@/utils/services/queries/folder"
 import type { FolderItemType } from "@/utils/types/components/modal"
 import type { FetchFoldersQueryType } from "@/utils/types/services/queries"
@@ -17,12 +21,10 @@ import { useEffect, useState } from "react"
 import Button from "../buttons/Button"
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
-import { BallLoader } from "../loaders"
 
 const Folders = () => {
   const [selectedItemsId, setSelectedItemsId] = useState<string[]>([])
   const [results, setResults] = useState<FolderItemType[]>([])
-  const [isChatUpdating, setIsChatUpdating] = useState<boolean>(false)
 
   const {
     foldersWindow,
@@ -74,11 +76,12 @@ const Folders = () => {
 
   const handleDelete = async () => {
     if (selectedItemsId.length === 0 || !isUserLoggedIn) {
-      addToast(SELECT_ERR_MSG, "failed", TOAST_TIME_IN_MS);
-      return;
+      addToast(SELECT_ERR_MSG, "failed", TOAST_TIME_IN_MS)
+      return
     }
 
     try {
+      dispatch({type: "IS_FETCHING", payload: true})
       await httpAxios.delete("/folder", {
         data: {
           ids: selectedItemsId,
@@ -91,12 +94,13 @@ const Folders = () => {
         (item) =>
           !selectedItemsId.includes(item.conversationId || (item.id as string))
       )
-      await handleDataInLocalStorage({
-        data: selectedItemsId,
-        foldersWindow,
-        operationType: "deleteItems"
-      })
+      // await handleDataInLocalStorage({
+      //   data: selectedItemsId,
+      //   foldersWindow,
+      //   operationType: "deleteItems"
+      // })
       dispatch({ type: "FOLDER_ALL_FILES", payload: newFolderAllFiles })
+      dispatch({type: "IS_FETCHING", payload: false})
 
       addToast(ITEMS_DELETE_MSG, "success", TOAST_TIME_IN_MS)
       setSelectedItemsId([])
@@ -106,7 +110,7 @@ const Folders = () => {
   }
 
   const handleQuery = (query: string) => {
-    setIsChatUpdating(true)
+    dispatch({ type: "IS_FETCHING", payload: true })
     setResults(
       folderAllFiles.items.filter(
         (item) =>
@@ -114,30 +118,30 @@ const Folders = () => {
           selectedItemsId.includes(item.id as string)
       )
     )
-    setIsChatUpdating(false)
+    dispatch({ type: "IS_FETCHING", payload: false })
   }
 
   useEffect(() => {
     const fetchNow = async () => {
       try {
-        setIsChatUpdating(true)
-        const nestedFolderLength = foldersWindow.folders.length
-        let persistedFolderDataKey = `root`
-        if (nestedFolderLength !== 0) {
-          persistedFolderDataKey =
-            foldersWindow.folders[nestedFolderLength - 1].id
-        }
+        dispatch({ type: "IS_FETCHING", payload: true })
+        // const nestedFolderLength = foldersWindow.folders.length
+        // let persistedFolderDataKey = `root`
+        // if (nestedFolderLength !== 0) {
+        //   persistedFolderDataKey =
+        //     foldersWindow.folders[nestedFolderLength - 1].id
+        // }
 
-        const foldersData = await getDataFromLocalStorage(
-          "folders",
-          persistedFolderDataKey
-        )
+        // const foldersData = await getDataFromLocalStorage(
+        //   "folders",
+        //   persistedFolderDataKey
+        // )
 
-        if (foldersData) {
-          dispatch({ type: "FOLDER_ALL_FILES", payload: foldersData })
-          dispatch({ type: "CURRENT_FOLDER_INFO", payload: foldersData?.info })
-          return
-        }
+        // if (foldersData) {
+        //   dispatch({ type: "FOLDER_ALL_FILES", payload: foldersData })
+        //   dispatch({ type: "CURRENT_FOLDER_INFO", payload: foldersData?.info })
+        //   return
+        // }
 
         if (!isUserLoggedIn) return
 
@@ -159,25 +163,25 @@ const Folders = () => {
           }
         })
 
-        let persistData = {
-          data,
-          key: "folders" as LocalStorageKeyTypes
-        }
+        // let persistData = {
+        //   data,
+        //   key: "folders" as LocalStorageKeyTypes
+        // }
 
-        if (data.isRoot) {
-          persistData["id"] = "root"
-        } else {
-          persistData["id"] = data.info.id
-        }
+        // if (data.isRoot) {
+        //   persistData["id"] = "root"
+        // } else {
+        //   persistData["id"] = data.info.id
+        // }
 
-        setDataInLocalStorage(persistData)
+        // setDataInLocalStorage(persistData)
 
         dispatch({ type: "FOLDER_ALL_FILES", payload: data })
         dispatch({ type: "CURRENT_FOLDER_INFO", payload: data?.info })
       } catch (error) {
         console.error(error)
       } finally {
-        setIsChatUpdating(false)
+        dispatch({ type: "IS_FETCHING", payload: false })
       }
     }
 
@@ -206,19 +210,28 @@ const Folders = () => {
           ?.sort((a, b) =>
             a.isFolder === b.isFolder ? 0 : a.isFolder ? -1 : 1
           )
-          .map(({ id, title, updatedAt, isFolder, conversationId, totalItems }) => (
-            <Item
-              key={id}
-              id={isFolder ? id : conversationId}
-              isSelected={isSelected}
-              onChatSelectChange={handleSelectItems}
-              title={title}
-              update_time={updatedAt ? updatedAt : undefined}
-              itemType={isFolder ? "folder" : "chat"}
-              modalType="folders"
-              totalItems={totalItems}
-            />
-          ))}
+          .map(
+            ({
+              id,
+              title,
+              updatedAt,
+              isFolder,
+              conversationId,
+              totalItems
+            }) => (
+              <Item
+                key={id}
+                id={isFolder ? id : conversationId}
+                isSelected={isSelected}
+                onChatSelectChange={handleSelectItems}
+                title={title}
+                update_time={updatedAt ? updatedAt : undefined}
+                itemType={isFolder ? "folder" : "chat"}
+                modalType="folders"
+                totalItems={totalItems}
+              />
+            )
+          )}
       </ul>
 
       <div className="pt-4 flex items-center justify-end">
@@ -229,12 +242,6 @@ const Folders = () => {
           isEnabled={selectedItemsId.length !== 0}
         />
       </div>
-
-      {!!isChatUpdating && (
-        <div className="w-full h-full bg-black/5 backdrop-blur-md fixed top-0 left-0">
-          <BallLoader />
-        </div>
-      )}
     </div>
   )
 }

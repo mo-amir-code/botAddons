@@ -2,14 +2,14 @@ import { ITEMS_DELETE_MSG, SELECT_ERR_MSG, TOAST_TIME_IN_MS } from "@/config/con
 import { useExtension } from "@/contexts/extensionContext"
 import { useLanguage } from "@/contexts/languageContext"
 import { useToast } from "@/contexts/toastContext"
-import {
-  getDataFromLocalStorage,
-  setDataInLocalStorage,
-  type LocalStorageKeyTypes
-} from "@/utils/services/auth"
+// import {
+//   getDataFromLocalStorage,
+//   setDataInLocalStorage,
+//   type LocalStorageKeyTypes
+// } from "@/utils/services/auth"
 import { httpAxios } from "@/utils/services/axios"
 import {
-  handleDataInLocalStorage,
+  // handleDataInLocalStorage,
   handleDataOfPromptCommand
 } from "@/utils/services/localstorage"
 import { fetchFolders } from "@/utils/services/queries/folder"
@@ -20,7 +20,6 @@ import { useEffect, useState } from "react"
 import Button from "../buttons/Button"
 import { SearchField, SelectAll } from "../common"
 import Item from "../common/Item"
-import { BallLoader } from "../loaders"
 
 type SelectedItemType = {
   id: string
@@ -30,7 +29,6 @@ type SelectedItemType = {
 const Prompts = () => {
   const [selectedItemsId, setSelectedItemsId] = useState<SelectedItemType[]>([])
   const [results, setResults] = useState<FolderItemType[]>([])
-  const [isChatUpdating, setIsChatUpdating] = useState<boolean>(false)
   const {
     folderAllFiles,
     foldersWindow,
@@ -84,7 +82,7 @@ const Prompts = () => {
   }
 
   const handleQuery = (query: string) => {
-    setIsChatUpdating(true)
+    dispatch({ type: "IS_FETCHING", payload: true })
     setResults(
       folderAllFiles.items.filter(
         (item) =>
@@ -92,7 +90,7 @@ const Prompts = () => {
           selectedItemsId.some((it) => it.id == item.id)
       )
     )
-    setIsChatUpdating(false)
+    dispatch({type: "IS_FETCHING", payload: false})
   }
 
   const handleDelete = async () => {
@@ -102,7 +100,8 @@ const Prompts = () => {
     }
 
     try {
-      await httpAxios.delete("/folder", {
+      dispatch({type: "IS_FETCHING", payload: true})
+      const res = await httpAxios.delete("/folder", {
         data: {
           ids: selectedItemsId.filter((it) => it.isFolder).map((it) => it.id),
           folderId: currentFolderInfo?.id,
@@ -120,17 +119,22 @@ const Prompts = () => {
           )
       )
 
-      let deletedPromptsIds = await handleDataInLocalStorage({
-        data: selectedItemsId.map((it) => it.id),
-        foldersWindow,
-        operationType: "deleteItems"
-      }) || []
+      let deletedPromptIds = selectedItemsId.filter((it) => !it.isFolder).map((it) => it.id);
+      deletedPromptIds = [...deletedPromptIds, ...res.data.data.deletedPromptIds];
+
+
+      // let deletedPromptsIds = await handleDataInLocalStorage({
+      //   data: selectedItemsId.map((it) => it.id),
+      //   foldersWindow,
+      //   operationType: "deleteItems"
+      // }) || []
       await handleDataOfPromptCommand({
-        data: deletedPromptsIds,
+        data: deletedPromptIds,
         operationType: "deleteItems"
       })
 
       dispatch({ type: "FOLDER_ALL_FILES", payload: newFolderAllFiles })
+      dispatch({type: "IS_FETCHING", payload: false})
       addToast(ITEMS_DELETE_MSG, "success", TOAST_TIME_IN_MS)
       setSelectedItemsId([])
     } catch (error) {
@@ -141,33 +145,33 @@ const Prompts = () => {
   useEffect(() => {
     const fetchNow = async () => {
       try {
-        setIsChatUpdating(true)
-        const nestedFolderLength = foldersWindow.folders.length
-        let persistedFolderDataKey = `root`
-        if (nestedFolderLength !== 0) {
-          persistedFolderDataKey =
-            foldersWindow.folders[nestedFolderLength - 1].id
-        }
+        dispatch({type: "IS_FETCHING", payload: true})
+        // const nestedFolderLength = foldersWindow.folders.length
+        // let persistedFolderDataKey = `root`
+        // if (nestedFolderLength !== 0) {
+        //   persistedFolderDataKey =
+        //     foldersWindow.folders[nestedFolderLength - 1].id
+        // }
 
-        const foldersData = await getDataFromLocalStorage(
-          "prompts",
-          persistedFolderDataKey
-        )
+        // const foldersData = await getDataFromLocalStorage(
+        //   "prompts",
+        //   persistedFolderDataKey
+        // )
 
-        const currentPromptsList =
-          foldersData?.items?.filter((it) => !it?.isFolder) || []
-        const commandPromptsList =
-          (await getDataFromLocalStorage("prompts")) || []
+        // const currentPromptsList =
+        //   foldersData?.items?.filter((it) => !it?.isFolder) || []
+        // const commandPromptsList =
+        //   (await getDataFromLocalStorage("prompts")) || []
 
-        if (currentPromptsList?.length > commandPromptsList.length) {
-          setDataInLocalStorage({ data: currentPromptsList, key: "prompts" })
-        }
+        // if (currentPromptsList?.length > commandPromptsList.length) {
+        //   setDataInLocalStorage({ data: currentPromptsList, key: "prompts" })
+        // }
 
-        if (foldersData) {
-          dispatch({ type: "FOLDER_ALL_FILES", payload: foldersData })
-          dispatch({ type: "CURRENT_FOLDER_INFO", payload: foldersData?.info })
-          return
-        }
+        // if (foldersData) {
+        //   dispatch({ type: "FOLDER_ALL_FILES", payload: foldersData })
+        //   dispatch({ type: "CURRENT_FOLDER_INFO", payload: foldersData?.info })
+        //   return
+        // }
 
         if (!isUserLoggedIn) return
 
@@ -178,25 +182,25 @@ const Prompts = () => {
         const res = await fetchFolders(obj)
         let data = res.data.data
 
-        let persistData = {
-          data,
-          key: "prompts" as LocalStorageKeyTypes
-        }
+        // let persistData = {
+        //   data,
+        //   key: "prompts" as LocalStorageKeyTypes
+        // }
 
-        if (data.isRoot) {
-          persistData["id"] = "root"
-        } else {
-          persistData["id"] = data.info.id
-        }
+        // if (data.isRoot) {
+        //   persistData["id"] = "root"
+        // } else {
+        //   persistData["id"] = data.info.id
+        // }
 
-        setDataInLocalStorage(persistData)
+        // setDataInLocalStorage(persistData)
 
         dispatch({ type: "FOLDER_ALL_FILES", payload: data })
         dispatch({ type: "CURRENT_FOLDER_INFO", payload: data?.info })
       } catch (error) {
         console.error(error)
       } finally {
-        setIsChatUpdating(false)
+        dispatch({type: "IS_FETCHING", payload: false})
       }
     }
 
@@ -249,12 +253,6 @@ const Prompts = () => {
           isEnabled={selectedItemsId.length !== 0}
         />
       </div>
-
-      {!!isChatUpdating && (
-        <div className="w-full h-full bg-black/5 backdrop-blur-md fixed top-0 left-0">
-          <BallLoader />
-        </div>
-      )}
     </div>
   )
 }

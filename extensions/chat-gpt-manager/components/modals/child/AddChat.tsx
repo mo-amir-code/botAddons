@@ -72,6 +72,7 @@ const AddChat = () => {
     if (!isUserLoggedIn) return
 
     try {
+      dispatch({type: "IS_FETCHING", payload: true})
       await httpAxios.post("/chat", {
         ids: selectedItemsId,
         folderId: currentFolderInfo.id
@@ -90,13 +91,14 @@ const AddChat = () => {
       })
       const updatedFolderAllFiles = { ...folderAllFiles }
       updatedFolderAllFiles.items.push(...newItems)
-      await handleDataInLocalStorage({
-        data: newItems,
-        foldersWindow,
-        operationType: "addItems"
-      })
+      // await handleDataInLocalStorage({
+      //   data: newItems,
+      //   foldersWindow,
+      //   operationType: "addItems"
+      // })
       addToast(CHATS_ADDED_MSG, "success", TOAST_TIME_IN_MS)
       dispatch({ type: "FOLDER_ALL_FILES", payload: updatedFolderAllFiles })
+      dispatch({type: "IS_FETCHING", payload: false})
     } catch (error) {
       console.error(error)
     }

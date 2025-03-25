@@ -26,6 +26,7 @@ import { IoIosChatbubbles, IoIosSearch } from "react-icons/io"
 
 import { ChildModal, Modal } from "../sections"
 import { useConversations } from "./hooks/conversations"
+import { BallLoader } from "./loaders"
 
 const Sidebar = () => {
   const [openModal, setOpenModal] = useState<OpenModalType>(null)
@@ -34,7 +35,8 @@ const Sidebar = () => {
     plan,
     chatsLoaded,
     chatgptUserInfo,
-    isConversationsLoaded
+    isConversationsLoaded,
+    isFetching
   } = useExtension()
   const { t } = useLanguage()
   const { addToast } = useToast()
@@ -284,6 +286,12 @@ const Sidebar = () => {
 
       <Modal openModal={openModal} setOpenModal={setOpenModal} />
       <ChildModal />
+
+      {!!isFetching && (
+        <div className="w-full h-full bg-black/5 backdrop-blur-md fixed top-0 left-0 z-50">
+          <BallLoader />
+        </div>
+      )}
     </main>
   )
 }

@@ -22,6 +22,7 @@ import React, {
 } from "react"
 
 interface ExtensionState {
+  isFetching: boolean
   chatsLoaded: number
   conversations: ConversationObjectType<string, number>[]
   isConversationsLoaded: boolean
@@ -39,6 +40,7 @@ interface ExtensionState {
 }
 
 const initialState: ExtensionState = {
+  isFetching: false,
   chatsLoaded: 0,
   conversations: [],
   isConversationsLoaded: false,
@@ -95,6 +97,8 @@ export function ExtensionProvider({ children }: ExtensionProviderProps) {
     switch (action.type) {
       case "EXTENSION_LOADING":
         return { ...state, extensionLoading: action.payload }
+      case "IS_FETCHING":
+        return { ...state, isFetching: action.payload }
       case "AUTH":
         return { ...state, isUserLoggedIn: action.payload }
       case "USER_INFO":
