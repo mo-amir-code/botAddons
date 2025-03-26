@@ -88,18 +88,28 @@ const addPromptHandler = apiHandler(async (req, res, next) => {
   const key = getFolderRedisKey({ userId, type: "prompts", root: folderId });
   let cachedData = await redisClient?.get(key);
 
+  const nPrompt = {
+    id: newPrompt._id,
+    title: newPrompt.title,
+    content: newPrompt.content,
+    isFolder: false,
+    createdAt: newPrompt.createdAt,
+    updatedAt: newPrompt.updatedAt,
+  };
+
   if (cachedData) {
     cachedData = JSON.parse(cachedData);
-    const nPrompt = {
-      id: newPrompt._id,
-      title: newPrompt.title,
-      content: newPrompt.content,
-      isFolder: false,
-      createdAt: newPrompt.createdAt,
-      updatedAt: newPrompt.updatedAt,
-    };
     cachedData.items.push(nPrompt);
     await redisClient?.set(key, JSON.stringify(cachedData));
+  }
+
+  // Updating commandline prompts
+  const promptsKey = getPromptRedisKey({ userId });
+  let promptsCachedData = await redisClient?.get(promptsKey);
+  if (promptsCachedData) {
+    promptsCachedData = JSON.parse(promptsCachedData);
+    promptsCachedData.push(nPrompt);
+    await redisClient?.set(promptsKey, JSON.stringify(promptsCachedData));
   }
 
   return ok({
@@ -135,6 +145,24 @@ const updatePromptHandler = apiHandler(async (req, res) => {
     });
     await redisClient?.set(key, JSON.stringify(cachedData));
   }
+
+   // Updating commandline prompts
+   const promptsKey = getPromptRedisKey({ userId: req.user.id });
+   let promptsCachedData = await redisClient?.get(promptsKey);
+   if (promptsCachedData) {
+     promptsCachedData = JSON.parse(promptsCachedData);
+
+      promptsCachedData = promptsCachedData.map((it: any) => {
+        let obj = { ...it };
+        if (obj.id == prompt._id) {
+          obj["title"] = prompt.title;
+          obj["content"] = prompt.content;
+        }
+        return obj;
+      });
+
+     await redisClient?.set(promptsKey, JSON.stringify(promptsCachedData));
+   }
 
   return ok({
     res,
