@@ -33,8 +33,7 @@
   },
   "manifest": {
     "host_permissions": [
-      "https://chatgpt.com/*",
-      "https://api.botaddons.com/*"
+      "https://chatgpt.com/*"
     ],
     "permissions": [
       "tabs",
