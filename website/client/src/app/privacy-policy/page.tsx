@@ -167,10 +167,6 @@ const PrivacyPolicy = () => {
             user info locally.
           </li>
           <li>
-            <strong>scripting:</strong> To inject our features (e.g., prompt
-            list) into ChatGPT.com’s page.
-          </li>
-          <li>
             <strong>activeTab:</strong> To interact with your current tab on
             ChatGPT.com, like opening the popup.
           </li>
