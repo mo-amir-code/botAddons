@@ -10,7 +10,7 @@ import {
   ok,
 } from "../../services/errorHandling/index.js";
 import { redisClient } from "../../services/redis/connect.js";
-import { getFolderRedisKey } from "../../services/redis/helper.js";
+import { getFolderRedisKey, getPromptRedisKey } from "../../services/redis/helper.js";
 import { FOLDERS_KEY } from "../../services/redis/keys.js";
 import {
   CreateFolderBodyType,
@@ -100,7 +100,7 @@ const deleteFolderByIdHandler = apiHandler(async (req, res, next) => {
   const key = getFolderRedisKey({ userId: req.user.id, type, root: folderId });
   let cachedData = await redisClient?.get(key);
 
-  let deletedPromptIds = [];
+  let deletedPromptIds:any = [];
 
   if (type === "prompts") {
     deletedPromptIds = await Promise.all(
@@ -120,6 +120,15 @@ const deleteFolderByIdHandler = apiHandler(async (req, res, next) => {
       );
       cachedData = { ...cachedData, items };
     }
+    const allPromptsRedisKey = getPromptRedisKey({userId});
+    let allPromptsCachedData = await redisClient?.get(allPromptsRedisKey);
+
+    if(allPromptsCachedData){
+      allPromptsCachedData = JSON.parse(allPromptsCachedData);
+      allPromptsCachedData = allPromptsCachedData.filter((p:any) => !deletedPromptIds?.includes(p?.id))
+      await redisClient?.set(allPromptsRedisKey, JSON.stringify(allPromptsCachedData));
+    }
+
   } else {
     const folderIds = ids.filter((id) => !id.includes("-"));
 
