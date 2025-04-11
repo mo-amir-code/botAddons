@@ -33,6 +33,11 @@ const AddPrompt = () => {
     dispatch({ type: "IS_FETCHING", payload: true })
 
     try {
+      if(!title.length || !content.length){
+        addToast("Title or content should not be empty", "failed", 3000)
+        return;
+      }
+
       let updatedFolderAllFiles = { ...folderAllFiles }
 
       if (currentEditingFileInfo) {
