@@ -1,9 +1,9 @@
-import express, { Router } from "express";
+import express from "express";
 import { zodValidation } from "../../services/zod/index.js";
 import { addPromptZodSchema, updatePromptZodSchema } from "../../services/zod/prompt.zod.js";
 import { addPromptHandler, getPromptHandler, updatePromptHandler } from "../../controllers/v1/prompt.controller.js";
 
-const router: Router = express.Router();
+const router = express.Router();
 
 router.get("/", getPromptHandler);
 router.post("/", zodValidation(addPromptZodSchema), addPromptHandler);

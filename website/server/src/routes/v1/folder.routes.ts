@@ -1,4 +1,4 @@
-import express, { Router } from "express";
+import express from "express";
 import { zodValidation } from "../../services/zod/index.js";
 import {
   createFolderHandler,
@@ -13,7 +13,7 @@ import {
   updateFolderZodSchema,
 } from "../../services/zod/folder.zod.js";
 
-const router: Router = express.Router();
+const router = express.Router();
 
 router.post("/", zodValidation(createFolderZodSchema), createFolderHandler);
 router.delete(

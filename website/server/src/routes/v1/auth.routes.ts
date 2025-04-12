@@ -1,4 +1,4 @@
-import express, { Router } from "express";
+import express from "express";
 import { zodValidation } from "../../services/zod/index.js";
 import {
   autoAuthZodSchema,
@@ -18,7 +18,7 @@ import {
   verifyOTP,
 } from "../../controllers/v1/auth.controller.js";
 
-const router: Router = express.Router();
+const router = express.Router();
 
 router.post(
   "/register",
