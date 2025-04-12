@@ -1,11 +1,11 @@
-import express, { Router } from "express";
+import express from "express";
 import authRoutes from "./auth.routes.js";
 import folderRoutes from "./folder.routes.js";
 import chatRoutes from "./chat.routes.js";
 import promptRoutes from "./prompt.routes.js";
 import { isUserAuthenticated } from "../../middlewares/auth.js";
 
-const router: Router = express.Router();
+const router = express.Router();
 
 router.use("/auth", authRoutes);
 router.use("/folder", isUserAuthenticated, folderRoutes);

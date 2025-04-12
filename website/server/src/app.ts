@@ -1,4 +1,4 @@
-import express, { Express } from "express";
+import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./services/errorHandling/index.js";
@@ -8,7 +8,7 @@ import { commonMiddleware } from "./middlewares/commonMiddleware.js";
 import morgan from "morgan";
 import { WHITELISTED_ORIGINS } from "./config/constants.js";
 
-const app: Express = express();
+const app = express();
 
 connectToMongo();
 app.use(
