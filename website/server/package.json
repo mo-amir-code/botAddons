@@ -1,7 +1,7 @@
 {
   "name": "bot-addons",
   "version": "0.0.1",
-  "main": "index.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
     "dev": "nodemon --env-file=.env dist/server.js",
