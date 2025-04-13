@@ -123,9 +123,13 @@ const deleteFolderByIdHandler = apiHandler(async (req, res, next) => {
     const allPromptsRedisKey = getPromptRedisKey({userId});
     let allPromptsCachedData = await redisClient?.get(allPromptsRedisKey);
 
+    if(promptIds?.length){
+      deletedPromptIds = [...deletedPromptIds, ...promptIds]
+    }
+
     if(allPromptsCachedData){
       allPromptsCachedData = JSON.parse(allPromptsCachedData);
-      allPromptsCachedData = allPromptsCachedData.filter((p:any) => !deletedPromptIds?.includes(p?.id))
+      allPromptsCachedData = allPromptsCachedData.filter((p:any) => !deletedPromptIds?.some((id:any) => id.toString() == p.id.toString()))
       await redisClient?.set(allPromptsRedisKey, JSON.stringify(allPromptsCachedData));
     }
 
