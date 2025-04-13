@@ -56,8 +56,4 @@ const allFeatures = [
   },
 ];
 
-
-
-export {
-    allFeatures
-}
+export { allFeatures };
