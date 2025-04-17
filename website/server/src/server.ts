@@ -2,11 +2,11 @@ import cluster from "node:cluster";
 import { availableParallelism } from "node:os";
 import process from "node:process";
 import { app } from "./app.js";
-import { APP_PORT } from "./config/constants.js";
+import { APP_PORT, ENVIRONMENT } from "./config/constants.js";
 
 const numCPUs = availableParallelism();
 
-if (cluster.isPrimary) {
+if (cluster.isPrimary && ENVIRONMENT !== "VERCEL_PRODUCTION") {
     console.log(`Primary ${process.pid} is running`);
 
     for (let i = 0; i < numCPUs; i++) {
