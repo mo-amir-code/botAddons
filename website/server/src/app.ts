@@ -10,6 +10,11 @@ import { WHITELISTED_ORIGINS } from "./config/constants.js";
 
 const app = express();
 
+app.get("/ping", (_req, res) => {
+  res.json("pong");
+});
+
+
 connectToMongo();
 app.use(
   cors({

@@ -12,8 +12,4 @@ router.use("/folder", isUserAuthenticated, folderRoutes);
 router.use("/chat", isUserAuthenticated, chatRoutes);
 router.use("/prompt", isUserAuthenticated, promptRoutes);
 
-router.get("/ping", (_req, res) => {
-  res.json("pong");
-});
-
 export default router;
