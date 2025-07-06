@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon --env-file=.env dist/server.js",
-    "start": "node --env-file=.env dist/server.js",
+    "start": "node --env-file=/etc/secrets/.env dist/server.js",
     "build": "tsc",
     "watch": "tsc --watch"
   },
