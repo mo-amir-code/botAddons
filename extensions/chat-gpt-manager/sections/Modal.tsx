@@ -59,7 +59,7 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
             {!!foldersWindow.folders.length && (
               <div
                 onClick={() => handleBack()}
-                className="rounded-full w-10 h-10 border border-primary-off-white flex items-center justify-center">
+                className="rounded-full w-10 text-white h-10 border border-primary-off-white flex items-center justify-center">
                 <IoArrowBack className="w-8 h-8" />
               </div>
             )}
@@ -95,13 +95,13 @@ const Modal = ({ openModal, setOpenModal }: ModalType) => {
                     payload: "isFolderEditingOpen"
                   })
                 }
-                className="rounded-full w-10 h-10 flex items-center justify-center">
+                className="rounded-full w-10 text-white h-10 flex items-center justify-center">
                 <MdEditSquare className="w-9 h-9" />
               </div>
             )}
           </div>
 
-          <div className="my-4 flex items-center gap-4">
+          <div className="my-4 flex items-center gap-4 text-primary-white">
             {/* Settings Button */}
             <Button
               icon="settings"

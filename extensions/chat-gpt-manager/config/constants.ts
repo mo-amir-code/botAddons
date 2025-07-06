@@ -1,11 +1,11 @@
-const SERVER_ORIGIN = "https://api.botaddons.com"
-// const SERVER_ORIGIN = "http://localhost:8080"
+// const SERVER_ORIGIN = "https://api.botaddons.com"
+const SERVER_ORIGIN = "http://localhost:8080"
 
 export { SERVER_ORIGIN }
 
 // HTML INJECT ID's
 const SIDEBAR_ELEMENT_INJECT_ID =
-  "nav > div:nth-of-type(2) > div > div:nth-of-type(3)"
+  "nav > aside:nth-of-type(2)"
 const PROMPT_INPUT_ELEMENT_INJECT_ID = "#prompt-textarea > p"
 const PROMPT_LIST_ELEMENT_INJECT_ID = "main form > div"
 

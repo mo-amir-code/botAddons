@@ -207,16 +207,18 @@ const Chats = () => {
       {/* Content */}
       <div className="flex gap-4">
         <aside className="flex-[2] px-2 space-y-3">
-          <button
-            onClick={() => setCurrentTab("active")}
-            className="text-xl font-semibold border border-white py-2 text-white w-full">
-            {t("activeChats")}
-          </button>
-          <button
-            onClick={() => setCurrentTab("archived")}
-            className="text-xl font-semibold border border-white py-2 text-white w-full">
-            {t("archivedChats")}
-          </button>
+          <div className="flex flex-col gap-2" >
+            <button
+              onClick={() => setCurrentTab("active")}
+              className="text-xl font-semibold border border-white py-2 text-white w-full">
+              {t("activeChats")}
+            </button>
+            <button
+              onClick={() => setCurrentTab("archived")}
+              className="text-xl font-semibold border border-white py-2 text-white w-full">
+              {t("archivedChats")}
+            </button>
+          </div>
         </aside>
         <div className="flex-[6] space-y-3">
           {/* Search Input Field */}

@@ -74,7 +74,7 @@ const Item = ({
 
   return (
     <li
-      className={`select-none ${itemType === "chat" ? "border-b" : ""} border-white/60 cursor-pointer hover:bg-secondary-bg px-4 rounded-xl transition-all duration-200 ease-in-out`}>
+      className={`select-none text-white ${itemType === "chat" ? "border-b" : ""} border-white/60 cursor-pointer hover:bg-secondary-bg px-4 rounded-xl transition-all duration-200 ease-in-out`}>
       <div className="flex items-center w-full gap-4">
         <div className="flex items-center">
           <input

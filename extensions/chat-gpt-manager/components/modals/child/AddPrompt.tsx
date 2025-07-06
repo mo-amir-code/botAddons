@@ -152,7 +152,7 @@ const AddPrompt = () => {
             onChange={(e: any) => handleContent(e.target.value)}
           />
         </div>
-        <span>{content.length + "/" + 3000}</span>
+        <span className="text-white" >{content.length + "/" + 3000}</span>
       </div>
 
       <div className="flex items-center justify-center gap-4 mt-4">

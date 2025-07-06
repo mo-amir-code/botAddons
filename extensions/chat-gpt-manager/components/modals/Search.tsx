@@ -116,7 +116,7 @@ const Search = () => {
         func={handleSearchOnChange}
         placeholder={t("search")}
         child={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-white">
             <span>{t("found")}: </span>
             {searchResults.length}
           </div>
@@ -136,7 +136,7 @@ const Search = () => {
                   href={`/c/${conversation.id}`}
                   target="_self"
                   className="space-y-2">
-                  <div className="flex pr-4 items-center justify-between pb-3 border-b border-white/60">
+                  <div className="flex pr-4 items-center text-white justify-between pb-3 border-b border-white/60">
                     <h3
                       className="text-2xl font-semibold"
                       dangerouslySetInnerHTML={{ __html: conversation.title }}
@@ -154,7 +154,7 @@ const Search = () => {
                       {conversation.messages.map((message, i) => (
                         <li
                           key={i}
-                          className="text-lg smooth-transition hover:shadow-md shadow-white py-1"
+                          className="text-lg smooth-transition hover:shadow-md text-white shadow-white py-1"
                           dangerouslySetInnerHTML={{ __html: message }}
                         />
                       ))}

@@ -228,17 +228,17 @@ const Sidebar = () => {
   }, [openModal])
 
   return (
-    <main className={`antialiased w-full`}>
+    <main className={`antialiased w-full ml-4 mt-4`}>
       <h3 className="text-[12px] p-2 w-full cursor-pointer text-ellipsis font-semibold">
         {t("extensionName")} - {plan.toUpperCase()}
       </h3>
-      <ol className="text-white w-full">
+      <ol className="w-full">
         {features.map(({ slug, title }, idx) => (
           <li
             key={slug}
             onClick={() => setOpenModal(slug as OpenModalType)}
             className="py-2 px-2 rounded-xl flex items-center gap-3 cursor-pointer w-full smooth-transition hover:bg-gray-500/15">
-            <span className="text-white/60">
+            <span className="">
               {(() => {
                 switch (slug) {
                   case "search":

@@ -46,7 +46,7 @@ const AddPrompt = () => {
                 langName: lang.name
               })
             }
-            className={`flex items-center gap-4 text-xl font-semibold ${language == lang.key ? "bg-secondary-bg" : "hover:bg-secondary-bg"} px-3 py-2 rounded-xl cursor-pointer`}>
+            className={`flex items-center text-white gap-4 text-xl font-semibold ${language == lang.key ? "bg-secondary-bg" : "hover:bg-secondary-bg"} px-3 py-2 rounded-xl cursor-pointer`}>
             <div className="w-6 h-auto">
               <img
                 src={lang.icon}

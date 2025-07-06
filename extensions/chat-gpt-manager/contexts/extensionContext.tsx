@@ -47,7 +47,7 @@ const initialState: ExtensionState = {
   allConversations: [],
   extensionLoading: false,
   isUserLoggedIn: false,
-  plan: "basic",
+  plan: "premium",
   userInfo: null,
   chatgptUserInfo: null,
   headerStates: {

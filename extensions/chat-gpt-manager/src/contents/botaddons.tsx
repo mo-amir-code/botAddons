@@ -31,7 +31,7 @@ export const config: PlasmoCSConfig = {
 
 export const getInlineAnchor: PlasmoGetInlineAnchor = async () => ({
   element: document.querySelector(SIDEBAR_ELEMENT_INJECT_ID),
-  insertPosition: "afterbegin"
+  insertPosition: "beforeend",
 })
 
 export const getShadowHostId: PlasmoGetShadowHostId = () => "botaddons-inline"
