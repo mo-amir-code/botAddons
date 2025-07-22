@@ -7,7 +7,7 @@ export { SERVER_ORIGIN }
 const SIDEBAR_ELEMENT_INJECT_ID =
   "nav > aside:nth-of-type(2)"
 const PROMPT_INPUT_ELEMENT_INJECT_ID = "#prompt-textarea > p"
-const PROMPT_LIST_ELEMENT_INJECT_ID = "main form > div"
+const PROMPT_LIST_ELEMENT_INJECT_ID = "main form > div:nth-of-type(2)"
 
 export {
   SIDEBAR_ELEMENT_INJECT_ID,
